@@ -1,0 +1,34 @@
+syntax = "proto2";
+
+option go_package = "./proto";
+
+message WifiDevice {
+  required string bssid = 1;
+  optional Location location = 2;
+
+  message Location {
+    optional int64 latitude = 1;
+    optional int64 longitude = 2;
+    optional int64 unknown_value3 = 3;
+    optional int64 unknown_value4 = 4;
+    optional int64 unknown_value5 = 5;
+    optional int64 unknown_value6 = 6;
+    optional int64 unknown_value7 = 7;
+    optional int64 unknown_value8 = 8;
+    optional int64 unknown_value9 = 9;
+    optional int64 unknown_value10 = 10;
+    optional int64 unknown_value11 = 11;
+    optional int64 unknown_value12 = 12;
+    optional int64 unknown_value21 = 21;
+  }
+}
+
+message AppleWLoc {
+  optional int64 unknown_value0 = 1;
+  repeated WifiDevice wifi_devices = 2;
+  optional int32 unknown_value1 = 3;
+  optional int32 return_single_result = 4;
+  optional string APIName = 5;
+  optional string unknown_value2 = 6;
+}
+
