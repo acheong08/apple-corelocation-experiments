@@ -1,9 +1,9 @@
-syntax = "proto2";
+syntax = "proto3";
 
 option go_package = "./proto";
 
 message WifiDevice {
-  required string bssid = 1;
+  string bssid = 1;
   optional Location location = 2;
 
   message Location {

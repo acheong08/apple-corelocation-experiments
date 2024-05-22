@@ -14,7 +14,7 @@ func QueryBssid(bssids []string, moreResults bool) proto.AppleWLoc {
 	block := proto.AppleWLoc{}
 	block.WifiDevices = make([]*proto.WifiDevice, len(bssids))
 	for i, bssid := range bssids {
-		block.WifiDevices[i] = &proto.WifiDevice{Bssid: &bssid}
+		block.WifiDevices[i] = &proto.WifiDevice{Bssid: bssid}
 	}
 	zero32 := int32(0)
 	one32 := int32(1)
