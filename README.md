@@ -13,7 +13,7 @@ Apple collects information from iPhones such as speed, activity type (walking/dr
 
 **Building**
 
-`go build -o wloc ./main.go`
+`go build ./cmd/wloc`
 
 **Running**
 ```

@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func QueryBssid(bssids []string, moreResults bool) pb.AppleWLoc {
+func QueryBssid(bssids []string, moreResults bool) (*pb.AppleWLoc, error) {
 	block := pb.AppleWLoc{}
 	block.WifiDevices = make([]*pb.WifiDevice, len(bssids))
 	for i, bssid := range bssids {
@@ -27,7 +27,7 @@ func QueryBssid(bssids []string, moreResults bool) pb.AppleWLoc {
 	// Serialize to bytes
 	serializedBlock, err := proto.Marshal(&block)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	data := []byte{0x00, 0x01, 0x00, 0x05}
 	data = append(data, []byte("en_US")...)
@@ -52,7 +52,7 @@ func QueryBssid(bssids []string, moreResults bool) pb.AppleWLoc {
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
@@ -60,12 +60,12 @@ func QueryBssid(bssids []string, moreResults bool) pb.AppleWLoc {
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	block = pb.AppleWLoc{}
+	block.Reset()
 	err = proto.Unmarshal(body[10:], &block)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return block
+	return &block, nil
 }

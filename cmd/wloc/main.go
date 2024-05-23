@@ -21,7 +21,10 @@ func main() {
 		if len(bssids) == 0 {
 			log.Fatalln("BSSIDs cannot be empty")
 		}
-		blocks := lib.QueryBssid(bssids, !less)
+		blocks, err := lib.QueryBssid(bssids, !less)
+		if err != nil {
+			panic(err)
+		}
 		for _, wifi := range blocks.GetWifiDevices() {
 			man, err := ouidb.Lookup(wifi.GetBssid())
 			if err != nil {
