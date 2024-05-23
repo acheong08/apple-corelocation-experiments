@@ -9,7 +9,10 @@ When requesting location services, MacOS/IOS sends a list of nearby BSSIDs to Ap
 
 Apple collects information from iPhones such as speed, activity type (walking/driving/etc), cell provider, and a whole bunch of other data which is used to build their database. This seems to be sent when a phone encounters a BSSID not in the existing database and excludes certain MAC address vendors known not to be stationary (e.g. IOS/MacOS hotspots).
 
+## Usage
+
 **Building**
+
 `go build -o wloc ./main.go`
 
 **Running**
@@ -31,10 +34,10 @@ Output:
 BSSID: xx:xx:xx:xx:xx (Vendor) found at Lat: 0.000 Long: 0.000
 ```
 
-To do:
+## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
 - Chinese data is not available from outside. Attempt to proxy into China and map Chinese population centers based on density of access points
 
-Changelog:
+## Changelog
 - Unknown fields have been found for protobuf: horizontal_accuracy, altitude, vertical_accuracy (among other less useful ones)
 - Added information on collected info

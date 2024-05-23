@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"geostalk/pb"
 	"io"
 	"log"
 	"os"
+	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
 )

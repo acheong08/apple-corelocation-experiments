@@ -2,10 +2,10 @@ package lib
 
 import (
 	"bytes"
-	"geostalk/pb"
 	"io"
 	"log"
 	"net/http"
+	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
 )
