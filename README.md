@@ -7,6 +7,9 @@ I ran `mitmproxy` to find the URL used and later found [iSniff-GPS](https://gith
 
 When requesting location services, MacOS/IOS sends a list of nearby BSSIDs to Apple, which then responds with GPS Long/Lat/Altitude of other nearby BSSIDs. The GPS location of the device is computed locally based on the signal strength of nearby BSSIDs.
 
+Work in progress:
+- Figuring out the values of the protobuf by reverse engineering the `CoreLocationProtobuf` binary (extracted from `/System/Volumes/Preboot/Cryptexes/OS/System/Library/dyld/`). You can see the protobuf parsing code [here](./CoreLocationProtobuf.c)
+
 To do:
 - See whether GPS location of device is uploaded at any point
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
