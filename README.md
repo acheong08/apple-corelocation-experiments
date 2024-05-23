@@ -9,6 +9,28 @@ When requesting location services, MacOS/IOS sends a list of nearby BSSIDs to Ap
 
 Apple collects information from iPhones such as speed, activity type (walking/driving/etc), cell provider, and a whole bunch of other data which is used to build their database. This seems to be sent when a phone encounters a BSSID not in the existing database and excludes certain MAC address vendors known not to be stationary (e.g. IOS/MacOS hotspots).
 
+**Building**
+`go build -o wloc ./main.go`
+
+**Running**
+```
+wloc get - Gets and displays adjacent BSSID locations given an existing BSSID
+Flags:
+
+  -bssid value
+    	One or more known bssid strings
+  -less
+    	Only return requested BSSID location
+```
+
+Multiple bssids:
+`./wloc get -bssid <bssid1> -bssid <bssid2> -bssid <bssid3>...`
+
+Output:
+```
+BSSID: xx:xx:xx:xx:xx (Vendor) found at Lat: 0.000 Long: 0.000
+```
+
 To do:
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
 - Chinese data is not available from outside. Attempt to proxy into China and map Chinese population centers based on density of access points
