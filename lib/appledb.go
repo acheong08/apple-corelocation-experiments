@@ -2,7 +2,6 @@ package lib
 
 import (
 	"bytes"
-	"fmt"
 	"geostalk/pb"
 	"io"
 	"log"
@@ -39,7 +38,6 @@ func QueryBssid(bssids []string, moreResults bool) pb.AppleWLoc {
 	data = append(data, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00)
 	data = append(data, byte(len(serializedBlock)))
 	data = append(data, serializedBlock...)
-	fmt.Printf("%x", len(serializedBlock))
 	// Make HTTP request
 	req, _ := http.NewRequest(http.MethodPost, "https://gs-loc.apple.com/clls/wloc", bytes.NewReader(data))
 	for key, val := range map[string]string{

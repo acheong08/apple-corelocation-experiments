@@ -35,6 +35,6 @@ func main() {
 			break
 		}
 	}
-	b, _ = json.MarshalIndent(wloc, "", " ")
-	fmt.Println(string(b))
+	j, _ := json.MarshalIndent(wloc, "", " ")
+	fmt.Println(string(j))
 }

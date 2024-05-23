@@ -9,17 +9,21 @@ message WifiDevice {
   message Location {
     optional int64 latitude = 1;
     optional int64 longitude = 2;
-    optional int64 unknown_value3 = 3;
+    optional int64 horizontal_accuracy = 3;
     optional int64 unknown_value4 = 4;
-    optional int64 unknown_value5 = 5;
-    optional int64 unknown_value6 = 6;
-    optional int64 unknown_value7 = 7;
-    optional int64 unknown_value8 = 8;
-    optional int64 unknown_value9 = 9;
-    optional int64 unknown_value10 = 10;
-    optional int64 unknown_value11 = 11;
-    optional int64 unknown_value12 = 12;
-    optional int64 unknown_value21 = 21;
+    optional int64 altitude = 5;
+    optional int64 vertical_accuracy = 6;
+    // optional int64 speed = 7;
+    // optional int64 course = 8;
+    // optional int64 timestamp = 9;
+    // optional int64 unknown_context = 10;
+    optional int64 motion_activity_type = 11;
+    optional int64 motion_activity_confidence = 12;
+    // optional int64 provider = 13;
+    // optional int64 floor = 14;
+    // optional int64 unknown15 = 15;
+    // optional int64 motion_vehicle_connected_state_changed = 16;
+    // Ignored 17-31 because they are mostly unused. Very much spyware-esq shit
   }
 }
 
@@ -31,4 +35,3 @@ message AppleWLoc {
   optional string APIName = 5;
   optional string unknown_value2 = 6;
 }
-
