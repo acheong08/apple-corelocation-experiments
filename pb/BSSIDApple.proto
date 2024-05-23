@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./proto";
+option go_package = "./pb";
 
 message WifiDevice {
   string bssid = 1;

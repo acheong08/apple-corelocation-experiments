@@ -2,19 +2,20 @@ package lib
 
 import (
 	"bytes"
-	"geostalk/proto"
+	"fmt"
+	"geostalk/pb"
 	"io"
 	"log"
 	"net/http"
 
-	protobuf "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
-func QueryBssid(bssids []string, moreResults bool) proto.AppleWLoc {
-	block := proto.AppleWLoc{}
-	block.WifiDevices = make([]*proto.WifiDevice, len(bssids))
+func QueryBssid(bssids []string, moreResults bool) pb.AppleWLoc {
+	block := pb.AppleWLoc{}
+	block.WifiDevices = make([]*pb.WifiDevice, len(bssids))
 	for i, bssid := range bssids {
-		block.WifiDevices[i] = &proto.WifiDevice{Bssid: bssid}
+		block.WifiDevices[i] = &pb.WifiDevice{Bssid: bssid}
 	}
 	zero32 := int32(0)
 	one32 := int32(1)
@@ -25,7 +26,7 @@ func QueryBssid(bssids []string, moreResults bool) proto.AppleWLoc {
 		block.ReturnSingleResult = &one32
 	}
 	// Serialize to bytes
-	serializedBlock, err := protobuf.Marshal(&block)
+	serializedBlock, err := proto.Marshal(&block)
 	if err != nil {
 		panic(err)
 	}
@@ -34,10 +35,11 @@ func QueryBssid(bssids []string, moreResults bool) proto.AppleWLoc {
 	data = append(data, 0x00, 0x13)
 	data = append(data, []byte("com.apple.locationd")...)
 	data = append(data, 0x00, 0x0a)
-	data = append(data, []byte("8.1.12B411")...)
+	data = append(data, []byte("14.5.23F79")...)
 	data = append(data, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00)
 	data = append(data, byte(len(serializedBlock)))
 	data = append(data, serializedBlock...)
+	fmt.Printf("%x", len(serializedBlock))
 	// Make HTTP request
 	req, _ := http.NewRequest(http.MethodPost, "https://gs-loc.apple.com/clls/wloc", bytes.NewReader(data))
 	for key, val := range map[string]string{
@@ -62,8 +64,8 @@ func QueryBssid(bssids []string, moreResults bool) proto.AppleWLoc {
 	if err != nil {
 		panic(err)
 	}
-	block = proto.AppleWLoc{}
-	err = protobuf.Unmarshal(body[10:], &block)
+	block = pb.AppleWLoc{}
+	err = proto.Unmarshal(body[10:], &block)
 	if err != nil {
 		panic(err)
 	}
