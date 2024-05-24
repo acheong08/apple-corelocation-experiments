@@ -1,0 +1,21 @@
+syntax = "proto3";
+option go_package = "./pb";
+
+message WifiTile {
+  int64 unknown1 = 1;
+  repeated Region region = 3;
+
+  message Region {
+    repeated Device devices = 2;
+  }
+
+  message Device {
+    int64 bssid = 5;
+    TileLocation entry = 6;
+  }
+
+  message TileLocation {
+    sfixed32 lat = 1;
+    sfixed32 long = 2;
+  }
+}

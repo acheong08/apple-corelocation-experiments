@@ -35,6 +35,33 @@ func main() {
 		fmt.Println(len(blocks.GetWifiDevices()), "number of devices found in area")
 		return nil
 	})
+	tileKey := int64(81644853)
+	tileCmd := cli.NewSubCommand("tile", "Returns a list of BSSIDs and their associated GPS locations")
+	tileCmd.Int64Flag("key", "The tile key used to determine region", &tileKey)
+	tileCmd.Action(func() error {
+		tiles, err := lib.GetTile(tileKey)
+		if err != nil {
+			panic(err)
+		}
+		for _, region := range tiles.GetRegion() {
+			for _, device := range region.GetDevices() {
+				lat := float64(device.GetEntry().GetLat()) * math.Pow10(-7)
+				long := float64(device.GetEntry().GetLong()) * math.Pow10(-7)
+				macHex := fmt.Sprintf("%x", device.GetBssid())
+				// Insert : between every 2 hex values
+				mac := ""
+				for i := 0; i < len(macHex); i += 2 {
+					if i+2 < len(macHex) {
+						mac += macHex[i:i+2] + ":"
+					} else {
+						mac += macHex[i:]
+					}
+				}
+				fmt.Printf("MAC: %s - %f %f\n", mac, lat, long)
+			}
+		}
+		return nil
+	})
 	err := cli.Run()
 	if err != nil {
 		log.Fatal(err)
