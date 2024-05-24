@@ -47,9 +47,7 @@ message AppleWLoc {
   optional int32 unknown_value1 = 3;
   optional int32 num_results = 4;
   optional string APIName = 5;
-  // optional string unknown_value2 = 6;
-	optional int64 unknown_value6 = 6;
-	optional int64 unknown_value7 = 7;
+  optional string unknown_value2 = 6;
 	optional DeviceType device_type = 33;
 }
 
