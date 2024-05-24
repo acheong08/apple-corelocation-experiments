@@ -10,36 +10,29 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func QueryBssid(bssids []string, moreResults bool) (*pb.AppleWLoc, error) {
-	block := pb.AppleWLoc{}
-	block.WifiDevices = make([]*pb.WifiDevice, len(bssids))
-	for i, bssid := range bssids {
-		block.WifiDevices[i] = &pb.WifiDevice{Bssid: bssid}
+func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
+	if applWloc == nil {
+		panic("nil pointer error")
 	}
-	zero32 := int32(0)
-	one32 := int32(1)
-	block.UnknownValue1 = &zero32
-	if moreResults {
-		block.ReturnSingleResult = &zero32
-	} else {
-		block.ReturnSingleResult = &one32
-	}
-	// Serialize to bytes
-	serializedBlock, err := proto.Marshal(&block)
+	serializedWloc, err := proto.Marshal(applWloc)
 	if err != nil {
 		return nil, err
 	}
-	data := []byte{0x00, 0x01, 0x00, 0x05}
-	data = append(data, []byte("en_US")...)
-	data = append(data, 0x00, 0x13)
-	data = append(data, []byte("com.apple.locationd")...)
-	data = append(data, 0x00, 0x0a)
-	data = append(data, []byte("14.5.23F79")...)
-	data = append(data, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00)
-	data = append(data, byte(len(serializedBlock)))
-	data = append(data, serializedBlock...)
+	data := make([]byte, 50)
+	copyMultiByte(data, []byte{0x00, 0x01, 0x00, 0x05}, []byte("en_US"), []byte{0x00, 0x13}, []byte("com.apple.locationd"), []byte{0x00, 0x0a}, []byte("14.5.23F79"), []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00}, []byte{byte(len(serializedWloc))})
+	data = append(data, serializedWloc...)
+
+	return data, nil
+}
+
+func RequestWloc(block *pb.AppleWLoc) (*pb.AppleWLoc, error) {
+	// Serialize to bytes
+	serializedBlock, err := serializeWlocRequest(block)
+	if err != nil {
+		return nil, err
+	}
 	// Make HTTP request
-	req, _ := http.NewRequest(http.MethodPost, "https://gs-loc.apple.com/clls/wloc", bytes.NewReader(data))
+	req, _ := http.NewRequest(http.MethodPost, "https://gs-loc.apple.com/clls/wloc", bytes.NewReader(serializedBlock))
 	for key, val := range map[string]string{
 		"Content-Type":   "application/x-www-form-urlencoded",
 		"Accept":         "*/*",
@@ -62,10 +55,34 @@ func QueryBssid(bssids []string, moreResults bool) (*pb.AppleWLoc, error) {
 	if err != nil {
 		return nil, err
 	}
-	block.Reset()
-	err = proto.Unmarshal(body[10:], &block)
+	respBlock := pb.AppleWLoc{}
+	err = proto.Unmarshal(body[10:], &respBlock)
 	if err != nil {
 		return nil, err
 	}
-	return &block, nil
+	return &respBlock, nil
+}
+
+func QueryBssid(bssids []string, maxResults bool) (*pb.AppleWLoc, error) {
+	zero32 := int32(0)
+	one32 := int32(1)
+	block := pb.AppleWLoc{}
+	block.WifiDevices = make([]*pb.WifiDevice, len(bssids))
+	for i, bssid := range bssids {
+		block.WifiDevices[i] = &pb.WifiDevice{Bssid: bssid}
+	}
+	if maxResults {
+		block.NumResults = &zero32
+	} else {
+		block.NumResults = &one32
+	}
+	return RequestWloc(&block)
+}
+
+func copyMultiByte(dst []byte, srcs ...[]byte) {
+	n := 0
+	for _, src := range srcs {
+		copy(dst[n:], src)
+		n += len(src)
+	}
 }

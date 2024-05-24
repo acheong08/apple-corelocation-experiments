@@ -45,7 +45,15 @@ message AppleWLoc {
   optional int64 unknown_value0 = 1;
   repeated WifiDevice wifi_devices = 2;
   optional int32 unknown_value1 = 3;
-  optional int32 return_single_result = 4;
+  optional int32 num_results = 4;
   optional string APIName = 5;
-  optional string unknown_value2 = 6;
+  // optional string unknown_value2 = 6;
+	optional int64 unknown_value6 = 6;
+	optional int64 unknown_value7 = 7;
+	optional DeviceType device_type = 33;
+}
+
+message DeviceType {
+	string operating_system = 1;
+	string model = 2;
 }
