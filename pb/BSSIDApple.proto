@@ -23,21 +23,21 @@ message WifiDevice {
     optional int64 floor = 14;
     optional int64 unknown15 = 15;
     optional int64 motion_vehicle_connected_state_changed = 16;
-		optional int64 motion_vehicle_connected = 17;
-		optional int64 raw_motion_activity = 18;
-		optional int64 motion_activity = 19;
-		optional int64 dominant_motion_activity = 20;
-		optional int64 course_accuracy = 21;
-		optional int64 speed_accuracy = 22;
-		optional int64 mode_indicator = 23;
-		optional int64 horzUncSemiMaj = 24; // WTF is this
-		optional int64 horzUncSemiMin = 25;
-		optional int64 horzUncSemiMajAz = 26;
-		optional int64 satellite_report = 27;
-		optional int64 is_from_location_controller = 28;
-		optional int64 pipeline_diagnostic_report = 29;
-		optional int64 baro_calibration_indication = 30;
-		optional int64 processing_metadata = 31;
+    optional int64 motion_vehicle_connected = 17;
+    optional int64 raw_motion_activity = 18;
+    optional int64 motion_activity = 19;
+    optional int64 dominant_motion_activity = 20;
+    optional int64 course_accuracy = 21;
+    optional int64 speed_accuracy = 22;
+    optional int64 mode_indicator = 23;
+    optional int64 horzUncSemiMaj = 24; // WTF is this
+    optional int64 horzUncSemiMin = 25;
+    optional int64 horzUncSemiMajAz = 26;
+    optional int64 satellite_report = 27;
+    optional int64 is_from_location_controller = 28;
+    optional int64 pipeline_diagnostic_report = 29;
+    optional int64 baro_calibration_indication = 30;
+    optional int64 processing_metadata = 31;
   }
 }
 
@@ -48,10 +48,11 @@ message AppleWLoc {
   optional int32 num_results = 4;
   optional string APIName = 5;
   optional string unknown_value2 = 6;
-	optional DeviceType device_type = 33;
+  optional int64 unknown_value7 = 7;
+  optional DeviceType device_type = 33;
 }
 
 message DeviceType {
-	string operating_system = 1;
-	string model = 2;
+  string operating_system = 1;
+  string model = 2;
 }
