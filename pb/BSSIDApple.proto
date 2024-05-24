@@ -13,17 +13,31 @@ message WifiDevice {
     optional int64 unknown_value4 = 4;
     optional int64 altitude = 5;
     optional int64 vertical_accuracy = 6;
-    // optional int64 speed = 7;
-    // optional int64 course = 8;
-    // optional int64 timestamp = 9;
-    // optional int64 unknown_context = 10;
+    optional int64 speed = 7;
+    optional int64 course = 8;
+    optional int64 timestamp = 9;
+    optional int64 unknown_context = 10; // Unused
     optional int64 motion_activity_type = 11;
     optional int64 motion_activity_confidence = 12;
-    // optional int64 provider = 13;
-    // optional int64 floor = 14;
-    // optional int64 unknown15 = 15;
-    // optional int64 motion_vehicle_connected_state_changed = 16;
-    // Ignored 17-31 because they are mostly unused. Very much spyware-esq shit
+    optional int64 provider = 13; // Unused from this point on
+    optional int64 floor = 14;
+    optional int64 unknown15 = 15;
+    optional int64 motion_vehicle_connected_state_changed = 16;
+		optional int64 motion_vehicle_connected = 17;
+		optional int64 raw_motion_activity = 18;
+		optional int64 motion_activity = 19;
+		optional int64 dominant_motion_activity = 20;
+		optional int64 course_accuracy = 21;
+		optional int64 speed_accuracy = 22;
+		optional int64 mode_indicator = 23;
+		optional int64 horzUncSemiMaj = 24; // WTF is this
+		optional int64 horzUncSemiMin = 25;
+		optional int64 horzUncSemiMajAz = 26;
+		optional int64 satellite_report = 27;
+		optional int64 is_from_location_controller = 28;
+		optional int64 pipeline_diagnostic_report = 29;
+		optional int64 baro_calibration_indication = 30;
+		optional int64 processing_metadata = 31;
   }
 }
 
