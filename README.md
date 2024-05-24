@@ -9,6 +9,10 @@ When requesting location services, MacOS/IOS sends a list of nearby BSSIDs to Ap
 
 Apple collects information from iPhones such as speed, activity type (walking/driving/etc), cell provider, and a whole bunch of other data which is used to build their database. This seems to be sent when a phone encounters a BSSID not in the existing database and excludes certain MAC address vendors known not to be stationary (e.g. IOS/MacOS hotspots).
 
+## WifiTile
+
+This is a new discovery while running MITM on an iPhone for an extended period of time. An endpoint from Apple takes a "X-tilekey" and returns all the BSSIDs and GPS locations of access points in the given region. Investigation is ongoing. See below for experimental CLI
+
 ## Usage
 
 **Building**
@@ -24,6 +28,12 @@ Flags:
     	One or more known bssid strings
   -less
     	Only return requested BSSID location
+
+wloc tile - Returns a list of BSSIDs and their associated GPS locations
+Flags:
+
+  -key int
+    	The tile key used to determine region (default 81644853)
 ```
 
 Multiple bssids:
