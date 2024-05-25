@@ -9,9 +9,18 @@ When requesting location services, MacOS/IOS sends a list of nearby BSSIDs to Ap
 
 Apple collects information from iPhones such as speed, activity type (walking/driving/etc), cell provider, and a whole bunch of other data which is used to build their database. This seems to be sent when a phone encounters a BSSID not in the existing database and excludes certain MAC address vendors known not to be stationary (e.g. IOS/MacOS hotspots).
 
-## WifiTile
+## Wifi Tile
 
-This is a new discovery while running MITM on an iPhone for an extended period of time. An endpoint from Apple takes a "X-tilekey" and returns all the BSSIDs and GPS locations of access points in the given region. Investigation is ongoing. See below for experimental CLI
+This is a new discovery while running MITM on an iPhone for an extended period of time. An endpoint from Apple takes a "X-tilekey" and returns all the BSSIDs and GPS locations of access points in the given region. Investigation is ongoing. 
+
+Here's an example color coded cluster between keys 81644851 and 81644861 (Cardiff).
+
+<img alt="Map of access points returned by the API" src="https://github.com/acheong08/apple-corelocation-experiments/assets/36258159/a7e3f898-b632-4d0d-a277-bb36281cf578" width=400>
+
+It seems each key denotes a single network of access points. The ones I have discovered are located at university campuses, hospitals, stadiums, among other semi-public spaces. This information seems to be collected from within the networks. The API is labelled as `wifiQualityTileURL` in the code base. As for which field encodes for the quality, I've yet to find out.
+
+
+See below for experimental CLI
 
 ## Usage
 
