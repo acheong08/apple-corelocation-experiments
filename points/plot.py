@@ -1,3 +1,5 @@
+# for i in {xxx..xxx}; do go run ./cmd/wloc tile -key $i | awk '{ print $4,$5 }' > $i.txt; done
+
 import os
 
 import folium
