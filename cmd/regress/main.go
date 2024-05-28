@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"math"
 	"os"
 
+	"github.com/gojuno/go.morton"
 	"github.com/sajari/regression"
 )
 
@@ -45,7 +46,9 @@ func main() {
 func predictMorton(latReg, longReg *regression.Regression, lat, long float64) {
 	latMor, _ := latReg.Predict([]float64{lat})
 	longMor, _ := longReg.Predict([]float64{long})
-	log.Println(latMor, longMor)
+	fmt.Println(latMor, longMor)
+	m := morton.Make64(2, 32)
+	fmt.Println("Tile Key: ", m.Pack(uint64(math.Round(longMor)), uint64(math.Round(latMor))))
 }
 
 func trainRegression(data regression.DataPoints) *regression.Regression {

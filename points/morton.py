@@ -17,6 +17,8 @@ running this with PyPy.
 
 from __future__ import absolute_import
 
+import sys
+
 # Masks
 UINT8 = 0xFF
 UINT16 = 0xFFFF
@@ -902,3 +904,29 @@ def deinterleave_64(n):
         ((d[0] << 24) | (c[0] << 16) | (b[0] << 8) | a[0]) & UINT32,
         ((d[1] << 24) | (c[1] << 16) | (b[1] << 8) | a[1]) & UINT32,
     )
+
+
+def main():
+    if len(sys.argv) < 3:
+        print("morton.py encode/decode morton/<lat long>")
+        exit()
+    if sys.argv[1] == "encode":
+        if len(sys.argv) != 4:
+            print("morton.py encode <lat> <long>")
+            exit()
+        lat = int(sys.argv[2])
+        long = int(sys.argv[3])
+        print(interleave_32(lat, long))
+    elif sys.argv[1] == "decode":
+        if len(sys.argv) != 3:
+            print("morton.py decode <morton>")
+            exit()
+        morton = int(sys.argv[2])
+        print(deinterleave_32(morton))
+    else:
+        print("morton.py encode/decode morton/<lat long>")
+        exit()
+
+
+if __name__ == "__main__":
+    main()
