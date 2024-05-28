@@ -61,7 +61,4 @@ BSSID: xx:xx:xx:xx:xx (Vendor) found at Lat: 0.000 Long: 0.000
 ## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
 - Chinese data is not available from outside. Attempt to proxy into China and map Chinese population centers based on density of access points
-
-## Changelog
-- Unknown fields have been found for protobuf: horizontal_accuracy, altitude, vertical_accuracy (among other less useful ones)
-- Added information on collected info
+- Create UI to select point on map → use wifi tile to find nearest available chunk → use wloc to find all BSSIDs in area.
