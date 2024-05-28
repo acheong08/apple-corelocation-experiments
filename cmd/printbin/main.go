@@ -38,6 +38,6 @@ func main() {
 	j, _ := json.MarshalIndent(&wloc, "", " ")
 	fmt.Println(string(j))
 	if slices.Contains(os.Args, "-hex") {
-		fmt.Printf("%x", b[i:])
+		fmt.Printf("%x\n", b[i:])
 	}
 }

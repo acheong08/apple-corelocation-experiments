@@ -57,6 +57,10 @@ func main() {
 						mac += macHex[i:]
 					}
 				}
+				// manufacturer, err := ouidb.Lookup(mac)
+				// if err != nil {
+				// 	continue
+				// }
 				fmt.Printf("MAC: %s - %f %f\n", mac, lat, long)
 			}
 		}

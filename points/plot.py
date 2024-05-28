@@ -1,6 +1,7 @@
 # for i in {xxx..xxx}; do go run ./cmd/wloc tile -key $i | awk '{ print $4,$5 }' > $i.txt; done
 
 import os
+import statistics
 
 import folium
 
@@ -16,9 +17,15 @@ map = folium.Map(
 
 def plot_points(file, color="green"):
     coords = [line.strip().split() for line in open(file, "r").readlines()]
+    if len(coords) == 0:
+        return
+    # coord is the mean of long/lat
+    coord = [
+        statistics.mean([float(coord[0]) for coord in coords]),
+        statistics.mean([float(coord[1]) for coord in coords]),
+    ]
     # Plot each coordinate as a marker
-    for coord in coords:
-        folium.Marker(coord, icon=folium.Icon(color=color)).add_to(map)
+    folium.Marker(coord, tooltip=file, icon=folium.Icon(color=color)).add_to(map)
 
 
 # List .txt files
