@@ -27,7 +27,9 @@ def plot_points(file, color="green"):
         statistics.mean([float(coord[1]) for coord in coords]),
     ]
     file = int(file[:-4])
-    tooltip = str(morton.deinterleave_32(file))
+    morton_coord = morton.deinterleave_32(file)
+    tooltip = str(morton_coord)
+    print(f"{morton_coord[0], morton_coord[1]} = {coord[0], coord[1]}")
     # Plot each coordinate as a marker
     folium.Marker(coord, tooltip=tooltip, icon=folium.Icon(color=color)).add_to(map)
 

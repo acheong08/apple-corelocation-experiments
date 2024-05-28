@@ -17,7 +17,9 @@ Here's an example color coded cluster between keys 81644851 and 81644861 (Cardif
 
 <img alt="Map of access points returned by the API" src="https://github.com/acheong08/apple-corelocation-experiments/assets/36258159/a7e3f898-b632-4d0d-a277-bb36281cf578" width=400>
 
-It seems each key denotes a single network of access points. The ones I have discovered are located at university campuses, hospitals, stadiums, among other semi-public spaces. This information seems to be collected from within the networks. The API is labelled as `wifiQualityTileURL` in the code base. As for which field encodes for the quality, I've yet to find out.
+It seems each key denotes a single network of access points. This information seems to be collected from within the networks. The API is labelled as `wifiQualityTileURL` in the code base.
+
+The tile key is a [morton encoded number](https://en.wikipedia.org/wiki/Z-order_curve) with what appears to be their own coordinate system (not based on Longitude/Latitude). As someone completely incompetent at math, any help would be nice. Some sample data on the mappings between GPS and decoded tile key has been saved [here](./tileCoordsToGPS.txt).
 
 
 See below for experimental CLI

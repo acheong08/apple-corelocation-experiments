@@ -1,5 +1,5 @@
 map.html
 __pycache__
 venv
-*.txt
+points/*.txt
 *.bin
