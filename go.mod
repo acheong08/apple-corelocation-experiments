@@ -8,4 +8,8 @@ require (
 	google.golang.org/protobuf v1.34.1
 )
 
-require github.com/gojuno/go.morton v0.0.0-20180202102823-94709bd871ce // indirect
+require (
+	github.com/gojuno/go.morton v0.0.0-20180202102823-94709bd871ce // indirect
+	github.com/sajari/regression v1.0.1 // indirect
+	gonum.org/v1/gonum v0.15.0 // indirect
+)
