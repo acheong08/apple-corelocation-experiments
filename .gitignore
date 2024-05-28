@@ -1,4 +1,5 @@
-/map.html
+map.html
+__pycache__
 venv
 *.txt
 *.bin

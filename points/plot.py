@@ -5,6 +5,8 @@ import statistics
 
 import folium
 
+import morton
+
 # Create a Folium map
 map = folium.Map(
     location=[
@@ -24,8 +26,10 @@ def plot_points(file, color="green"):
         statistics.mean([float(coord[0]) for coord in coords]),
         statistics.mean([float(coord[1]) for coord in coords]),
     ]
+    file = int(file[:-4])
+    tooltip = str(morton.deinterleave_32(file))
     # Plot each coordinate as a marker
-    folium.Marker(coord, tooltip=file, icon=folium.Icon(color=color)).add_to(map)
+    folium.Marker(coord, tooltip=tooltip, icon=folium.Icon(color=color)).add_to(map)
 
 
 # List .txt files

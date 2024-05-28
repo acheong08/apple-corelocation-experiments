@@ -1,3 +1,5 @@
+github.com/gojuno/go.morton v0.0.0-20180202102823-94709bd871ce h1:mUc5xcG/z3O9Y0Ic2P0dpoDIM56SVM22HOS91duNaWQ=
+github.com/gojuno/go.morton v0.0.0-20180202102823-94709bd871ce/go.mod h1:kJO7W3iXPkHAnBENPwQxLWhBV9IjKqdhjGOA4Yy/f5E=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/gptlang/oui v0.0.0-20240522122259-08e97ad0b56a h1:Kny/ByrZv8MypCW2AdfqogQUt9tTAWplPREBu3bdeyM=
