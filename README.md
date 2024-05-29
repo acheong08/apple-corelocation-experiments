@@ -27,36 +27,12 @@ It seems each key denotes a single network of access points. This information se
 
 The tile key is a [morton encoded number](https://en.wikipedia.org/wiki/Z-order_curve) with what appears to be their own coordinate system (not based on GPS). I have used linear regression to successfully convert between GPS (long/lat) to their coordinates ([code](./cmd/morton/main.go)).
 
-## Usage
+## Interactive demo
 
-**Building**
+`go run ./cmd/demo-api` and head to http://127.0.0.1:1974. 
 
-`go build ./cmd/wloc`
+Click on any spot on the map and wait for a bit. It will plot nearby devices in a few seconds.
 
-**Running**
-```
-wloc get - Gets and displays adjacent BSSID locations given an existing BSSID
-Flags:
-
-  -bssid value
-    	One or more known bssid strings
-  -less
-    	Only return requested BSSID location
-
-wloc tile - Returns a list of BSSIDs and their associated GPS locations
-Flags:
-
-  -key int
-    	The tile key used to determine region (default 81644853)
-```
-
-Multiple bssids:
-`./wloc get -bssid <bssid1> -bssid <bssid2> -bssid <bssid3>...`
-
-Output:
-```
-BSSID: xx:xx:xx:xx:xx (Vendor) found at Lat: 0.000 Long: 0.000
-```
 
 ## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data

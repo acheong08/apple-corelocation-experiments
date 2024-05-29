@@ -32,24 +32,44 @@
         attribution:
           '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }).addTo(map);
-			function plotPoint(p) {
-				L.marker([p.y, p.x]).addTo(map).bindPopup(p.id);
-			}
+      function plotPoint(p) {
+        L.marker([p.y, p.x]).addTo(map).bindPopup(p.id);
+      }
+      let blocker = false;
       async function onMapClick(e) {
+        if (blocker) return;
+        blocker = true;
+        // Create a loading dialog
+        const loading = document.createElement("dialog");
+        loading.innerHTML = "Loading...";
+        document.body.appendChild(loading);
+        loading.showModal();
+
+        const cleanUp = () => {
+          blocker = false;
+          loading.remove();
+        };
+
         const lat = e.latlng.lat;
         const long = e.latlng.lng;
-        const resp = await (
-          await fetch("/gps", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ lat, long }),
-          })
-        ).json();
+        let resp = await fetch("/gps", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ lat, long }),
+        });
+        // Check status code
+        if (!resp.ok) {
+          cleanUp();
+          alert("Error: " + resp.status);
+          return;
+        }
+        resp = await resp.json();
         console.log(resp);
-				plotPoint(resp.closest)
-				resp.points.forEach(plotPoint)
+        plotPoint(resp.closest);
+        resp.points.forEach(plotPoint);
+        cleanUp();
       }
       map.on("click", onMapClick);
     </script>

@@ -107,5 +107,5 @@ func main() {
 			"points":  points,
 		})
 	})
-	e.Logger.Fatal(e.Start(":1974"))
+	e.Logger.Fatal(e.Start("127.0.0.1:1974"))
 }
