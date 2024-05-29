@@ -24,7 +24,7 @@ func main() {
 	decode := cli.NewSubCommand("decode", "Decode morton tile key to GPS coordinates")
 	decode.Int64Flag("tile", "tile key", &tileKey)
 	decode.Action(func() error {
-		log.Println(morton.UnpackAppleCoord(tileKey))
+		log.Println(morton.Unpack(tileKey))
 		lat, long := morton.Decode(tileKey)
 		fmt.Println(lat, long)
 		return nil
