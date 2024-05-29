@@ -31,3 +31,8 @@ func PredictAppleCoord(lat float64, long float64) (mLat, mLong int) {
 func PackAppleCoord(mLat, mLong int) (tileKey int64) {
 	return m.Pack(uint64(mLong), uint64(mLat))
 }
+
+func UnpackAppleCoord(tileKey int64) (mLat, mLong int) {
+	mLongLat := m.Unpack(tileKey)
+	return int(mLongLat[1]), int(mLongLat[0])
+}
