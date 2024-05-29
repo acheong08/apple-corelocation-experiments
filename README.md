@@ -3,6 +3,8 @@ Reference: https://www.cs.umd.edu/~dml/papers/wifi-surveillance-sp24.pdf
 
 How it works is explained in Apple's disclosure to congress: https://web.archive.org/web/20101208141602/https://markey.house.gov/docs/applemarkeybarton7-12-10.pdf
 
+Feel free to poke around the code. Most relevant part is the [protobuf](./pb) and the stuff in [lib](./lib). Experimental CLIs found in [cmd](./cmd), the main ones being the demo api and `wloc`.
+
 # WLOC
 
 URL: https://gs-loc.apple.com/clls/wloc
@@ -27,7 +29,7 @@ It seems each key denotes a single network of access points. This information se
 
 The tile key is a [morton encoded number](https://en.wikipedia.org/wiki/Z-order_curve) with what appears to be their own coordinate system (not based on GPS). I have used linear regression to successfully convert between GPS (long/lat) to their coordinates ([code](./cmd/morton/main.go)).
 
-Update: Linear regression is not the correct solution. It gets worse as you go north/south.
+Update: Linear regression is not the correct solution. It gets worse as you go north/south. It might also not be morton encoding but something similar
 
 Seeking help: Some example data can be found at [tileKeyPair.json](./tileKeyPair.json) which pairs lat/long with tileKeys. If anyone knows what sort of encoding is being used, please open an issue and let me know
 
