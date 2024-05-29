@@ -2,8 +2,8 @@ package lib
 
 import (
 	"bytes"
+	"errors"
 	"io"
-	"log"
 	"net/http"
 	"wloc/pb"
 
@@ -49,7 +49,7 @@ func RequestWloc(block *pb.AppleWLoc) (*pb.AppleWLoc, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
-		log.Fatalf("Request failed with status code %d", resp.StatusCode)
+		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

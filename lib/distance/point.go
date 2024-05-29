@@ -13,7 +13,7 @@ func (p *Point) Distance(d Point) float64 {
 
 func Closest(point Point, points []Point) Point {
 	var closest Point
-	var closestDistance float64
+	var closestDistance float64 = math.MaxFloat64
 	for _, p := range points {
 		distance := point.Distance(p)
 		if distance < closestDistance {

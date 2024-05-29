@@ -14,6 +14,10 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func init() {
+	log.SetFlags(log.Lshortfile)
+}
+
 func main() {
 	e := echo.New()
 	e.POST("/gps", func(c echo.Context) error {
@@ -25,10 +29,12 @@ func main() {
 		// Parse as float64
 		lat, err := strconv.ParseFloat(sLat, 64)
 		if err != nil {
+			log.Println("Failed to parse latitude")
 			return c.String(400, "Bad Request")
 		}
 		long, err := strconv.ParseFloat(sLong, 64)
 		if err != nil {
+			log.Println("Failed to parse longitude")
 			return c.String(400, "Bad Request")
 		}
 		mLat, mLong := morton.PredictAppleCoord(lat, long)
@@ -49,6 +55,9 @@ func main() {
 		var points []distance.Point
 		for _, r := range tile.GetRegion() {
 			for _, d := range r.GetDevices() {
+				if d == nil || d.GetBssid() == 0 {
+					continue
+				}
 				points = append(points, distance.Point{
 					Id: mac.Decode(d.GetBssid()),
 					Y:  float64(d.GetEntry().GetLat()) * math.Pow10(-7),
@@ -63,9 +72,10 @@ func main() {
 		}, points)
 		// Try to get closer via the wloc API
 		for {
+			log.Println(closest)
 			devices, err := lib.QueryBssid([]string{closest.Id}, true)
 			if err != nil {
-				log.Println(err)
+				log.Println("Failed to find BSSID", err)
 				return c.String(500, "Internal Server Error")
 			}
 			if len(devices.GetWifiDevices()) == 0 {
