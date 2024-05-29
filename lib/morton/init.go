@@ -3,14 +3,14 @@ package morton
 import (
 	_ "embed"
 	"encoding/json"
-	"io"
+	"log"
 	"strings"
 
 	"github.com/sajari/regression"
 )
 
-//go:embed tileCoordsToGPS.jsonl
-var tileCoordsJsonl string
+//go:embed tileCoordsToGPS.json
+var tileCoordsJson string
 var tileCoords []tileCoordEntry
 
 var (
@@ -21,16 +21,11 @@ var (
 )
 
 func init() {
-	dec := json.NewDecoder(strings.NewReader(tileCoordsJsonl))
-	for {
-		var entry tileCoordEntry
-		if err := dec.Decode(&entry); err != nil {
-			if err == io.EOF {
-				break
-			}
-			panic(err)
-		}
-		tileCoords = append(tileCoords, entry)
+	dec := json.NewDecoder(strings.NewReader(tileCoordsJson))
+	// Decode JSON array
+	err := dec.Decode(&tileCoords)
+	if err != nil {
+		panic(err)
 	}
 	train(mortonToGpsLat, func(i int) (float64, float64) {
 		return tileCoords[i].GPS[0], float64(tileCoords[i].Morton[0])
@@ -44,6 +39,11 @@ func init() {
 	train(gpsToMortonLong, func(i int) (float64, float64) {
 		return float64(tileCoords[i].Morton[1]), tileCoords[i].GPS[1]
 	})
+	// Log the accuracy
+	log.Println("Morton to GPS Latitude R^2:", mortonToGpsLat.R2)
+	log.Println("Morton to GPS Longitude R^2:", mortonToGpsLong.R2)
+	log.Println("GPS to Morton Latitude R^2:", gpsToMortonLat.R2)
+	log.Println("GPS to Morton Longitude R^2:", gpsToMortonLong.R2)
 }
 
 func train(reg *regression.Regression, dataPoint func(i int) (float64, float64)) {

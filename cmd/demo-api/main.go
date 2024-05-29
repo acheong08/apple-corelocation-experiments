@@ -26,10 +26,20 @@ type gps struct {
 	Long float64 `json:"long"`
 }
 
+type tileCoords struct {
+	Coord  []float64 `json:"coord"`
+	Morton []int     `json:"morton"`
+}
+
+var tileCache = make([]tileCoords, 0)
+
 func main() {
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
 		return c.HTML(200, index)
+	})
+	e.GET("/cache", func(c echo.Context) error {
+		return c.JSON(200, tileCache)
 	})
 	e.POST("/gps", func(c echo.Context) error {
 		var g gps
@@ -73,6 +83,10 @@ func main() {
 			Y:  g.Lat,
 			X:  g.Long,
 		}, points)
+		tileCache = append(tileCache, tileCoords{
+			Coord:  []float64{closest.Y, closest.X},
+			Morton: []int{mLat, mLong},
+		})
 		// Try to get closer via the wloc API
 		for {
 			devices, err := lib.QueryBssid([]string{closest.Id}, true)
