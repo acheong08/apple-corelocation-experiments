@@ -70,11 +70,13 @@ func main() {
 			tile, err = lib.GetTile(morton.PackAppleCoord(mLat, mLong))
 			if err != nil {
 				tile = nil
+				log.Println(err)
 				continue
 			}
 			if tile == nil {
 				return c.String(500, "Internal Server Error")
 			}
+			points = make([]distance.Point, 0)
 			for _, r := range tile.GetRegion() {
 				for _, d := range r.GetDevices() {
 					if d == nil || d.GetBssid() == 0 {
@@ -100,6 +102,9 @@ func main() {
 				break
 			}
 		}
+		if tile == nil {
+			return c.String(500, "Internal Server Error")
+		}
 
 		tileCache = append(tileCache, tileCoords{
 			Coord:  []float64{closest.Y, closest.X},
@@ -109,7 +114,8 @@ func main() {
 		for {
 			devices, err := lib.QueryBssid([]string{closest.Id}, true)
 			if err != nil {
-				log.Println("Failed to find BSSID", err)
+				log.Println(closest)
+				log.Println("Failed to find BSSID", closest.Id)
 				return c.String(500, "Internal Server Error")
 			}
 			if len(devices.GetWifiDevices()) == 0 {
