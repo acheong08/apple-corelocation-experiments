@@ -27,7 +27,9 @@ It seems each key denotes a single network of access points. This information se
 
 The tile key is a [morton encoded number](https://en.wikipedia.org/wiki/Z-order_curve) with what appears to be their own coordinate system (not based on GPS). I have used linear regression to successfully convert between GPS (long/lat) to their coordinates ([code](./cmd/morton/main.go)).
 
-Update: Linear regression is not the correct solution. It gets worse as you go north/south. Seeking help.
+Update: Linear regression is not the correct solution. It gets worse as you go north/south.
+
+Seeking help: Some example data can be found at [tileKeyPair.json](./tileKeyPair.json) which pairs lat/long with tileKeys. If anyone knows what sort of encoding is being used, please open an issue and let me know
 
 ## Interactive demo
 

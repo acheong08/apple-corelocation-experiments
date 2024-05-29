@@ -30,7 +30,7 @@ type gps struct {
 
 type tileCoords struct {
 	Coord  []float64 `json:"coord"`
-	Morton int64     `json:"morton"`
+	Morton int64     `json:"tileKey"`
 }
 
 var tileCache = make([]tileCoords, 0)
