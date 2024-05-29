@@ -21,3 +21,13 @@ func Encode(lat float64, long float64) (tileKey int64) {
 	tileKey = m.Pack(uint64(math.Round(mLong)), uint64(math.Round(mLat)))
 	return tileKey
 }
+
+func PredictAppleCoord(lat float64, long float64) (mLat, mLong int) {
+	fMLat, _ := gpsToMortonLat.Predict([]float64{lat})
+	fMLong, _ := gpsToMortonLong.Predict([]float64{long})
+	return int(math.Round(fMLat)), int(math.Round(fMLong))
+}
+
+func PackAppleCoord(mLat, mLong int) (tileKey int64) {
+	return m.Pack(uint64(mLong), uint64(mLat))
+}

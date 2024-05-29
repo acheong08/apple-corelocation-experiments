@@ -4,11 +4,11 @@ import "math"
 
 type Point struct {
 	Id   string
-	x, y float64
+	X, Y float64
 }
 
 func (p *Point) Distance(d Point) float64 {
-	return math.Abs(p.x-d.x) + math.Abs(p.y-d.y)
+	return math.Abs(p.X-d.X) + math.Abs(p.Y-d.Y)
 }
 
 func Closest(point Point, points []Point) Point {

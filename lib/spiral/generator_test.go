@@ -6,7 +6,7 @@ import (
 )
 
 func TestSpiral(t *testing.T) {
-	s := spiral.NewSpiral(0)
+	s := spiral.NewSpiral(0, 0)
 	points := make([]struct{ x, y int }, 25)
 
 	// Fill the array with points

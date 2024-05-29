@@ -2,13 +2,15 @@ package spiral
 
 type spiral struct {
 	x, y, dx, dy int
-	offset       int
+	offsetX      int
+	offsetY      int
 }
 
-func NewSpiral(offset int) *spiral {
+func NewSpiral(offsetX, offsetY int) *spiral {
 	return &spiral{
-		offset: offset,
-		dy:     -1,
+		offsetX: offsetX,
+		offsetY: offsetY,
+		dy:      -1,
 	}
 }
 
@@ -19,5 +21,5 @@ func (s *spiral) Next() (int, int) {
 	}
 	s.x += s.dx
 	s.y += s.dy
-	return x + s.offset, y + s.offset
+	return x + s.offsetX, y + s.offsetY
 }
