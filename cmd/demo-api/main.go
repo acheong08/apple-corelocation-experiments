@@ -30,7 +30,7 @@ type gps struct {
 
 type tileCoords struct {
 	Coord  []float64 `json:"coord"`
-	Morton []int     `json:"morton"`
+	Morton int64     `json:"morton"`
 }
 
 var tileCache = make([]tileCoords, 0)
@@ -98,7 +98,7 @@ func main() {
 			avgLong /= int32(avgCount)
 			tileCache = append(tileCache, tileCoords{
 				Coord:  []float64{float64(avgLat) * math.Pow10(-7), float64(avgLong) * math.Pow10(-7)},
-				Morton: []int{int(mLat), int(mLong)},
+				Morton: morton.PackAppleCoord(mLat, mLong),
 			})
 
 			closest = distance.Closest(distance.Point{
