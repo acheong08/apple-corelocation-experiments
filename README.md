@@ -27,6 +27,8 @@ It seems each key denotes a single network of access points. This information se
 
 The tile key is a [morton encoded number](https://en.wikipedia.org/wiki/Z-order_curve) with what appears to be their own coordinate system (not based on GPS). I have used linear regression to successfully convert between GPS (long/lat) to their coordinates ([code](./cmd/morton/main.go)).
 
+Update: Linear regression is not the correct solution. It gets worse as you go north/south. Seeking help.
+
 ## Interactive demo
 
 `go run ./cmd/demo-api` and head to http://127.0.0.1:1974. 
