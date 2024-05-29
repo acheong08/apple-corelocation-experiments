@@ -1,11 +1,9 @@
 # for i in {xxx..xxx}; do go run ./cmd/wloc tile -key $i | awk '{ print $4,$5 }' > $i.txt; done
 
-import json
 import os
 import statistics
 
 import folium
-import morton
 
 # Create a Folium map
 map = folium.Map(
@@ -27,11 +25,8 @@ def plot_points(file, color="green"):
         statistics.mean([float(coord[1]) for coord in coords]),
     ]
     file = int(file[:-4])
-    morton_coord = morton.deinterleave_32(file)
-    tooltip = str(morton_coord)
-    print(json.dumps({"coord": coord, "morton": morton_coord}))
     # Plot each coordinate as a marker
-    folium.Marker(coord, tooltip=tooltip, icon=folium.Icon(color=color)).add_to(map)
+    folium.Marker(coord, icon=folium.Icon(color=color)).add_to(map)
 
 
 # List .txt files
