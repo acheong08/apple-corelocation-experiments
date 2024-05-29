@@ -48,6 +48,12 @@ func main() {
 				lat := float64(device.GetEntry().GetLat()) * math.Pow10(-7)
 				long := float64(device.GetEntry().GetLong()) * math.Pow10(-7)
 				macHex := fmt.Sprintf("%x", device.GetBssid())
+				if len(macHex) != 12 {
+					// Fill it up to 12 with 0s in front
+					for i := 0; i < 13-len(macHex); i++ {
+						macHex = "0" + macHex
+					}
+				}
 				// Insert : between every 2 hex values
 				mac := ""
 				for i := 0; i < len(macHex); i += 2 {
