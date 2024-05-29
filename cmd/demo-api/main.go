@@ -77,6 +77,8 @@ func main() {
 				return c.String(500, "Internal Server Error")
 			}
 			points = make([]distance.Point, 0)
+			var avgLat, avgLong int32
+			var avgCount int
 			for _, r := range tile.GetRegion() {
 				for _, d := range r.GetDevices() {
 					if d == nil || d.GetBssid() == 0 {
@@ -87,8 +89,18 @@ func main() {
 						Y:  float64(d.GetEntry().GetLat()) * math.Pow10(-7),
 						X:  float64(d.GetEntry().GetLong()) * math.Pow10(-7),
 					})
+					avgLat += d.GetEntry().GetLat()
+					avgLong += d.GetEntry().GetLong()
+					avgCount++
 				}
 			}
+			avgLat /= int32(avgCount)
+			avgLong /= int32(avgCount)
+			tileCache = append(tileCache, tileCoords{
+				Coord:  []float64{float64(avgLat) * math.Pow10(-7), float64(avgLong) * math.Pow10(-7)},
+				Morton: []int{int(mLat), int(mLong)},
+			})
+
 			closest = distance.Closest(distance.Point{
 				Id: "click",
 				Y:  g.Lat,
@@ -106,10 +118,6 @@ func main() {
 			return c.String(500, "Internal Server Error")
 		}
 
-		tileCache = append(tileCache, tileCoords{
-			Coord:  []float64{closest.Y, closest.X},
-			Morton: []int{mLat, mLong},
-		})
 		// Try to get closer via the wloc API
 		for {
 			devices, err := lib.QueryBssid([]string{closest.Id}, true)
