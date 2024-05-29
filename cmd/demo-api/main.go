@@ -60,14 +60,14 @@ func main() {
 		var points []distance.Point
 		for i := 0; i < 20; i++ {
 			mLat, mLong = sp.Next()
-			lat, long := morton.Decode(morton.PackAppleCoord(mLat, mLong))
+			lat, long := morton.Decode(morton.Pack(mLat, mLong))
 			respPoints = append(respPoints, distance.Point{
 				Id: fmt.Sprintf("Spiral %d", i),
 				Y:  lat,
 				X:  long,
 			})
 			log.Println(lat, long)
-			tile, err = lib.GetTile(morton.PackAppleCoord(mLat, mLong))
+			tile, err = lib.GetTile(morton.Pack(mLat, mLong))
 			if err != nil {
 				tile = nil
 				log.Println(err)
@@ -98,7 +98,7 @@ func main() {
 			avgLong /= int32(avgCount)
 			tileCache = append(tileCache, tileCoords{
 				Coord:  []float64{float64(avgLat) * math.Pow10(-7), float64(avgLong) * math.Pow10(-7)},
-				Morton: morton.PackAppleCoord(mLat, mLong),
+				Morton: morton.Pack(mLat, mLong),
 			})
 
 			closest = distance.Closest(distance.Point{

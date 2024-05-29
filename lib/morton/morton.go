@@ -28,11 +28,38 @@ func PredictAppleCoord(lat float64, long float64) (mLat, mLong int) {
 	return int(math.Round(fMLat)), int(math.Round(fMLong))
 }
 
-func PackAppleCoord(mLat, mLong int) (tileKey int64) {
-	return m.Pack(uint64(mLong), uint64(mLat))
+func Pack(mLat, mLong int) (tileKey int64) {
+	row := mLat
+	column := mLong
+	result := int64(powerOfTwo[level<<1])
+	for i := 0; i < level; i++ {
+		if column&0x1 != 0 {
+			result += int64(powerOfTwo[2*i])
+		}
+		if row&0x1 != 0 {
+			result += int64(powerOfTwo[2*i+1])
+		}
+		column = column >> 1
+		row = row >> 1
+	}
+	return result
 }
 
-func UnpackAppleCoord(tileKey int64) (mLat, mLong int) {
-	mLongLat := m.Unpack(tileKey)
-	return int(mLongLat[1]), int(mLongLat[0])
+func Unpack(tileKey int64) (mLat, mLong int) {
+	level := 0
+	row := 0
+	column := 0
+	quadKey := tileKey
+	for quadKey > 1 {
+		mask := 1 << level
+		if quadKey&0x1 != 0 {
+			column |= mask
+		}
+		if quadKey&0x2 != 0 {
+			row |= mask
+		}
+		level++
+		quadKey = (quadKey - (quadKey & 0x3)) / 4
+	}
+	return row, column
 }
