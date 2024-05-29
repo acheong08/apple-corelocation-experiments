@@ -3,8 +3,9 @@ package distance
 import "math"
 
 type Point struct {
-	Id   string
-	X, Y float64
+	Id string  `json:"id"`
+	X  float64 `json:"x"`
+	Y  float64 `json:"y"`
 }
 
 func (p *Point) Distance(d Point) float64 {

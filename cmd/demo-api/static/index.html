@@ -32,8 +32,24 @@
         attribution:
           '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       }).addTo(map);
-      function onMapClick(e) {
-        alert("You clicked the map at " + e.latlng);
+			function plotPoint(p) {
+				L.marker([p.y, p.x]).addTo(map).bindPopup(p.id);
+			}
+      async function onMapClick(e) {
+        const lat = e.latlng.lat;
+        const long = e.latlng.lng;
+        const resp = await (
+          await fetch("/gps", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ lat, long }),
+          })
+        ).json();
+        console.log(resp);
+				plotPoint(resp.closest)
+				resp.points.forEach(plotPoint)
       }
       map.on("click", onMapClick);
     </script>
