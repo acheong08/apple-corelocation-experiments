@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"wloc/lib"
@@ -11,6 +12,7 @@ import (
 	"wloc/pb"
 
 	_ "embed"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -49,40 +51,56 @@ func main() {
 		if g.Lat < -90 || g.Lat > 90 || g.Long < -180 || g.Long > 180 || g.Lat == 0 || g.Long == 0 {
 			return c.String(400, "Bad Request")
 		}
+		respPoints := make([]distance.Point, 0)
 		mLat, mLong := morton.PredictAppleCoord(g.Lat, g.Long)
 		sp := spiral.NewSpiral(mLat, mLong)
 		var tile *pb.WifiTile
 		var err error
+		var closest distance.Point
+		var points []distance.Point
 		for i := 0; i < 20; i++ {
 			mLat, mLong = sp.Next()
+			lat, long := morton.Decode(morton.PackAppleCoord(mLat, mLong))
+			respPoints = append(respPoints, distance.Point{
+				Id: fmt.Sprintf("Spiral %d", i),
+				Y:  lat,
+				X:  long,
+			})
+			log.Println(lat, long)
 			tile, err = lib.GetTile(morton.PackAppleCoord(mLat, mLong))
 			if err != nil {
 				tile = nil
 				continue
 			}
-			break
-		}
-		if tile == nil {
-			return c.String(500, "Internal Server Error")
-		}
-		var points []distance.Point
-		for _, r := range tile.GetRegion() {
-			for _, d := range r.GetDevices() {
-				if d == nil || d.GetBssid() == 0 {
-					continue
+			if tile == nil {
+				return c.String(500, "Internal Server Error")
+			}
+			for _, r := range tile.GetRegion() {
+				for _, d := range r.GetDevices() {
+					if d == nil || d.GetBssid() == 0 {
+						continue
+					}
+					points = append(points, distance.Point{
+						Id: mac.Decode(d.GetBssid()),
+						Y:  float64(d.GetEntry().GetLat()) * math.Pow10(-7),
+						X:  float64(d.GetEntry().GetLong()) * math.Pow10(-7),
+					})
 				}
-				points = append(points, distance.Point{
-					Id: mac.Decode(d.GetBssid()),
-					Y:  float64(d.GetEntry().GetLat()) * math.Pow10(-7),
-					X:  float64(d.GetEntry().GetLong()) * math.Pow10(-7),
-				})
+			}
+			closest = distance.Closest(distance.Point{
+				Id: "click",
+				Y:  g.Lat,
+				X:  g.Long,
+			}, []distance.Point{closest, distance.Closest(distance.Point{
+				Id: "click",
+				Y:  g.Lat,
+				X:  g.Long,
+			}, points)})
+			if i >= 9 {
+				break
 			}
 		}
-		closest := distance.Closest(distance.Point{
-			Id: "click",
-			Y:  g.Lat,
-			X:  g.Long,
-		}, points)
+
 		tileCache = append(tileCache, tileCoords{
 			Coord:  []float64{closest.Y, closest.X},
 			Morton: []int{mLat, mLong},
@@ -107,7 +125,7 @@ func main() {
 				}
 			}
 			newClosest := distance.Closest(distance.Point{
-				Id: "click",
+				Id: "TILE",
 				Y:  g.Lat,
 				X:  g.Long,
 			}, points)
@@ -116,9 +134,11 @@ func main() {
 			}
 			closest = newClosest
 		}
+
+		respPoints = append(respPoints, points...)
 		return c.JSON(200, map[string]any{
 			"closest": closest,
-			"points":  points,
+			"points":  respPoints,
 		})
 	})
 	e.Logger.Fatal(e.Start("127.0.0.1:1974"))

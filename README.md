@@ -33,6 +33,16 @@ The tile key is a [morton encoded number](https://en.wikipedia.org/wiki/Z-order_
 
 Click on any spot on the map and wait for a bit. It will plot nearby devices in a few seconds.
 
+How it works: It first uses a spiral pattern to find the closest valid tile (limited to 20 to fail fast). Once it finds a starting point, it finds all the nearby access points using the WLOC API. It then takes the closest access point and tries again until there are no closer access points.
+
+Limitations: It doesn't seem to work in some countries and since it relies on the tile API as a seed, it only works for places with large semi-public WI-FI networks. Not all networks available from WLOC can be found in tiles.
+
+Possible improvements: Right now, the code gets stuck when there is an obstacle between the closest tile and wanted location because it takes the closest path. Instead, we can try to follow roads and use an algorithm like A* to find our way to the desired location.
+
+### Impact
+
+In the `umd.edu` paper, they were forced to brute force BSSIDs over the course of 2 years to slowly build up their network. This relies on chance and isolated blocks might not be easily found. With the discovery of the tile API, we are able to create a starting point anywhere in the world and begin exploring from there (given the parameters for which an AP is available over that API). I have tested multiple regions (e.g. Gaza, London, Los Angeles) and it seems to work in most populated cities. However, there appears to be less available networks in certain countries (e.g. Brazil), possibly due to privacy laws.
+
 
 ## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
