@@ -48,52 +48,43 @@ func main() {
 		var points []distance.Point
 		for i := 0; i < 20; i++ {
 			mLat, mLong = sp.Next()
-			lat, long := morton.Decode(morton.Pack(mLat, mLong))
 
-			log.Println(lat, long)
 			tile, err = lib.GetTile(morton.Pack(mLat, mLong))
 			if err != nil {
 				tile = nil
 				log.Println(err)
 				continue
 			}
-			if tile == nil {
-				return c.String(500, "Internal Server Error")
-			}
-			points = make([]distance.Point, 0)
-			var avgLat, avgLong int32
-			var avgCount int
-			for _, r := range tile.GetRegion() {
-				for _, d := range r.GetDevices() {
-					if d == nil || d.GetBssid() == 0 {
-						continue
-					}
-					points = append(points, distance.Point{
-						Id: mac.Decode(d.GetBssid()),
-						Y:  float64(d.GetEntry().GetLat()) * math.Pow10(-7),
-						X:  float64(d.GetEntry().GetLong()) * math.Pow10(-7),
-					})
-					avgLat += d.GetEntry().GetLat()
-					avgLong += d.GetEntry().GetLong()
-					avgCount++
-				}
-			}
 
-			closest = distance.Closest(distance.Point{
-				Id: "click",
-				Y:  g.Lat,
-				X:  g.Long,
-			}, []distance.Point{closest, distance.Closest(distance.Point{
-				Id: "click",
-				Y:  g.Lat,
-				X:  g.Long,
-			}, points)})
 			break
 		}
 		if tile == nil {
 			return c.String(500, "Internal Server Error")
 		}
+		points = make([]distance.Point, 0)
+		var avgLat, avgLong int32
+		var avgCount int
+		for _, r := range tile.GetRegion() {
+			for _, d := range r.GetDevices() {
+				if d == nil || d.GetBssid() == 0 {
+					continue
+				}
+				points = append(points, distance.Point{
+					Id: mac.Decode(d.GetBssid()),
+					Y:  float64(d.GetEntry().GetLat()) * math.Pow10(-7),
+					X:  float64(d.GetEntry().GetLong()) * math.Pow10(-7),
+				})
+				avgLat += d.GetEntry().GetLat()
+				avgLong += d.GetEntry().GetLong()
+				avgCount++
+			}
+		}
 
+		closest = distance.Closest(distance.Point{
+			Id: "click",
+			Y:  g.Lat,
+			X:  g.Long,
+		}, points)
 		// Try to get closer via the wloc API
 		for {
 			devices, err := lib.QueryBssid([]string{closest.Id}, true)

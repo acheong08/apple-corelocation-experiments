@@ -1,14 +1,11 @@
 package morton
 
 import (
-	"log"
-
 	"github.com/buckhx/tiles"
 )
 
 func Decode(tileKey int64) (lat float64, long float64) {
 	mLat, mLong := Unpack(tileKey)
-	log.Println(mLat, mLong)
 	t := tiles.Tile{
 		Y: mLat,
 		X: mLong,
