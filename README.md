@@ -41,9 +41,7 @@ Click on any spot on the map and wait for a bit. It will plot nearby devices in 
 
 How it works: It first uses a spiral pattern to find the closest valid tile (limited to 20 to fail fast). Once it finds a starting point, it finds all the nearby access points using the WLOC API. It then takes the closest access point and tries again until there are no closer access points.
 
-Limitations: It doesn't seem to work in some countries and since it relies on the tile API as a seed, it only works for places with large semi-public WI-FI networks. Not all networks available from WLOC can be found in tiles.
-
-Possible improvements: Right now, the code gets stuck when there is an obstacle between the closest tile and wanted location because it takes the closest path. Instead, we can try to follow roads and use an algorithm like A* to find our way to the desired location.
+Update: All issues have been resolved curtesy of [buckhx](https://github.com/buckhx/tiles). Thank you random Redditor from 8 years ago.
 
 ### Impact
 
