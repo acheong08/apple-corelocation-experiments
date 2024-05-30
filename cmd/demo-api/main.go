@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"wloc/lib"
@@ -28,20 +27,10 @@ type gps struct {
 	Long float64 `json:"long"`
 }
 
-type tileCoords struct {
-	Coord  []float64 `json:"coord"`
-	Morton int64     `json:"tileKey"`
-}
-
-var tileCache = make([]tileCoords, 0)
-
 func main() {
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
 		return c.HTML(200, index)
-	})
-	e.GET("/cache", func(c echo.Context) error {
-		return c.JSON(200, tileCache)
 	})
 	e.POST("/gps", func(c echo.Context) error {
 		var g gps
@@ -51,8 +40,7 @@ func main() {
 		if g.Lat < -90 || g.Lat > 90 || g.Long < -180 || g.Long > 180 || g.Lat == 0 || g.Long == 0 {
 			return c.String(400, "Bad Request")
 		}
-		respPoints := make([]distance.Point, 0)
-		mLat, mLong := morton.PredictAppleCoord(g.Lat, g.Long)
+		mLat, mLong := morton.Unpack(morton.Encode(g.Lat, g.Long))
 		sp := spiral.NewSpiral(mLat, mLong)
 		var tile *pb.WifiTile
 		var err error
@@ -61,11 +49,7 @@ func main() {
 		for i := 0; i < 20; i++ {
 			mLat, mLong = sp.Next()
 			lat, long := morton.Decode(morton.Pack(mLat, mLong))
-			respPoints = append(respPoints, distance.Point{
-				Id: fmt.Sprintf("Spiral %d", i),
-				Y:  lat,
-				X:  long,
-			})
+
 			log.Println(lat, long)
 			tile, err = lib.GetTile(morton.Pack(mLat, mLong))
 			if err != nil {
@@ -94,12 +78,6 @@ func main() {
 					avgCount++
 				}
 			}
-			avgLat /= int32(avgCount)
-			avgLong /= int32(avgCount)
-			tileCache = append(tileCache, tileCoords{
-				Coord:  []float64{float64(avgLat) * math.Pow10(-7), float64(avgLong) * math.Pow10(-7)},
-				Morton: morton.Pack(mLat, mLong),
-			})
 
 			closest = distance.Closest(distance.Point{
 				Id: "click",
@@ -110,9 +88,7 @@ func main() {
 				Y:  g.Lat,
 				X:  g.Long,
 			}, points)})
-			if i >= 9 {
-				break
-			}
+			break
 		}
 		if tile == nil {
 			return c.String(500, "Internal Server Error")
@@ -149,10 +125,9 @@ func main() {
 			closest = newClosest
 		}
 
-		respPoints = append(respPoints, points...)
 		return c.JSON(200, map[string]any{
 			"closest": closest,
-			"points":  respPoints,
+			"points":  points,
 		})
 	})
 	e.Logger.Fatal(e.Start("127.0.0.1:1974"))

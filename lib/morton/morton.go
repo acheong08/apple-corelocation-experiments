@@ -1,31 +1,29 @@
 package morton
 
 import (
-	"math"
+	"log"
 
-	morton "github.com/gojuno/go.morton"
+	"github.com/buckhx/tiles"
 )
 
-var m morton.Morton64 = *morton.Make64(2, 32)
-
 func Decode(tileKey int64) (lat float64, long float64) {
-	mLongLat := m.Unpack(tileKey)
-	long, _ = mortonToGpsLong.Predict([]float64{float64(mLongLat[0])})
-	lat, _ = mortonToGpsLat.Predict([]float64{float64(mLongLat[1])})
-	return lat, long
+	mLat, mLong := Unpack(tileKey)
+	log.Println(mLat, mLong)
+	t := tiles.Tile{
+		Y: mLat,
+		X: mLong,
+		Z: 13,
+	}
+	coords := t.ToPixel().ToCoords()
+	return coords.Lat, coords.Lon
 }
 
 func Encode(lat float64, long float64) (tileKey int64) {
-	mLat, _ := gpsToMortonLat.Predict([]float64{lat})
-	mLong, _ := gpsToMortonLong.Predict([]float64{long})
-	tileKey = m.Pack(uint64(math.Round(mLong)), uint64(math.Round(mLat)))
+	t := tiles.FromCoordinate(lat, long, 13)
+	p := t.ToPixel()
+	t2, _ := p.ToTile()
+	tileKey = Pack(t2.Y, t2.X)
 	return tileKey
-}
-
-func PredictAppleCoord(lat float64, long float64) (mLat, mLong int) {
-	fMLat, _ := gpsToMortonLat.Predict([]float64{lat})
-	fMLong, _ := gpsToMortonLong.Predict([]float64{long})
-	return int(math.Round(fMLat)), int(math.Round(fMLong))
 }
 
 func Pack(mLat, mLong int) (tileKey int64) {

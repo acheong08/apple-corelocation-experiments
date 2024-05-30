@@ -5,6 +5,7 @@ import (
 	"log"
 	"wloc/lib/morton"
 
+	"github.com/buckhx/tiles"
 	"github.com/leaanthony/clir"
 )
 
@@ -29,25 +30,15 @@ func main() {
 		fmt.Println(lat, long)
 		return nil
 	})
-	experiment := cli.NewSubCommand("experiment", "Experimental decoding")
-	experiment.Int64Flag("tile", "tile key", &tileKey)
+	experiment := cli.NewSubCommand("experiment", "Experimental encoding")
+	experiment.Float64Flag("lat", "latitude", &lat)
+	experiment.Float64Flag("long", "longitude", &long)
 	experiment.Action(func() error {
-		level := 0
-		row := 0
-		column := 0
-		quadKey := tileKey
-		for quadKey > 1 {
-			mask := 1 << level
-			if quadKey&0x1 != 0 {
-				column |= mask
-			}
-			if quadKey&0x2 != 0 {
-				row |= mask
-			}
-			level++
-			quadKey = (quadKey - (quadKey & 0x3)) / 4
-		}
-		fmt.Println(row, column, level)
+		t := tiles.FromCoordinate(lat, long, 13)
+		p := t.ToPixel()
+		t2, _ := p.ToTile()
+		tileKey := morton.Pack(t2.Y, t2.X)
+		fmt.Println(tileKey)
 		return nil
 	})
 	err := cli.Run()
