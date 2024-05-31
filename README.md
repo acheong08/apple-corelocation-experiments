@@ -29,9 +29,9 @@ It seems each key denotes a single network of access points. This information se
 
 The tile key is a [morton encoded number](https://en.wikipedia.org/wiki/Z-order_curve) with what appears to be their own coordinate system (not based on GPS). I have used linear regression to successfully convert between GPS (long/lat) to their coordinates ([code](./cmd/morton/main.go)).
 
-Update: Linear regression is not the correct solution. It gets worse as you go north/south. It might also not be morton encoding but something similar
+Update: Linear regression is not the correct solution. It gets worse as you go north/south.
 
-Seeking help: Some example data can be found at [tileKeyPair.json](./tileKeyPair.json) which pairs lat/long with tileKeys. If anyone knows what sort of encoding is being used, please open an issue and let me know
+Update 2: This took more work than I'd like to admit. First, I went through all references to tile keys on GitHub. There are behavior discrepancies between [gojuno/go.morton](https://github.com/gojuno/go.morton) and what Apple uses (In the GeoServices private framework). I ended up finding the implementation by [heremaps](https://github.com/heremaps/here-data-sdk-typescript/blob/d9c39622b2306cb00803a493ea134e341716b96d/%40here/olp-sdk-core/lib/utils/TileKey.ts#L76) to match and translated that into Golang. Then, based on the output, noticed that the xyz looked similar to OpenStreetMap's tiles. I used the firefox debugger on [leafletjs](https://leafletjs.com/) to find the code used to generate the tiles from coordinates. Based on mentions of pixels and other keywords, I found [buckhx/tiles](https://github.com/buckhx/tiles) in this [8 year old Reddit post](https://www.reddit.com/r/golang/comments/4iki5d/map_tiling_library_for_go/). So to chain it together: tileKey → morton unpack → OSM tiles → pixel data → long/lat.
 
 ## Interactive demo
 
@@ -40,8 +40,6 @@ Seeking help: Some example data can be found at [tileKeyPair.json](./tileKeyPair
 Click on any spot on the map and wait for a bit. It will plot nearby devices in a few seconds.
 
 How it works: It first uses a spiral pattern to find the closest valid tile (limited to 20 to fail fast). Once it finds a starting point, it finds all the nearby access points using the WLOC API. It then takes the closest access point and tries again until there are no closer access points.
-
-Update: All issues have been resolved curtesy of [buckhx](https://github.com/buckhx/tiles). Thank you random Redditor from 8 years ago.
 
 ### Impact
 
