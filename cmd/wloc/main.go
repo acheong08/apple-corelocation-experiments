@@ -12,11 +12,13 @@ import (
 
 func main() {
 	cli := clir.NewCli("wloc", "Retrieve BSSID geolocation using Apple's API", "v0.0.1")
+	var displayVendor bool
 	getCmd := cli.NewSubCommand("get", "Gets and displays adjacent BSSID locations given an existing BSSID")
 	var bssids []string
 	var less bool
 	getCmd.StringsFlag("bssid", "One or more known bssid strings", &bssids)
 	getCmd.BoolFlag("less", "Only return requested BSSID location", &less)
+	getCmd.BoolFlag("vendor", "Tells the CLI to append the vendor of the MAC address to outpus", &displayVendor)
 	getCmd.Action(func() error {
 		if len(bssids) == 0 {
 			log.Fatalln("BSSIDs cannot be empty")
@@ -26,11 +28,15 @@ func main() {
 			panic(err)
 		}
 		for _, wifi := range blocks.GetWifiDevices() {
-			man, err := ouidb.Lookup(wifi.GetBssid())
-			if err != nil {
-				man = "Unknown"
+			if displayVendor {
+				man, err := ouidb.Lookup(wifi.GetBssid())
+				if err != nil {
+					man = "Unknown"
+				}
+				fmt.Printf("BSSID: %s (%s) found at Lat: %f Long: %f\n", wifi.GetBssid(), man, float64(*wifi.GetLocation().Latitude)*math.Pow10(-8), float64(*wifi.GetLocation().Longitude)*math.Pow10(-8))
+			} else {
+				fmt.Printf("BSSID: %s found at Lat: %f Long: %f\n", wifi.GetBssid(), float64(*wifi.GetLocation().Latitude)*math.Pow10(-8), float64(*wifi.GetLocation().Longitude)*math.Pow10(-8))
 			}
-			fmt.Printf("BSSID: %s (%s) found at Lat: %f Long: %f\n", wifi.GetBssid(), man, float64(*wifi.GetLocation().Latitude)*math.Pow10(-8), float64(*wifi.GetLocation().Longitude)*math.Pow10(-8))
 		}
 		fmt.Println(len(blocks.GetWifiDevices()), "number of devices found in area")
 		return nil
@@ -38,6 +44,7 @@ func main() {
 	tileKey := int64(81644853)
 	tileCmd := cli.NewSubCommand("tile", "Returns a list of BSSIDs and their associated GPS locations")
 	tileCmd.Int64Flag("key", "The tile key used to determine region", &tileKey)
+	tileCmd.BoolFlag("vendor", "Tells the CLI to append the vendor of the MAC address to outpus", &displayVendor)
 	tileCmd.Action(func() error {
 		tiles, err := lib.GetTile(tileKey)
 		if err != nil {
@@ -63,11 +70,15 @@ func main() {
 						mac += macHex[i:]
 					}
 				}
-				// manufacturer, err := ouidb.Lookup(mac)
-				// if err != nil {
-				// 	continue
-				// }
-				fmt.Printf("MAC: %s - %f %f\n", mac, lat, long)
+				if displayVendor {
+					manufacturer, err := ouidb.Lookup(mac)
+					if err != nil {
+						continue
+					}
+					fmt.Printf("MAC: %s (%s) - %f %f\n", mac, manufacturer, lat, long)
+				} else {
+					fmt.Printf("MAC: %s - %f %f\n", mac, lat, long)
+				}
 			}
 		}
 		return nil
