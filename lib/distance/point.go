@@ -24,3 +24,18 @@ func Closest(point Point, points []Point) Point {
 	}
 	return closest
 }
+
+func Closer(target, point1, point2 *Point) *Point {
+	if target == nil {
+		panic("target cannot be nil")
+	}
+	if point1 == nil {
+		return point2
+	} else if point2 == nil {
+		return point1
+	}
+	if target.Distance(*point1) < target.Distance(*point2) {
+		return point1
+	}
+	return point2
+}
