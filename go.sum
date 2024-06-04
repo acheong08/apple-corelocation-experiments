@@ -1,3 +1,7 @@
+github.com/a-h/templ v0.2.707 h1:T1Gkd2ugbRglZ9rYw/VBchWOSZVKmetDbBkm4YubM7U=
+github.com/a-h/templ v0.2.707/go.mod h1:5cqsugkq9IerRNucNsI4DEamdHPsoGMQy99DzydLhM8=
+github.com/acheong08/clir v0.0.0-20240604141034-836339f05e01 h1:zojg4ZMtaNQaGLfIdRw5+b1D/+Dx/wqmo5YT+mlvbkw=
+github.com/acheong08/clir v0.0.0-20240604141034-836339f05e01/go.mod h1:2atFjbHcuQIM75nYoWSm4+Rx5hBRzwv/FVFu1VztGdU=
 github.com/buckhx/tiles v0.0.0-20160614171505-4994e5527da5 h1:lW4E5Y1tHe3m978XDA3Evla5+tuxNIu518M/jdWYJUE=
 github.com/buckhx/tiles v0.0.0-20160614171505-4994e5527da5/go.mod h1:tQKKQo5lJo1BZsGWJ2u4K4YZ8GLYlUdodt4AaW/UIXM=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

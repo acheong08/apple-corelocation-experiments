@@ -11,6 +11,8 @@ require (
 )
 
 require (
+	github.com/a-h/templ v0.2.707 // indirect
+	github.com/acheong08/clir v0.0.0-20240604141034-836339f05e01 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
