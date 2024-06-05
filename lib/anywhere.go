@@ -12,7 +12,10 @@ import (
 
 const ErrInvalidInput = "invalid input"
 
-func SearchProximity(lat, long float64, limit uint8) ([]distance.Point, error) {
+func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]distance.Point, error) {
+	if options == nil {
+		options = make([]Modifier, 0)
+	}
 	if lat < -90 || lat > 90 || long < -180 || long > 180 {
 		return nil, errors.New(ErrInvalidInput)
 	}
@@ -29,7 +32,7 @@ func SearchProximity(lat, long float64, limit uint8) ([]distance.Point, error) {
 	var closest *distance.Point
 	for i := 0; i < int(limit); i++ {
 		mLat, mLong = sp.Next()
-		tile, err := GetTile(morton.Pack(mLat, mLong))
+		tile, err := GetTile(morton.Pack(mLat, mLong), options...)
 		if err != nil {
 			continue
 		}
@@ -49,7 +52,7 @@ func SearchProximity(lat, long float64, limit uint8) ([]distance.Point, error) {
 	}
 	var points []distance.Point
 	for {
-		devices, err := QueryBssid([]string{closest.Id}, true)
+		devices, err := QueryBssid([]string{closest.Id}, true, options...)
 		if err != nil {
 			log.Println(closest)
 			return nil, err
