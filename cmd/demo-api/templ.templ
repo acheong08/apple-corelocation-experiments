@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 templ Index(lat, long float64) {
 	<html>
 		<head>
@@ -23,8 +25,12 @@ templ Index(lat, long float64) {
 		</head>
 		<body>
 			<div id="map"></div>
+			<div id="long" data-name={ fmt.Sprintf("%f", long) }></div>
+			<div id="lat" data-name={ fmt.Sprintf("%f", lat) }></div>
 			<script>
-      var map = L.map("map").setView([{ lat }, { long }], 13);
+			var lat = parseFloat(document.getElementById("lat").dataset.name);
+			var long = parseFloat(document.getElementById("long").dataset.name);
+      var map = L.map("map").setView([lat, long], 13);
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution:

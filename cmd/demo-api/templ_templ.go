@@ -10,6 +10,8 @@ import "context"
 import "io"
 import "bytes"
 
+import "fmt"
+
 func Index(lat, long float64) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -23,7 +25,33 @@ func Index(lat, long float64) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<html><head><link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" integrity=\"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=\" crossorigin=\"\"><script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" integrity=\"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=\" crossorigin=\"\"></script><style>\n      body {\n        margin: 0;\n        padding: 0;\n      }\n      #map {\n        height: 80vh;\n      }\n    </style><title>Interactive WLOC Demo</title></head><body><div id=\"map\"></div><script>\n      var map = L.map(\"map\").setView([{ lat }, { long }], 13);\n      L.tileLayer(\"https://tile.openstreetmap.org/{z}/{x}/{y}.png\", {\n        maxZoom: 19,\n        attribution:\n          '&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>',\n      }).addTo(map);\n      function plotPoint(p) {\n        L.marker([p.y, p.x]).addTo(map).bindPopup(p.id);\n      }\n      let blocker = false;\n      async function onMapClick(e) {\n        if (blocker) return;\n        blocker = true;\n        // Create a loading dialog\n        const loading = document.createElement(\"dialog\");\n        loading.innerHTML = \"Loading...\";\n        document.body.appendChild(loading);\n        loading.showModal();\n\n        const cleanUp = () => {\n          blocker = false;\n          loading.remove();\n        };\n\n        const lat = e.latlng.lat;\n        const long = e.latlng.lng;\n        let resp = await fetch(\"/gps\", {\n          method: \"POST\",\n          headers: {\n            \"Content-Type\": \"application/json\",\n          },\n          body: JSON.stringify({ lat, long }),\n        });\n        // Check status code\n        if (!resp.ok) {\n          cleanUp();\n          alert(\"Error: \" + resp.status);\n          return;\n        }\n        resp = await resp.json();\n        console.log(resp);\n        plotPoint(resp.closest);\n        resp.points.forEach(plotPoint);\n        cleanUp();\n      }\n      map.on(\"click\", onMapClick);\n    </script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<html><head><link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" integrity=\"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=\" crossorigin=\"\"><script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" integrity=\"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=\" crossorigin=\"\"></script><style>\n      body {\n        margin: 0;\n        padding: 0;\n      }\n      #map {\n        height: 80vh;\n      }\n    </style><title>Interactive WLOC Demo</title></head><body><div id=\"map\"></div><div id=\"long\" data-name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%f", long))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/demo-api/templ.templ`, Line: 28, Col: 53}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div><div id=\"lat\" data-name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%f", lat))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/demo-api/templ.templ`, Line: 29, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div><script>\n\t\t\tvar lat = parseFloat(document.getElementById(\"lat\").dataset.name);\n\t\t\tvar long = parseFloat(document.getElementById(\"long\").dataset.name);\n      var map = L.map(\"map\").setView([lat, long], 13);\n      L.tileLayer(\"https://tile.openstreetmap.org/{z}/{x}/{y}.png\", {\n        maxZoom: 19,\n        attribution:\n          '&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>',\n      }).addTo(map);\n      function plotPoint(p) {\n        L.marker([p.y, p.x]).addTo(map).bindPopup(p.id);\n      }\n      let blocker = false;\n      async function onMapClick(e) {\n        if (blocker) return;\n        blocker = true;\n        // Create a loading dialog\n        const loading = document.createElement(\"dialog\");\n        loading.innerHTML = \"Loading...\";\n        document.body.appendChild(loading);\n        loading.showModal();\n\n        const cleanUp = () => {\n          blocker = false;\n          loading.remove();\n        };\n\n        const lat = e.latlng.lat;\n        const long = e.latlng.lng;\n        let resp = await fetch(\"/gps\", {\n          method: \"POST\",\n          headers: {\n            \"Content-Type\": \"application/json\",\n          },\n          body: JSON.stringify({ lat, long }),\n        });\n        // Check status code\n        if (!resp.ok) {\n          cleanUp();\n          alert(\"Error: \" + resp.status);\n          return;\n        }\n        resp = await resp.json();\n        console.log(resp);\n        plotPoint(resp.closest);\n        resp.points.forEach(plotPoint);\n        cleanUp();\n      }\n      map.on(\"click\", onMapClick);\n    </script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
