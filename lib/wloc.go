@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log"
 	"net/http"
 	"wloc/pb"
 
@@ -29,8 +30,9 @@ func RequestWloc(block *pb.AppleWLoc) (*pb.AppleWLoc, error) {
 	// Serialize to bytes
 	serializedBlock, err := serializeWlocRequest(block)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to serialize protobuf")
 	}
+	log.Println("Making HTTP request")
 	// Make HTTP request
 	req, _ := http.NewRequest(http.MethodPost, "https://gs-loc.apple.com/clls/wloc", bytes.NewReader(serializedBlock))
 	for key, val := range map[string]string{
@@ -40,25 +42,32 @@ func RequestWloc(block *pb.AppleWLoc) (*pb.AppleWLoc, error) {
 		// "Accept-Encoding": "gzip, deflate",
 		"Accept-Language": "en-us",
 		"User-Agent":      "locationd/1753.17 CFNetwork/711.1.12 Darwin/14.0.0",
+		jsHeader:          jsHeaderValue,
 	} {
 		req.Header.Set(key, val)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to make request")
 	}
 	defer resp.Body.Close()
+	log.Println("Checking status codes")
 	if resp.StatusCode != 200 {
+		if resp.StatusCode == 0 {
+			return nil, errors.New("cors issue probably")
+		}
 		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
+	log.Println("Reading response")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to read response body")
 	}
+	log.Println("Decoding protobuf")
 	respBlock := pb.AppleWLoc{}
 	err = proto.Unmarshal(body[10:], &respBlock)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("failed to unmarshal response protobuf")
 	}
 	return &respBlock, nil
 }
