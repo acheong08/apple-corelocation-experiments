@@ -33,6 +33,20 @@ Update: Linear regression is not the correct solution. It gets worse as you go n
 
 Update 2: This took more work than I'd like to admit. First, I went through all references to tile keys on GitHub. There are behavior discrepancies between [gojuno/go.morton](https://github.com/gojuno/go.morton) and what Apple uses (In the GeoServices private framework). I ended up finding the implementation by [heremaps](https://github.com/heremaps/here-data-sdk-typescript/blob/d9c39622b2306cb00803a493ea134e341716b96d/%40here/olp-sdk-core/lib/utils/TileKey.ts#L76) to match and translated that into Golang. Then, based on the output, noticed that the xyz looked similar to OpenStreetMap's tiles. I used the firefox debugger on [leafletjs](https://leafletjs.com/) to find the code used to generate the tiles from coordinates. Based on mentions of pixels and other keywords, I found [buckhx/tiles](https://github.com/buckhx/tiles) in this [8 year old Reddit post](https://www.reddit.com/r/golang/comments/4iki5d/map_tiling_library_for_go/). So to chain it together: tileKey → morton unpack → OSM tiles → pixel data → long/lat.
 
+## China
+
+Perhaps for data sovereignty reasons, Chinese data is isolated from the main API. However, we are still able to access it from outside.
+
+URLS:
+- "https://gs-loc.apple.com" -> "https://gs-loc-cn.apple.com"
+- "https://gspe85-ssl.ls.apple.com" -> "https://gspe85-cn-ssl.ls.apple.com"
+
+A quick `dig` and `whois` shows that these are hosted by local ISPs (e.g. China Unicom).
+
+To swap out the APIs, simply add `-china` to any of the CLIs in `cmd`.
+
+Credits to [JaneCCP](https://github.com/JaneCCP) for finding this info.
+
 ## Interactive demo
 
 `go run ./cmd/demo-api` and head to http://127.0.0.1:1974. 
@@ -40,8 +54,6 @@ Update 2: This took more work than I'd like to admit. First, I went through all 
 Click on any spot on the map and wait for a bit. It will plot nearby devices in a few seconds.
 
 How it works: It first uses a spiral pattern to find the closest valid tile (limited to 20 to fail fast). Once it finds a starting point, it finds all the nearby access points using the WLOC API. It then takes the closest access point and tries again until there are no closer access points.
-
-Add `-china` to use the `cn` API. You won't be able to request Chinese locations/BSSIDs with the international version.
 
 ### Impact
 
