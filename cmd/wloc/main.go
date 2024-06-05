@@ -11,9 +11,11 @@ import (
 )
 
 func main() {
+	var china bool
 	cli := clir.NewCli("wloc", "Retrieve BSSID geolocation using Apple's API", "v0.0.1")
+	cli.BoolFlag("china", "Use the China region for the request", &china)
 	var displayVendor bool
-	getCmd := cli.NewSubCommand("get", "Gets and displays adjacent BSSID locations given an existing BSSID")
+	getCmd := cli.NewSubCommandInheritFlags("get", "Gets and displays adjacent BSSID locations given an existing BSSID")
 	var bssids []string
 	var less bool
 	getCmd.StringsFlag("bssid", "One or more known bssid strings", &bssids)
@@ -23,7 +25,12 @@ func main() {
 		if len(bssids) == 0 {
 			log.Fatalln("BSSIDs cannot be empty")
 		}
-		blocks, err := lib.QueryBssid(bssids, !less)
+		var options []lib.Modifier
+		if china {
+			options = append(options, lib.Options.WithRegion(lib.Options.China))
+		}
+
+		blocks, err := lib.QueryBssid(bssids, !less, options...)
 		if err != nil {
 			panic(err)
 		}
@@ -42,7 +49,7 @@ func main() {
 		return nil
 	})
 	tileKey := int64(81644853)
-	tileCmd := cli.NewSubCommand("tile", "Returns a list of BSSIDs and their associated GPS locations")
+	tileCmd := cli.NewSubCommandInheritFlags("tile", "Returns a list of BSSIDs and their associated GPS locations")
 	tileCmd.Int64Flag("key", "The tile key used to determine region", &tileKey)
 	tileCmd.BoolFlag("vendor", "Tells the CLI to append the vendor of the MAC address to outpus", &displayVendor)
 	tileCmd.Action(func() error {

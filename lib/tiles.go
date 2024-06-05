@@ -9,8 +9,20 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func GetTile(tileKey int64) (*pb.WifiTile, error) {
-	req, err := http.NewRequest("GET", "https://gspe85-ssl.ls.apple.com/wifi_request_tile", nil)
+func GetTile(tileKey int64, options ...Modifier) (*pb.WifiTile, error) {
+	var tileURL string
+	args := newWlocArgs()
+	for _, option := range options {
+		option(&args)
+	}
+	switch args.region {
+	case Options.China:
+		tileURL = "https://gspe85-cn-ssl.ls.apple.com"
+	case Options.International:
+		tileURL = "https://gspe85-ssl.ls.apple.com"
+	}
+	tileURL = tileURL + "/wifi_request_tile"
+	req, err := http.NewRequest("GET", tileURL, nil)
 	if err != nil {
 		return nil, err
 	}

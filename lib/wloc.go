@@ -26,15 +26,23 @@ func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
 	return data, nil
 }
 
-func RequestWloc(block *pb.AppleWLoc) (*pb.AppleWLoc, error) {
+func RequestWloc(block *pb.AppleWLoc, args wlocArgs) (*pb.AppleWLoc, error) {
 	// Serialize to bytes
 	serializedBlock, err := serializeWlocRequest(block)
 	if err != nil {
 		return nil, errors.New("failed to serialize protobuf")
 	}
 	log.Println("Making HTTP request")
+	var wlocURL string
+	switch args.region {
+	case Options.International:
+		wlocURL = "https://gs-loc.apple.com"
+	case Options.China:
+		wlocURL = "https://gs-loc-cn.apple.com"
+	}
+	wlocURL = wlocURL + "/clls/wloc"
 	// Make HTTP request
-	req, _ := http.NewRequest(http.MethodPost, "https://gs-loc.apple.com/clls/wloc", bytes.NewReader(serializedBlock))
+	req, _ := http.NewRequest(http.MethodPost, wlocURL, bytes.NewReader(serializedBlock))
 	for key, val := range map[string]string{
 		"Content-Type":   "application/x-www-form-urlencoded",
 		"Accept":         "*/*",
@@ -72,7 +80,11 @@ func RequestWloc(block *pb.AppleWLoc) (*pb.AppleWLoc, error) {
 	return &respBlock, nil
 }
 
-func QueryBssid(bssids []string, maxResults bool) (*pb.AppleWLoc, error) {
+func QueryBssid(bssids []string, maxResults bool, options ...Modifier) (*pb.AppleWLoc, error) {
+	args := newWlocArgs()
+	for _, option := range options {
+		option(&args)
+	}
 	zero32 := int32(0)
 	one32 := int32(1)
 	block := pb.AppleWLoc{}
@@ -85,7 +97,7 @@ func QueryBssid(bssids []string, maxResults bool) (*pb.AppleWLoc, error) {
 	} else {
 		block.NumResults = &one32
 	}
-	return RequestWloc(&block)
+	return RequestWloc(&block, args)
 }
 
 func copyMultiByte(dst []byte, srcs ...[]byte) {
