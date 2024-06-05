@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-templ Index(lat, long float64) {
+templ Index(lat, long float64, china bool) {
 	<html>
 		<head>
 			<link
@@ -12,6 +12,8 @@ templ Index(lat, long float64) {
 				crossorigin=""
 			/>
 			<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js" integrity="sha512-iJs/hgHOlo6Eo8i+nYtuEPa+CZ6E3C2Z0s1LkSuvLtclMQlqmxPjP6XaXDi0Ki6NsUuQ2Zmo0UeFOLSgjbv5+A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.min.js" integrity="sha512-GsAYl1wxzWW6azVpXkhyYfjMb2LbaOnlrqWMBdAk9xDcilinFvGMN+48Ajp/10u/9lcnh8YyS2CYNgung7ewHg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 			<style>
       body {
         margin: 0;
@@ -27,56 +29,8 @@ templ Index(lat, long float64) {
 			<div id="map"></div>
 			<div id="long" data-name={ fmt.Sprintf("%f", long) }></div>
 			<div id="lat" data-name={ fmt.Sprintf("%f", lat) }></div>
-			<script>
-			var lat = parseFloat(document.getElementById("lat").dataset.name);
-			var long = parseFloat(document.getElementById("long").dataset.name);
-      var map = L.map("map").setView([lat, long], 13);
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution:
-          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }).addTo(map);
-      function plotPoint(p) {
-        L.marker([p.y, p.x]).addTo(map).bindPopup(p.id);
-      }
-      let blocker = false;
-      async function onMapClick(e) {
-        if (blocker) return;
-        blocker = true;
-        // Create a loading dialog
-        const loading = document.createElement("dialog");
-        loading.innerHTML = "Loading...";
-        document.body.appendChild(loading);
-        loading.showModal();
-
-        const cleanUp = () => {
-          blocker = false;
-          loading.remove();
-        };
-
-        const lat = e.latlng.lat;
-        const long = e.latlng.lng;
-        let resp = await fetch("/gps", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ lat, long }),
-        });
-        // Check status code
-        if (!resp.ok) {
-          cleanUp();
-          alert("Error: " + resp.status);
-          return;
-        }
-        resp = await resp.json();
-        console.log(resp);
-        plotPoint(resp.closest);
-        resp.points.forEach(plotPoint);
-        cleanUp();
-      }
-      map.on("click", onMapClick);
-    </script>
+			<div id="china" data-name={ fmt.Sprintf("%t", china) }></div>
+			<script src="/main.js"></script>
 		</body>
 	</html>
 }

@@ -11,6 +11,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+//go:embed main.js
+var mainJs string
+
 func init() {
 	log.SetFlags(log.Lshortfile)
 }
@@ -35,7 +38,10 @@ func main() {
 	cli.Action(func() error {
 		e := echo.New()
 		e.GET("/", func(c echo.Context) error {
-			return Render(c, 200, Index(lat, long))
+			return Render(c, 200, Index(lat, long, china))
+		})
+		e.GET("/main.js", func(c echo.Context) error {
+			return c.HTML(200, mainJs)
 		})
 		e.POST("/gps", func(c echo.Context) error {
 			var g gps
