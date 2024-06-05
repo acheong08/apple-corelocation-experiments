@@ -61,7 +61,7 @@ func main() {
 				tile, err = lib.GetTile(morton.Pack(mLat, mLong))
 				if err != nil {
 					tile = nil
-					log.Println(err)
+					log.Println("No access points found in ", mLat, mLong, ". We will keep looking")
 					continue
 				}
 
