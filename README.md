@@ -41,6 +41,8 @@ Click on any spot on the map and wait for a bit. It will plot nearby devices in 
 
 How it works: It first uses a spiral pattern to find the closest valid tile (limited to 20 to fail fast). Once it finds a starting point, it finds all the nearby access points using the WLOC API. It then takes the closest access point and tries again until there are no closer access points.
 
+Add `-china` to use the `cn` API. You won't be able to request Chinese locations/BSSIDs with the international version.
+
 ### Impact
 
 In the `umd.edu` paper, they were forced to brute force BSSIDs over the course of 2 years to slowly build up their network. This relies on chance and isolated blocks might not be easily found. With the discovery of the tile API, we are able to create a starting point anywhere in the world and begin exploring from there (given the parameters for which an AP is available over that API). I have tested multiple regions (e.g. Gaza, London, Los Angeles) and it seems to work in most populated cities. However, there appears to be less available networks in certain countries (e.g. Brazil), possibly due to privacy laws.
@@ -48,5 +50,3 @@ In the `umd.edu` paper, they were forced to brute force BSSIDs over the course o
 
 ## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
-- Chinese data is not available from outside. Attempt to proxy into China and map Chinese population centers based on density of access points
-- Create UI to select point on map → use wifi tile to find nearest available chunk → use wloc to find all BSSIDs in area.
