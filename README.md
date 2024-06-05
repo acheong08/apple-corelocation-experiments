@@ -41,7 +41,7 @@ URLS:
 - "https://gs-loc.apple.com" -> "https://gs-loc-cn.apple.com"
 - "https://gspe85-ssl.ls.apple.com" -> "https://gspe85-cn-ssl.ls.apple.com"
 
-A quick `dig` and `whois` shows that these are hosted by local ISPs (e.g. China Unicom).
+A quick `dig` and `whois` shows that these are hosted within China at a Unicom IP. `CNAME` records show that Akamai is used for DNS and Kingsoft Cloud as a CDN.
 
 To swap out the APIs, simply add `-china` to any of the CLIs in `cmd`.
 
