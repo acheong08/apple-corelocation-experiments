@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"wloc/pb"
 
@@ -32,7 +31,6 @@ func RequestWloc(block *pb.AppleWLoc, args wlocArgs) (*pb.AppleWLoc, error) {
 	if err != nil {
 		return nil, errors.New("failed to serialize protobuf")
 	}
-	log.Println("Making HTTP request")
 	var wlocURL string
 	switch args.region {
 	case Options.International:
@@ -59,19 +57,16 @@ func RequestWloc(block *pb.AppleWLoc, args wlocArgs) (*pb.AppleWLoc, error) {
 		return nil, errors.New("failed to make request")
 	}
 	defer resp.Body.Close()
-	log.Println("Checking status codes")
 	if resp.StatusCode != 200 {
 		if resp.StatusCode == 0 {
 			return nil, errors.New("cors issue probably")
 		}
 		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
-	log.Println("Reading response")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.New("failed to read response body")
 	}
-	log.Println("Decoding protobuf")
 	respBlock := pb.AppleWLoc{}
 	err = proto.Unmarshal(body[10:], &respBlock)
 	if err != nil {
