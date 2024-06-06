@@ -50,6 +50,9 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 		}
 		break
 	}
+	if closest == nil {
+		return nil, errors.New("no devices found")
+	}
 	var points []distance.Point
 	for {
 		devices, err := QueryBssid([]string{closest.Id}, true, options...)
