@@ -1,8 +1,9 @@
 var lat = parseFloat(document.getElementById("lat").dataset.name);
 var long = parseFloat(document.getElementById("long").dataset.name);
-var china = parseInt(document.getElementById("china").dataset.name);
+var china = document.getElementById("china").dataset.name;
 var map;
 if (china) {
+  var subdomains = "0123";
   var baiduCRS = new L.Proj.CRS(
     "EPSG:900913",
     "+proj=merc +a=6378206 +b=6356584.314245179 +lat_ts=0.0 +lon_0=0.0 +x_0=0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs",
