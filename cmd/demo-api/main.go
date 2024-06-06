@@ -12,7 +12,7 @@ import (
 )
 
 //go:embed main.js
-var mainJs string
+var mainJs []byte
 
 func init() {
 	log.SetFlags(log.Lshortfile)
@@ -41,7 +41,11 @@ func main() {
 			return Render(c, 200, Index(lat, long, china))
 		})
 		e.GET("/main.js", func(c echo.Context) error {
-			return c.HTML(200, mainJs)
+			c.Response().Header().Set("content-type", "application/javascript")
+			// Set status code
+			c.Response().WriteHeader(200)
+			_, err := c.Response().Write(mainJs)
+			return err
 		})
 		e.POST("/gps", func(c echo.Context) error {
 			var g gps
@@ -52,7 +56,7 @@ func main() {
 				return c.String(400, "Bad Request")
 			}
 
-			var options []lib.Modifier
+			var options []lib.Modifier = make([]lib.Modifier, 0)
 			if china {
 				options = append(options, lib.Options.WithRegion(lib.Options.China))
 			}
