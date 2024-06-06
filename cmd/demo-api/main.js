@@ -3,32 +3,53 @@ var long = parseFloat(document.getElementById("long").dataset.name);
 var china = document.getElementById("china").dataset.name;
 var map;
 if (china) {
+  var getTiles = function (baseUrl, tilePoint) {
+    String.prototype.formatString = function () {
+      let a = this;
+      let b;
+      for (b in arguments) {
+        a = a.replace(/{[0-9]}/, arguments[b]);
+      }
+      return a;
+    };
+
+    tilePoint = baseUrl;
+    baseUrl = this._url;
+    var offset = Math.pow(2, tilePoint.z - 1);
+    var x = tilePoint.x - offset;
+    var y = offset - tilePoint.y - 1;
+    var z = tilePoint.z;
+    return baseUrl.formatString(parseInt(Math.random() * 10) % 4, x, y, z);
+  };
+
   var subdomains = "0123";
   var baiduCRS = new L.Proj.CRS(
-    "EPSG:900913",
+    "EPSG:3857",
     "+proj=merc +a=6378206 +b=6356584.314245179 +lat_ts=0.0 +lon_0=0.0 +x_0=0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs",
     {
       resolutions: (function () {
-        level = 19;
         var res = [];
-        res[0] = Math.pow(2, 18);
-        for (var i = 1; i < level; i++) {
+        for (var i = 0; i < 20; ++i) {
           res[i] = Math.pow(2, 18 - i);
         }
         return res;
       })(),
-      origin: [0, 0],
-      bounds: L.bounds([20037508.342789244, 0], [0, 20037508.342789244]),
+      origin: [-3.3554432e7, 3.3554432e7],
+      bounds: L.bounds(
+        [-3.3554432e7, 3.3554432e7],
+        [3.3554432e7, -3.3554432e7],
+      ),
     },
   );
   var baiduLayer = L.tileLayer(
-    "http://maponline{s}.bdimg.com/tile/?qt=tile&x={x}&y={y}&z={z}&styles=pl&scaler=1&p=1",
+    "http://maponline{0}.bdimg.com/tile/?qt=tile&x={1}&y={2}&z={3}&styles=pl",
     {
-      name: "vec",
-      subdomains: subdomains,
-      tms: true,
+      minZoom: 3,
+      noWrap: false,
     },
   );
+
+  baiduLayer.getTileUrl = getTiles;
   map = L.map("map", {
     crs: baiduCRS,
   })
