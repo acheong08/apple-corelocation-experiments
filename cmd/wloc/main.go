@@ -100,17 +100,14 @@ func main() {
 	experiment.Action(func() error {
 		zero := int32(0)
 		negative1 := int32(-1)
-		one := int32(1)
 		block := pb.AppleWLoc{
-			UnknownValue1:  &zero,
-			NumResults:     &negative1,
-			UnknownValue31: &negative1,
-			UnknownValue32: &one,
-			UnknownValue25: &pb.Unknown25{
-				Unknown1: 251,
-				Unknown2: 8,
-				Unknown3: -4801537,
-				Unknown4: -21669,
+			NumCellResults: &zero,
+			NumWifiResults: &negative1,
+			CellTowerRequest: &pb.CellTower{
+				Mmc:    251,
+				Mnc:    8,
+				CellId: -4801537,
+				TacId:  -21669,
 			},
 			DeviceType: &pb.DeviceType{
 				OperatingSystem: "iPhone OS17.5/21F79",

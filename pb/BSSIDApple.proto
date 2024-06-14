@@ -8,26 +8,28 @@ message WifiDevice {
 }
 
 message AppleWLoc {
-  optional int64 unknown_value0 = 1;
+  // optional int64 unknown_value0 = 1;
   repeated WifiDevice wifi_devices = 2;
-  optional int32 unknown_value1 = 3;
-  optional sint32 num_results = 4;
-  optional string APIName = 5;
-  optional string unknown_value2 = 6;
-  optional int64 unknown_value7 = 7;
-  repeated Unknown25 region_data = 22;
-  optional Unknown25 unknown_value25 = 25;
-  optional int32 unknown_value31 = 31;
-  optional int32 unknown_value32 = 32;
+  optional sint32 num_cell_results = 3;
+  optional sint32 num_wifi_results = 4; // Set to -1 to disable
+  optional string app_bundle_id = 5;
+  // optional string unknown_value2 = 6;
+  // optional int64 unknown_value7 = 7;
+  repeated CellTower cell_tower_response = 22; // LTE cell towers?
+  optional CellTower cell_tower_request = 25;
+  // optional int32 unknown_value31 = 31;
+  // optional int32 unknown_value32 = 32;
   optional DeviceType device_type = 33;
 }
 
-message Unknown25 {
-  sint32 unknown1 = 1;
-  sint32 unknown2 = 2;
-  sint32 unknown3 = 3;
-  sint32 unknown4 = 4;
+message CellTower {
+  sint32 mmc = 1;
+  sint32 mnc = 2;
+  sint32 cell_id = 3;
+  sint32 tac_id = 4;
   optional Location location = 5;
+  optional sint32 uarfcn = 6;
+  optional sint32 pid = 7;
 }
 
 message DeviceType {

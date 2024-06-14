@@ -88,9 +88,9 @@ func QueryBssid(bssids []string, maxResults bool, options ...Modifier) (*pb.Appl
 		block.WifiDevices[i] = &pb.WifiDevice{Bssid: bssid}
 	}
 	if maxResults {
-		block.NumResults = &zero32
+		block.NumWifiResults = &zero32
 	} else {
-		block.NumResults = &one32
+		block.NumWifiResults = &one32
 	}
 	return RequestWloc(&block, &args)
 }
