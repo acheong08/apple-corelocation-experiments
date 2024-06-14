@@ -3,6 +3,8 @@ module wloc
 go 1.22.3
 
 require (
+	github.com/a-h/templ v0.2.707
+	github.com/acheong08/clir v0.0.0-20240604141034-836339f05e01
 	github.com/buckhx/tiles v0.0.0-20160614171505-4994e5527da5
 	github.com/gptlang/oui v0.0.0-20240522122259-08e97ad0b56a
 	github.com/labstack/echo/v4 v4.12.0
@@ -11,9 +13,6 @@ require (
 )
 
 require (
-	github.com/a-h/templ v0.2.707 // indirect
-	github.com/acheong08/clir v0.0.0-20240604141034-836339f05e01 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
