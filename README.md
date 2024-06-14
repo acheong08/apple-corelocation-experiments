@@ -5,7 +5,7 @@ How it works is explained in Apple's disclosure to congress: https://web.archive
 
 Feel free to poke around the code. Most relevant part is the [protobuf](./pb) and the stuff in [lib](./lib). Experimental CLIs found in [cmd](./cmd), the main ones being the demo api and `wloc`.
 
-# WLOC
+## WLOC
 
 URL: https://gs-loc.apple.com/clls/wloc
 
@@ -14,6 +14,10 @@ I ran `mitmproxy` to find the URL used and later found [iSniff-GPS](https://gith
 When requesting location services, MacOS/IOS sends a list of nearby BSSIDs to Apple, which then responds with GPS Long/Lat/Altitude of other nearby BSSIDs. The GPS location of the device is computed locally based on the signal strength of nearby BSSIDs.
 
 Apple collects information from iPhones such as speed, activity type (walking/driving/etc), cell provider, and a whole bunch of other data which is used to build their database. This seems to be sent when a phone encounters a BSSID not in the existing database and excludes certain MAC address vendors known not to be stationary (e.g. IOS/MacOS hotspots).
+
+### Cell towers
+
+Using the same API as above, we can also request cell tower information. `MMC`, `MNC`, `CellId`, and `TacID` is sent off and used to find the surrounding cell towers. It seems to have more data than opencellid.org but missing UMTS and GSM (only LTE is available).
 
 ## Wifi Tile
 
@@ -55,10 +59,11 @@ Click on any spot on the map and wait for a bit. It will plot nearby devices in 
 
 How it works: It first uses a spiral pattern to find the closest valid tile (limited to 20 to fail fast). Once it finds a starting point, it finds all the nearby access points using the WLOC API. It then takes the closest access point and tries again until there are no closer access points.
 
-### Impact
+## Impact
 
 In the `umd.edu` paper, they were forced to brute force BSSIDs over the course of 2 years to slowly build up their network. This relies on chance and isolated blocks might not be easily found. With the discovery of the tile API, we are able to create a starting point anywhere in the world and begin exploring from there (given the parameters for which an AP is available over that API). I have tested multiple regions (e.g. Gaza, London, Los Angeles) and it seems to work in most populated cities. However, there appears to be less available networks in certain countries (e.g. Brazil), possibly due to privacy laws.
 
 
 ## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
+- Add cell tower API to lib
