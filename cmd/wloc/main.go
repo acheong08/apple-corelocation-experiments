@@ -104,10 +104,10 @@ func main() {
 			NumCellResults: &zero,
 			NumWifiResults: &negative1,
 			CellTowerRequest: &pb.CellTower{
-				Mmc:    251,
-				Mnc:    8,
-				CellId: -4801537,
-				TacId:  -21669,
+				Mmc:    502,
+				Mnc:    16,
+				CellId: 9603074,
+				TacId:  43337,
 			},
 			DeviceType: &pb.DeviceType{
 				OperatingSystem: "iPhone OS17.5/21F79",

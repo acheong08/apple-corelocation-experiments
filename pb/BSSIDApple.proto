@@ -22,14 +22,15 @@ message AppleWLoc {
   optional DeviceType device_type = 33;
 }
 
+// https://en.wikipedia.org/wiki/Cell_Global_Identity
 message CellTower {
-  sint32 mmc = 1;
-  sint32 mnc = 2;
-  sint32 cell_id = 3;
-  sint32 tac_id = 4;
+  uint32 mmc = 1;
+  uint32 mnc = 2;
+  uint32 cell_id = 3;
+  uint32 tac_id = 4;
   optional Location location = 5;
-  optional sint32 uarfcn = 6;
-  optional sint32 pid = 7;
+  optional uint32 uarfcn = 6;
+  optional uint32 pid = 7;
 }
 
 message DeviceType {
