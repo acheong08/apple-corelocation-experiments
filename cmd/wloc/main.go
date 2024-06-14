@@ -99,10 +99,8 @@ func main() {
 	experiment := cli.NewSubCommandInheritFlags("exp", "Experimental command for WLOC requests")
 	experiment.Action(func() error {
 		zero := int32(0)
-		negative1 := int32(-1)
 		block := pb.AppleWLoc{
 			NumCellResults: &zero,
-			NumWifiResults: &negative1,
 			CellTowerRequest: &pb.CellTower{
 				Mmc:    310,
 				Mnc:    260,
