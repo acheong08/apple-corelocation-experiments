@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
 	"wloc/lib"
+	"wloc/pb"
 
 	"github.com/gptlang/oui/ouidb"
 	"github.com/leaanthony/clir"
@@ -92,6 +94,35 @@ func main() {
 				}
 			}
 		}
+		return nil
+	})
+	experiment := cli.NewSubCommandInheritFlags("exp", "Experimental command for WLOC requests")
+	experiment.Action(func() error {
+		zero := int32(0)
+		negative1 := int32(-1)
+		one := int32(1)
+		block := pb.AppleWLoc{
+			UnknownValue1:  &zero,
+			NumResults:     &negative1,
+			UnknownValue31: &negative1,
+			UnknownValue32: &one,
+			UnknownValue25: &pb.Unknown25{
+				Unknown1: 251,
+				Unknown2: 8,
+				Unknown3: -4801537,
+				Unknown4: -21669,
+			},
+			DeviceType: &pb.DeviceType{
+				OperatingSystem: "iPhone OS17.5/21F79",
+				Model:           "iPhone12,1",
+			},
+		}
+		resp, err := lib.RequestWloc(&block, nil)
+		if err != nil {
+			panic(err)
+		}
+		b, _ := json.MarshalIndent(resp, "", " ")
+		fmt.Println(string(b))
 		return nil
 	})
 	err := cli.Run()

@@ -19,24 +19,24 @@ func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
 		return nil, err
 	}
 	data := make([]byte, 50)
-	copyMultiByte(data, []byte{0x00, 0x01, 0x00, 0x05}, []byte("en_US"), []byte{0x00, 0x13}, []byte("com.apple.locationd"), []byte{0x00, 0x0a}, []byte("14.5.23F79"), []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00}, []byte{byte(len(serializedWloc))})
+	copyMultiByte(data, []byte{0x00, 0x01, 0x00, 0x05}, []byte("en_US"), []byte{0x00, 0x13}, []byte("com.apple.locationd"), []byte{0x00, 0x0a}, []byte("17.5.21F79"), []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00}, []byte{byte(len(serializedWloc))})
 	data = append(data, serializedWloc...)
 
 	return data, nil
 }
 
-func RequestWloc(block *pb.AppleWLoc, args wlocArgs) (*pb.AppleWLoc, error) {
+func RequestWloc(block *pb.AppleWLoc, args *wlocArgs) (*pb.AppleWLoc, error) {
 	// Serialize to bytes
 	serializedBlock, err := serializeWlocRequest(block)
 	if err != nil {
 		return nil, errors.New("failed to serialize protobuf")
 	}
-	var wlocURL string
-	switch args.region {
-	case Options.International:
-		wlocURL = "https://gs-loc.apple.com"
-	case Options.China:
-		wlocURL = "https://gs-loc-cn.apple.com"
+	var wlocURL string = "https://gs-loc.apple.com"
+	if args != nil {
+		switch args.region {
+		case Options.China:
+			wlocURL = "https://gs-loc-cn.apple.com"
+		}
 	}
 	wlocURL = wlocURL + "/clls/wloc"
 	// Make HTTP request
@@ -92,7 +92,7 @@ func QueryBssid(bssids []string, maxResults bool, options ...Modifier) (*pb.Appl
 	} else {
 		block.NumResults = &one32
 	}
-	return RequestWloc(&block, args)
+	return RequestWloc(&block, &args)
 }
 
 func copyMultiByte(dst []byte, srcs ...[]byte) {
