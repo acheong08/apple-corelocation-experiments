@@ -2,7 +2,7 @@ var lat = parseFloat(document.getElementById("lat").dataset.name);
 var long = parseFloat(document.getElementById("long").dataset.name);
 var china = document.getElementById("china").dataset.name;
 var map;
-if (china) {
+if (china == "true") {
   var getTiles = function (baseUrl, tilePoint) {
     String.prototype.formatString = function () {
       let a = this;
