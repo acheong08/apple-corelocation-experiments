@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math"
 	"wloc/lib"
 	"wloc/pb"
 
@@ -36,18 +35,18 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		for _, wifi := range blocks.GetWifiDevices() {
+		for _, ap := range blocks {
 			if displayVendor {
-				man, err := ouidb.Lookup(wifi.GetBssid())
+				man, err := ouidb.Lookup(ap.BSSID)
 				if err != nil {
 					man = "Unknown"
 				}
-				fmt.Printf("BSSID: %s (%s) found at Lat: %f Long: %f\n", wifi.GetBssid(), man, float64(*wifi.GetLocation().Latitude)*math.Pow10(-8), float64(*wifi.GetLocation().Longitude)*math.Pow10(-8))
+				fmt.Printf("BSSID: %s (%s) found at Lat: %f Long: %f\n", ap.BSSID, man, ap.Location.Lat, ap.Location.Long)
 			} else {
-				fmt.Printf("BSSID: %s found at Lat: %f Long: %f\n", wifi.GetBssid(), float64(*wifi.GetLocation().Latitude)*math.Pow10(-8), float64(*wifi.GetLocation().Longitude)*math.Pow10(-8))
+				fmt.Printf("BSSID: %s found at Lat: %f Long: %f\n", ap.BSSID, ap.Location.Lat, ap.Location.Long)
 			}
 		}
-		fmt.Println(len(blocks.GetWifiDevices()), "number of devices found in area")
+		fmt.Println(len(blocks), "number of devices found in area")
 		return nil
 	})
 	tileKey := int64(81644853)
@@ -63,35 +62,15 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		for _, region := range tiles.GetRegion() {
-			for _, device := range region.GetDevices() {
-				lat := float64(device.GetEntry().GetLat()) * math.Pow10(-7)
-				long := float64(device.GetEntry().GetLong()) * math.Pow10(-7)
-				macHex := fmt.Sprintf("%x", device.GetBssid())
-				if len(macHex) != 12 {
-					// Fill it up to 12 with 0s in front
-					for i := 0; i < 13-len(macHex); i++ {
-						macHex = "0" + macHex
-					}
+		for _, d := range tiles {
+			if displayVendor {
+				manufacturer, err := ouidb.Lookup(d.BSSID)
+				if err != nil {
+					continue
 				}
-				// Insert : between every 2 hex values
-				mac := ""
-				for i := 0; i < len(macHex); i += 2 {
-					if i+2 < len(macHex) {
-						mac += macHex[i:i+2] + ":"
-					} else {
-						mac += macHex[i:]
-					}
-				}
-				if displayVendor {
-					manufacturer, err := ouidb.Lookup(mac)
-					if err != nil {
-						continue
-					}
-					fmt.Printf("MAC: %s (%s) - %f %f\n", mac, manufacturer, lat, long)
-				} else {
-					fmt.Printf("MAC: %s - %f %f\n", mac, lat, long)
-				}
+				fmt.Printf("MAC: %s (%s) - %f %f\n", d.BSSID, manufacturer, d.Location.Lat, d.Location.Long)
+			} else {
+				fmt.Printf("MAC: %s - %f %f\n", d.BSSID, d.Location.Lat, d.Location.Long)
 			}
 		}
 		return nil

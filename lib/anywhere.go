@@ -3,9 +3,7 @@ package lib
 import (
 	"errors"
 	"log"
-	"math"
 	"wloc/lib/distance"
-	"wloc/lib/mac"
 	"wloc/lib/morton"
 	"wloc/lib/spiral"
 )
@@ -36,17 +34,12 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 		if err != nil {
 			continue
 		}
-		for _, r := range tile.GetRegion() {
-			for _, d := range r.GetDevices() {
-				if d == nil || d.GetBssid() == 0 {
-					continue
-				}
-				closest = distance.Closer(&target, closest, &distance.Point{
-					Id: mac.Decode(d.GetBssid()),
-					Y:  float64(d.GetEntry().GetLat()) * math.Pow10(-7),
-					X:  float64(d.GetEntry().GetLong()) * math.Pow10(-7),
-				})
-			}
+		for _, d := range tile {
+			closest = distance.Closer(&target, closest, &distance.Point{
+				Id: d.BSSID,
+				Y:  d.Location.Lat,
+				X:  d.Location.Long,
+			})
 		}
 		break
 	}
@@ -60,15 +53,15 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 			log.Println(closest)
 			return nil, err
 		}
-		if len(devices.GetWifiDevices()) == 0 {
+		if len(devices) == 0 {
 			return nil, errors.New("could not find given BSSID")
 		}
-		points = make([]distance.Point, len(devices.GetWifiDevices()))
-		for i, device := range devices.GetWifiDevices() {
+		points = make([]distance.Point, len(devices))
+		for i, device := range devices {
 			points[i] = distance.Point{
-				Id: device.GetBssid(),
-				Y:  float64(*device.GetLocation().Latitude) * math.Pow10(-8),
-				X:  float64(*device.GetLocation().Longitude) * math.Pow10(-8),
+				Id: device.BSSID,
+				Y:  device.Location.Lat,
+				X:  device.Location.Long,
 			}
 		}
 		newClosest := distance.Closest(target, points)

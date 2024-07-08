@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"math"
 	"net/http"
 	"wloc/pb"
 
@@ -25,18 +26,20 @@ func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
 	return data, nil
 }
 
-func RequestWloc(block *pb.AppleWLoc, args *wlocArgs) (*pb.AppleWLoc, error) {
+func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error) {
+	args := newWlocArgs()
+	for _, option := range options {
+		option(&args)
+	}
 	// Serialize to bytes
 	serializedBlock, err := serializeWlocRequest(block)
 	if err != nil {
 		return nil, errors.New("failed to serialize protobuf")
 	}
 	var wlocURL string = "https://gs-loc.apple.com"
-	if args != nil {
-		switch args.region {
-		case Options.China:
-			wlocURL = "https://gs-loc-cn.apple.com"
-		}
+	switch args.region {
+	case Options.China:
+		wlocURL = "https://gs-loc-cn.apple.com"
 	}
 	wlocURL = wlocURL + "/clls/wloc"
 	// Make HTTP request
@@ -75,14 +78,10 @@ func RequestWloc(block *pb.AppleWLoc, args *wlocArgs) (*pb.AppleWLoc, error) {
 	return &respBlock, nil
 }
 
-func QueryBssid(bssids []string, maxResults bool, options ...Modifier) (*pb.AppleWLoc, error) {
-	args := newWlocArgs()
-	for _, option := range options {
-		option(&args)
-	}
+func QueryBssid(bssids []string, maxResults bool, options ...Modifier) ([]AP, error) {
 	zero32 := int32(0)
 	one32 := int32(1)
-	block := pb.AppleWLoc{}
+	block := &pb.AppleWLoc{}
 	block.WifiDevices = make([]*pb.WifiDevice, len(bssids))
 	for i, bssid := range bssids {
 		block.WifiDevices[i] = &pb.WifiDevice{Bssid: bssid}
@@ -92,7 +91,59 @@ func QueryBssid(bssids []string, maxResults bool, options ...Modifier) (*pb.Appl
 	} else {
 		block.NumWifiResults = &one32
 	}
-	return RequestWloc(&block, &args)
+	block, err := RequestWloc(block, options...)
+	if err != nil {
+		return nil, err
+	}
+	resp := make([]AP, len(block.GetWifiDevices()))
+	for i, d := range block.GetWifiDevices() {
+		resp[i] = AP{
+			BSSID: d.GetBssid(),
+			Location: Location{
+				Long: coordFromInt(d.GetLocation().GetLongitude(), -8),
+				Lat:  coordFromInt(d.GetLocation().GetLatitude(), -8),
+				Alt:  coordFromInt(d.GetLocation().GetAltitude(), -8),
+			},
+		}
+	}
+	return resp, nil
+}
+
+func QueryCell(mmc, mnc, cellid, tacid uint32, numResults int32, options ...Modifier) ([]Cell, error) {
+	block := &pb.AppleWLoc{
+		NumCellResults: &numResults,
+		CellTowerRequest: &pb.CellTower{
+			Mmc:    mmc,
+			Mnc:    mnc,
+			CellId: cellid,
+			TacId:  tacid,
+		},
+		DeviceType: &pb.DeviceType{
+			OperatingSystem: "iPhone OS17.5/21F79",
+			Model:           "iPhone12,1",
+		},
+	}
+	block, err := RequestWloc(block, options...)
+	if err != nil {
+		return nil, err
+	}
+	cells := make([]Cell, len(block.GetCellTowerResponse()))
+	for i, c := range block.GetCellTowerResponse() {
+		cells[i] = Cell{
+			Tower: TowerInfo{
+				Mmc:    c.GetMmc(),
+				Mnc:    c.GetMnc(),
+				CellId: c.GetCellId(),
+				TacId:  c.GetTacId(),
+			},
+			Location: Location{
+				Long: coordFromInt(c.GetLocation().GetLongitude(), -8),
+				Lat:  coordFromInt(c.GetLocation().GetLatitude(), -8),
+				Alt:  coordFromInt(c.GetLocation().GetAltitude(), -8),
+			},
+		}
+	}
+	return cells, nil
 }
 
 func copyMultiByte(dst []byte, srcs ...[]byte) {
@@ -101,4 +152,8 @@ func copyMultiByte(dst []byte, srcs ...[]byte) {
 		copy(dst[n:], src)
 		n += len(src)
 	}
+}
+
+func coordFromInt(n int64, pow int) float64 {
+	return float64(n) * math.Pow10(pow)
 }

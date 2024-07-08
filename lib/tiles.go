@@ -3,13 +3,15 @@ package lib
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"wloc/lib/mac"
 	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
 )
 
-func GetTile(tileKey int64, options ...Modifier) (*pb.WifiTile, error) {
+func GetTile(tileKey int64, options ...Modifier) ([]AP, error) {
 	var tileURL string
 	args := newWlocArgs()
 	for _, option := range options {
@@ -50,5 +52,25 @@ func GetTile(tileKey int64, options ...Modifier) (*pb.WifiTile, error) {
 		return nil, err
 	}
 	err = proto.Unmarshal(b, wifuTile)
-	return wifuTile, err
+	if err != nil {
+		return nil, err
+	}
+	aps := make([]AP, 1000)
+	max := 0
+	for _, region := range wifuTile.GetRegion() {
+		for _, device := range region.GetDevices() {
+			if device == nil || device.Bssid == 0 {
+				continue
+			}
+			aps[max] = AP{
+				BSSID: mac.Decode(device.GetBssid()),
+				Location: Location{
+					Lat:  coordFromInt(int64(device.GetEntry().GetLat()), -7),
+					Long: coordFromInt(int64(device.GetEntry().GetLong()), -7),
+				},
+			}
+			max++
+		}
+	}
+	return aps[:max], nil
 }
