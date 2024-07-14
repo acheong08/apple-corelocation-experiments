@@ -3,7 +3,6 @@ package lib
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"wloc/lib/mac"
 	"wloc/pb"
