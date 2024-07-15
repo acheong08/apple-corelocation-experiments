@@ -66,3 +66,4 @@ In the `umd.edu` paper, they were forced to brute force BSSIDs over the course o
 
 ## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
+- Ichnaea compatibility and add direct support in geoclue ([proposal](https://gitlab.freedesktop.org/geoclue/geoclue/-/issues/193))
