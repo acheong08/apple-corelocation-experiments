@@ -1,17 +1,20 @@
 package lib
 
 type AP struct {
-	BSSID string
+	BSSID    string
 	Location Location
 }
 
 type Cell struct {
-	Tower TowerInfo
+	Tower    TowerInfo
 	Location Location
 }
 
 type TowerInfo struct {
-	Mmc, Mnc, CellId, TacId uint32
+	Mmc    uint32 `json:"mobileCountryCode"`
+	Mnc    uint32 `json:"mobileNetworkCode"`
+	CellId uint32 `json:"cellId"`
+	TacId  uint32 `json:"locationAreaCode"`
 }
 
 type Location struct {

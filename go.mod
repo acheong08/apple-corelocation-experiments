@@ -7,8 +7,10 @@ require (
 	github.com/acheong08/clir v0.0.0-20240604141034-836339f05e01
 	github.com/buckhx/tiles v0.0.0-20160614171505-4994e5527da5
 	github.com/gptlang/oui v0.0.0-20240522122259-08e97ad0b56a
+	github.com/jftuga/geodist v1.0.0
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/leaanthony/clir v1.7.0
+	gonum.org/v1/gonum v0.15.0
 	google.golang.org/protobuf v1.34.1
 )
 
@@ -19,7 +21,9 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/tools v0.15.0 // indirect
 )
