@@ -23,7 +23,7 @@ type ResultType struct {
 	Accuracy float64
 }
 
-func CalculatePosition(networks []AccessPoint, minimumAccuracy float64) (lat, lon, accuracy float64) {
+func CalculatePosition(networks []AccessPoint) (lat, lon, accuracy float64) {
 	// Guess initial position as the weighted mean over all networks
 	points := make([]float64, len(networks)*2)
 
@@ -60,9 +60,6 @@ func CalculatePosition(networks []AccessPoint, minimumAccuracy float64) (lat, lo
 		distances[i] = Distance(lat, lon, net.Location.Lat, net.Location.Long)
 	}
 	accuracy = percentile(distances, 95)
-	if accuracy < minimumAccuracy {
-		accuracy = minimumAccuracy
-	}
 
 	return lat, lon, accuracy
 }
