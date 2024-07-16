@@ -12,7 +12,7 @@ func leastSquareFunc(point [2]float64, points []AccessPoint) *mat.VecDense {
 	for i, p := range points {
 		dist := Distance(p.Location.Lat, p.Location.Long, point[0], point[1])
 		signalFactor := math.Pow(float64(p.SignalStrength), 2)
-		result[i] = dist * 1 / signalFactor
+		result[i] = dist / signalFactor
 	}
 	return mat.NewVecDense(len(result), result)
 }
@@ -24,9 +24,8 @@ type ResultType struct {
 }
 
 func CalculatePosition(networks []AccessPoint) (lat, lon, accuracy float64) {
-	// Guess initial position as the weighted mean over all networks
+	// Initial position as the mean over all networks
 	points := make([]float64, len(networks)*2)
-
 	for i, net := range networks {
 		points[i*2] = net.Location.Lat
 		points[i*2+1] = net.Location.Long

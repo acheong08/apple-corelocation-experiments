@@ -48,6 +48,9 @@ func main() {
 			cunt++
 		}
 		log.Println("Final length ", len(req.APs))
+		for _, ap := range req.APs {
+			log.Printf("%s: %4f, %4f", ap.Mac, ap.Location.Lat, ap.Location.Long)
+		}
 		lat, lon, accuracy := multilateration.CalculatePosition(req.APs)
 		return c.JSON(200, map[string]any{
 			"location": map[string]float64{

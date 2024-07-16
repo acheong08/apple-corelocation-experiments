@@ -3,11 +3,12 @@ package multilateration
 import "sort"
 
 func average(points []float64) []float64 {
-	result := make([]float64, len(points)/2)
+	sum := make([]float64, 2)
 	for i := 0; i < len(points); i += 2 {
-		result[i/2] = (points[i] + points[i+1]) / 2
+		sum[0] += points[i]
+		sum[1] += points[i+1]
 	}
-	return result
+	return []float64{sum[0] / float64(len(points)/2), sum[1] / float64(len(points)/2)}
 }
 
 func percentile(data []float64, percentile float64) float64 {
