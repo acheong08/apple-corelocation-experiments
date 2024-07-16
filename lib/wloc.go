@@ -28,8 +28,10 @@ func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
 
 func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error) {
 	args := newWlocArgs()
-	for _, option := range options {
-		option(&args)
+	if len(options) == 0 {
+		for _, option := range options {
+			option(&args)
+		}
 	}
 	// Serialize to bytes
 	serializedBlock, err := serializeWlocRequest(block)
@@ -78,19 +80,13 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 	return &respBlock, nil
 }
 
-func QueryBssid(bssids []string, maxResults bool, options ...Modifier) ([]AP, error) {
-	zero32 := int32(0)
-	one32 := int32(1)
+func QueryBssid(bssids []string, maxResults int32, options ...Modifier) ([]AP, error) {
 	block := &pb.AppleWLoc{}
 	block.WifiDevices = make([]*pb.WifiDevice, len(bssids))
 	for i, bssid := range bssids {
 		block.WifiDevices[i] = &pb.WifiDevice{Bssid: bssid}
 	}
-	if maxResults {
-		block.NumWifiResults = &zero32
-	} else {
-		block.NumWifiResults = &one32
-	}
+	block.NumWifiResults = &maxResults
 	block, err := RequestWloc(block, options...)
 	if err != nil {
 		return nil, err

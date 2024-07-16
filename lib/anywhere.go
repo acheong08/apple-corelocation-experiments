@@ -48,7 +48,7 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 	}
 	var points []distance.Point
 	for {
-		devices, err := QueryBssid([]string{closest.Id}, true, options...)
+		devices, err := QueryBssid([]string{closest.Id}, 0, options...)
 		if err != nil {
 			log.Println(closest)
 			return nil, err

@@ -31,7 +31,7 @@ func main() {
 			options = append(options, lib.Options.WithRegion(lib.Options.China))
 		}
 
-		blocks, err := lib.QueryBssid(bssids, !less, options...)
+		blocks, err := lib.QueryBssid(bssids, boolToInt[int32](less), options...)
 		if err != nil {
 			panic(err)
 		}
@@ -103,4 +103,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+type anyNum interface {
+	int | int32 | int64 | uint | uint32 | uint64 | float32 | float64
+}
+
+func boolToInt[T anyNum](b bool) T {
+	if b {
+		return 1
+	}
+	return 0
 }
