@@ -2,15 +2,12 @@ package multilateration
 
 import "sort"
 
-func weightedAverage(points []float64, weights []float64) []float64 {
-	sum := make([]float64, 2)
-	totalWeight := 0.0
-	for i := 0; i < len(weights); i++ {
-		sum[0] += points[i*2] * weights[i]
-		sum[1] += points[i*2+1] * weights[i]
-		totalWeight += weights[i]
+func average(points []float64) []float64 {
+	result := make([]float64, len(points)/2)
+	for i := 0; i < len(points); i += 2 {
+		result[i/2] = (points[i] + points[i+1]) / 2
 	}
-	return []float64{sum[0] / totalWeight, sum[1] / totalWeight}
+	return result
 }
 
 func percentile(data []float64, percentile float64) float64 {

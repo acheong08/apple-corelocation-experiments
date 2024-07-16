@@ -8,8 +8,6 @@ type Request struct {
 
 type AccessPoint struct {
 	Mac            string `json:"macAddress"`
-	Age            uint   `json:"age"`
 	SignalStrength int    `json:"signalStrength"`
 	Location       lib.Location
-	Score          float64
 }
