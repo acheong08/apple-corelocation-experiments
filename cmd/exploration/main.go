@@ -67,6 +67,9 @@ func main() {
 		"North Pole":     {X: 0.0000, Y: 90.0000},
 		"South Pole":     {X: 0.0000, Y: -90.0000},
 		"Prime Meridian": {X: 0.0000, Y: 0.0000},
+		"Penang":         {X: 5.418210, Y: 100.318635},
+		"Penang Bridge":  {X: 5.254541, Y: 100.356624},
+		"Pulau Aman":     {X: 5.262080, Y: 100.387745},
 	}
 	for name, p := range points {
 		point := project.Point(orb.Point{p.X, p.Y}, project.WGS84.ToMercator)
