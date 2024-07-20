@@ -8,8 +8,10 @@ require (
 	github.com/buckhx/tiles v0.0.0-20160614171505-4994e5527da5
 	github.com/gptlang/oui v0.0.0-20240522122259-08e97ad0b56a
 	github.com/jftuga/geodist v1.0.0
+	github.com/jonas-p/go-shp v0.1.1
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/leaanthony/clir v1.7.0
+	github.com/paulmach/orb v0.11.1
 	gonum.org/v1/gonum v0.15.0
 	google.golang.org/protobuf v1.34.1
 )

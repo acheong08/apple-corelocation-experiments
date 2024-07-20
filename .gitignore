@@ -1,4 +1,5 @@
 map.html
+assets
 __pycache__
 venv
 points/*.txt
