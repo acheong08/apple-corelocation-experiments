@@ -4,26 +4,26 @@ import (
 	"github.com/buckhx/tiles"
 )
 
-func Decode(tileKey int64) (lat float64, long float64) {
-	mLat, mLong := Unpack(tileKey)
+func Decode(tileKey int64) (lat float64, long float64, level int) {
+	mLat, mLong, level := Unpack(tileKey)
 	t := tiles.Tile{
 		Y: mLat,
 		X: mLong,
 		Z: 13,
 	}
 	coords := t.ToPixel().ToCoords()
-	return coords.Lat, coords.Lon
+	return coords.Lat, coords.Lon, level
 }
 
-func Encode(lat float64, long float64) (tileKey int64) {
+func Encode(lat float64, long float64, level int) (tileKey int64) {
 	t := tiles.FromCoordinate(lat, long, 13)
 	p := t.ToPixel()
 	t2, _ := p.ToTile()
-	tileKey = Pack(t2.Y, t2.X)
+	tileKey = Pack(t2.Y, t2.X, level)
 	return tileKey
 }
 
-func Pack(mLat, mLong int) (tileKey int64) {
+func Pack(mLat, mLong, level int) (tileKey int64) {
 	row := mLat
 	column := mLong
 	result := int64(powerOfTwo[level<<1])
@@ -40,8 +40,7 @@ func Pack(mLat, mLong int) (tileKey int64) {
 	return result
 }
 
-func Unpack(tileKey int64) (mLat, mLong int) {
-	level := 0
+func Unpack(tileKey int64) (mLat, mLong, level int) {
 	row := 0
 	column := 0
 	quadKey := tileKey
@@ -56,5 +55,5 @@ func Unpack(tileKey int64) (mLat, mLong int) {
 		level++
 		quadKey = (quadKey - (quadKey & 0x3)) / 4
 	}
-	return row, column
+	return row, column, level
 }

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
+	"os"
 
 	shp "github.com/jonas-p/go-shp"
 	"github.com/paulmach/orb"
@@ -11,8 +13,12 @@ import (
 )
 
 func main() {
+	if len(os.Args) != 3 {
+		fmt.Println("Usage: shp-to-orb path/to/shp path/to/output")
+	}
+	path := os.Args[1]
 	// Open the shapefile
-	shape, err := shp.Open("assets/land_polygons.shp")
+	shape, err := shp.Open(path)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,6 +52,15 @@ func main() {
 			continue
 		}
 		polygons = append(polygons, orbPoly)
+	}
+	// Save polygons as gob file
+	f, err := os.Create(os.Args[2])
+	if err != nil {
+		log.Fatalf("Failed to create destination file %s: %s", os.Args[2], err.Error())
+	}
+	enc := gob.NewEncoder(f)
+	if err := enc.Encode(polygons); err != nil {
+		log.Fatalf("Failed to encode polygons: %s", err.Error())
 	}
 	fmt.Println(len(polygons))
 	points := map[string]struct {

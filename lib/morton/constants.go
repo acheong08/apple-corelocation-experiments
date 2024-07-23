@@ -1,7 +1,5 @@
 package morton
 
-const level = 13
-
 var powerOfTwo = []int{
 	0x1,
 	0x2,

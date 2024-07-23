@@ -21,7 +21,7 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 		// We don't want infinite search
 		return nil, errors.New(ErrInvalidInput)
 	}
-	mLat, mLong := morton.Unpack(morton.Encode(lat, long))
+	mLat, mLong, _ := morton.Unpack(morton.Encode(lat, long, 13))
 	sp := spiral.NewSpiral(mLat, mLong)
 	target := distance.Point{
 		Y: lat,
@@ -30,7 +30,7 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 	var closest *distance.Point
 	for i := 0; i < int(limit); i++ {
 		mLat, mLong = sp.Next()
-		tile, err := GetTile(morton.Pack(mLat, mLong), options...)
+		tile, err := GetTile(morton.Pack(mLat, mLong, 13), options...)
 		if err != nil {
 			continue
 		}

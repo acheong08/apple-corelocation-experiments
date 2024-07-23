@@ -16,7 +16,7 @@ func main() {
 	encode.Float64Flag("lat", "latitude", &lat)
 	encode.Float64Flag("long", "longitude", &long)
 	encode.Action(func() error {
-		tileKey := morton.Encode(lat, long)
+		tileKey := morton.Encode(lat, long, 13)
 		fmt.Println("Tile Key: ", tileKey)
 		return nil
 	})
@@ -25,7 +25,7 @@ func main() {
 	decode.Int64Flag("tile", "tile key", &tileKey)
 	decode.Action(func() error {
 		log.Println(morton.Unpack(tileKey))
-		lat, long := morton.Decode(tileKey)
+		lat, long, _ := morton.Decode(tileKey)
 		fmt.Println(lat, long)
 		return nil
 	})
@@ -36,7 +36,7 @@ func main() {
 	pack.IntFlag("lat", "latitude", &mLat)
 	pack.IntFlag("long", "longitude", &mLong)
 	pack.Action(func() error {
-		tileKey := morton.Pack(mLat, mLong)
+		tileKey := morton.Pack(mLat, mLong, 13)
 		fmt.Println("Tile Key: ", tileKey)
 		return nil
 	})
@@ -44,7 +44,7 @@ func main() {
 	unpack := cli.NewSubCommand("unpack", "Unpack tilekey to quadkey encoded coordinates")
 	unpack.Int64Flag("tile", "tile key", &tileKey)
 	unpack.Action(func() error {
-		mLat, mLong := morton.Unpack(tileKey)
+		mLat, mLong, _ := morton.Unpack(tileKey)
 		fmt.Println(mLat, mLong)
 		return nil
 	})
