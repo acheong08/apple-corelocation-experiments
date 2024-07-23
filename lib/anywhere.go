@@ -53,6 +53,7 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 			log.Println(closest)
 			return nil, err
 		}
+		log.Println(len(devices))
 		if len(devices) == 0 {
 			return nil, errors.New("could not find given BSSID")
 		}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"log"
 	"math"
 	"net/http"
 	"wloc/pb"
@@ -28,7 +29,7 @@ func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
 
 func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error) {
 	args := newWlocArgs()
-	if len(options) == 0 {
+	if len(options) != 0 {
 		for _, option := range options {
 			option(&args)
 		}
@@ -41,6 +42,7 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 	var wlocURL string = "https://gs-loc.apple.com"
 	switch args.region {
 	case Options.China:
+		log.Println("Using China API")
 		wlocURL = "https://gs-loc-cn.apple.com"
 	}
 	wlocURL = wlocURL + "/clls/wloc"

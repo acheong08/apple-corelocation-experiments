@@ -63,6 +63,7 @@ func main() {
 
 			points, err := lib.SearchProximity(g.Lat, g.Long, 20, options...)
 			if err != nil {
+				log.Println(err)
 				return c.String(404, "did not find any points nearby")
 			}
 

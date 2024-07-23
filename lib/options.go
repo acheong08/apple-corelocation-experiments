@@ -1,5 +1,7 @@
 package lib
 
+import "log"
+
 type _region uint8
 
 type _options struct {
@@ -31,6 +33,7 @@ type Modifier func(*wlocArgs)
 
 func (o _options) WithRegion(region _region) Modifier {
 	return func(wa *wlocArgs) {
+		log.Println("Setting region")
 		wa.region = region
 	}
 }

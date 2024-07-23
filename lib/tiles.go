@@ -54,9 +54,10 @@ func GetTile(tileKey int64, options ...Modifier) ([]AP, error) {
 	if err != nil {
 		return nil, err
 	}
-	aps := make([]AP, 1000)
+	aps := make([]AP, 0)
 	max := 0
 	for _, region := range wifuTile.GetRegion() {
+		aps = append(aps, make([]AP, len(region.GetDevices()))...)
 		for _, device := range region.GetDevices() {
 			if device == nil || device.Bssid == 0 {
 				continue
