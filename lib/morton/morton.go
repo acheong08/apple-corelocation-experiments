@@ -9,14 +9,14 @@ func Decode(tileKey int64) (lat float64, long float64, level int) {
 	t := tiles.Tile{
 		Y: mLat,
 		X: mLong,
-		Z: 13,
+		Z: level,
 	}
 	coords := t.ToPixel().ToCoords()
 	return coords.Lat, coords.Lon, level
 }
 
 func Encode(lat float64, long float64, level int) (tileKey int64) {
-	t := tiles.FromCoordinate(lat, long, 13)
+	t := tiles.FromCoordinate(lat, long, level)
 	p := t.ToPixel()
 	t2, _ := p.ToTile()
 	tileKey = Pack(t2.Y, t2.X, level)

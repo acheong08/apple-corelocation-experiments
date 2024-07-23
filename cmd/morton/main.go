@@ -12,11 +12,13 @@ func main() {
 	cli := clir.NewCli("morton", "Convert between GPS and morton encoded tile key coordinates", "0.0.1")
 	var lat float64
 	var long float64
-	encode := cli.NewSubCommand("encode", "Encode GPS coordinates to morton tile key")
+	var level int = 13
+	cli.IntFlag("level", "Openstreetmap level", &level)
+	encode := cli.NewSubCommandInheritFlags("encode", "Encode GPS coordinates to morton tile key")
 	encode.Float64Flag("lat", "latitude", &lat)
 	encode.Float64Flag("long", "longitude", &long)
 	encode.Action(func() error {
-		tileKey := morton.Encode(lat, long, 13)
+		tileKey := morton.Encode(lat, long, level)
 		fmt.Println("Tile Key: ", tileKey)
 		return nil
 	})

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
+	"wloc/lib/morton"
 
 	shp "github.com/jonas-p/go-shp"
 	"github.com/paulmach/orb"
@@ -12,8 +14,10 @@ import (
 	"github.com/paulmach/orb/project"
 )
 
+const level = 7
+
 func main() {
-	if len(os.Args) != 3 {
+	if len(os.Args) < 3 {
 		fmt.Println("Usage: shp-to-orb path/to/shp path/to/output")
 	}
 	path := os.Args[1]
@@ -23,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer shape.Close()
-	var polygons []orb.Polygon
+	var polygons orb.MultiPolygon
 	for shape.Next() {
 		_, p := shape.Shape()
 		var orbPoly orb.Polygon
@@ -53,45 +57,60 @@ func main() {
 		}
 		polygons = append(polygons, orbPoly)
 	}
+	if slices.Contains(os.Args, "-map") {
+		// Build a map of zoom level 9 morton blocks
+		watery := make(map[int64][]orb.Polygon)
+		count := 0
+		for _, poly := range polygons {
+			center := project.Mercator.ToWGS84(poly.Bound().Bound().Center())
+			code := morton.Encode(center.Lat(), center.Lon(), level)
+			watery[code] = append(watery[code], poly)
+			count++
+		}
+		log.Println(count)
+		save(watery)
+	} else {
+		if len(polygons) == 1 {
+			save(polygons[0])
+		} else {
+			save(polygons)
+		}
+	}
+	test(polygons)
+}
+
+func save(a any) {
 	// Save polygons as gob file
 	f, err := os.Create(os.Args[2])
 	if err != nil {
 		log.Fatalf("Failed to create destination file %s: %s", os.Args[2], err.Error())
 	}
 	enc := gob.NewEncoder(f)
-	if err := enc.Encode(polygons); err != nil {
+	if err := enc.Encode(a); err != nil {
 		log.Fatalf("Failed to encode polygons: %s", err.Error())
 	}
-	fmt.Println(len(polygons))
+}
+
+func test(poly orb.MultiPolygon) {
+	fmt.Println(len(poly))
 	points := map[string]struct {
 		X float64
 		Y float64
 	}{
-		"New York City":  {X: -74.0060, Y: 40.7128},
-		"London":         {X: -0.1276, Y: 51.5074},
-		"Tokyo":          {X: 139.6917, Y: 35.6895},
-		"Sydney":         {X: 151.2093, Y: -33.8688},
-		"Rio de Janeiro": {X: -43.1729, Y: -22.9068},
-		"Cairo":          {X: 31.2357, Y: 30.0444},
-		"Moscow":         {X: 37.6173, Y: 55.7558},
-		"Cape Town":      {X: 18.4241, Y: -33.9249},
-		"Beijing":        {X: 116.4074, Y: 39.9042},
-		"Los Angeles":    {X: -118.2437, Y: 34.0522},
-		"Mid-Atlantic":   {X: -30.0000, Y: 30.0000},
-		"Mid-Pacific":    {X: -150.0000, Y: 0.0000},
-		"North Pole":     {X: 0.0000, Y: 90.0000},
-		"South Pole":     {X: 0.0000, Y: -90.0000},
-		"Prime Meridian": {X: 0.0000, Y: 0.0000},
-		"Penang":         {X: 5.418210, Y: 100.318635},
-		"Penang Bridge":  {X: 5.254541, Y: 100.356624},
-		"Pulau Aman":     {X: 5.262080, Y: 100.387745},
+		"North Pacific": {32.890398, 146.864834},
+		"China":         {45.964474, 119.773672},
+		"Penang coast":  {5.419154, 100.343326},
+		"Penang bridge": {5.304548, 100.359499},
 	}
 	for name, p := range points {
-		point := project.Point(orb.Point{p.X, p.Y}, project.WGS84.ToMercator)
+		point := project.Point(orb.Point{p.Y, p.X}, project.WGS84.ToMercator)
 		found := false
-		for i, poly := range polygons {
+		for i, poly := range poly {
 			if planar.PolygonContains(poly, point) {
-				fmt.Printf("%s is in polygon %d\n", name, i)
+				center := project.Mercator.ToWGS84(poly.Bound().Center())
+				code := morton.Encode(center.Lat(), center.Lon(), level)
+
+				fmt.Printf("%s is in polygon %d with code %d\n", name, i, code)
 				found = true
 				break
 			}
