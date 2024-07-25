@@ -6,21 +6,26 @@ import (
 
 func Decode(tileKey int64) (lat float64, long float64, level int) {
 	mLat, mLong, level := Unpack(tileKey)
-	t := tiles.Tile{
-		Y: mLat,
-		X: mLong,
-		Z: level,
-	}
-	coords := t.ToPixel().ToCoords()
-	return coords.Lat, coords.Lon, level
+	lat, long = FromTile(mLat, mLong, level)
+	return
 }
 
 func Encode(lat float64, long float64, level int) (tileKey int64) {
+	mLat, mLong := ToTile(lat, long, level)
+	tileKey = Pack(mLat, mLong, level)
+	return tileKey
+}
+
+func ToTile(lat, long float64, level int) (mLat, mLong int) {
 	t := tiles.FromCoordinate(lat, long, level)
 	p := t.ToPixel()
 	t2, _ := p.ToTile()
-	tileKey = Pack(t2.Y, t2.X, level)
-	return tileKey
+	return t2.Y, t2.X
+}
+
+func FromTile(mLat, mLong, level int) (lat, long float64) {
+	coords := tiles.Tile{Y: mLat, X: mLong, Z: level}.ToPixel().ToCoords()
+	return coords.Lat, coords.Lon
 }
 
 func Pack(mLat, mLong, level int) (tileKey int64) {
