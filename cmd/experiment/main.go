@@ -12,7 +12,11 @@ import (
 	"wloc/lib"
 	"wloc/lib/morton"
 	"wloc/lib/shapefiles"
+
+	"github.com/schollz/progressbar/v3"
 )
+
+var progress = progressbar.Default(MaxTile * MaxTile)
 
 func main() {
 	if !shapefiles.IsInWater(82.940327, -180.000000) {
@@ -24,6 +28,9 @@ func main() {
 		log.Println("Failed to load state. This is expected for new runs")
 	}
 	gen.Start()
+	if err := progress.Add(gen.Current.Y*(MaxTile+1) + gen.Current.X); err != nil {
+		panic(err)
+	}
 	defer func() {
 		err := recover()
 		if err != nil {
@@ -40,11 +47,12 @@ func main() {
 	database := InitDatabase()
 	ctx, cancel := context.WithCancel(context.Background())
 	wait := sync.WaitGroup{}
-	for i := range 8 {
+	for i := range 400 {
 		wait.Add(1)
 		go func() {
 			Datafetcher(ctx, &database, gen.Channel())
 			wait.Done()
+			log.Println("Thread completed")
 		}()
 		log.Println("Started thread ", i)
 	}
@@ -61,9 +69,11 @@ func main() {
 
 func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 	for coord := range c {
+		if err := progress.Add(1); err != nil {
+			panic(err)
+		}
 		lat, lon := morton.FromTile(coord.X, coord.Y, 13)
 		if shapefiles.IsInWater(lat, lon) {
-			log.Println("Coordinate is in water, skipping")
 			continue
 		}
 		select {
@@ -74,12 +84,12 @@ func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 			aps, err := lib.GetTile(code)
 			if err != nil {
 				if err.Error() == "unexpected status code: 404" {
-					log.Printf("Nothing found at %f %f", lat, lon)
 					continue
 				}
 				log.Println("Something went from in tile call: ", err)
+				continue
 			}
-			log.Printf("Found %d access points\n", len(aps))
+			log.Printf("\nFound %d access points at %f, %f\n", len(aps), lat, lon)
 			database.Add(aps)
 		}
 	}

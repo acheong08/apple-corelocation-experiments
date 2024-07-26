@@ -45,10 +45,10 @@ func (g *Generator) Start() {
 				return
 			case g.ch <- g.Current:
 				g.stateLock.Lock()
-				g.Current.X += 100
+				g.Current.X++
 				if g.Current.X > g.MaxTile {
 					g.Current.X = MinTile
-					g.Current.Y += 100
+					g.Current.Y++
 					if g.Current.Y > g.MaxTile {
 						g.stateLock.Unlock()
 						return
