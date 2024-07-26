@@ -5,22 +5,19 @@ import (
 	"io"
 	"net/http"
 	"wloc/lib/mac"
+	"wloc/lib/morton"
+	"wloc/lib/shapefiles"
 	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
 )
 
-func GetTile(tileKey int64, options ...Modifier) ([]AP, error) {
-	var tileURL string
-	args := newWlocArgs()
-	for _, option := range options {
-		option(&args)
-	}
-	switch args.region {
-	case Options.China:
+func GetTile(tileKey int64) ([]AP, error) {
+	var tileURL string = "https://gspe85-ssl.ls.apple.com"
+
+	lat, lon, _ := morton.Decode(tileKey)
+	if shapefiles.IsInChina(lat, lon) {
 		tileURL = "https://gspe85-cn-ssl.ls.apple.com"
-	case Options.International:
-		tileURL = "https://gspe85-ssl.ls.apple.com"
 	}
 	tileURL = tileURL + "/wifi_request_tile"
 	req, err := http.NewRequest("GET", tileURL, nil)

@@ -30,7 +30,7 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 	var closest *distance.Point
 	for i := 0; i < int(limit); i++ {
 		mLat, mLong = sp.Next()
-		tile, err := GetTile(morton.Pack(mLat, mLong, 13), options...)
+		tile, err := GetTile(morton.Pack(mLat, mLong, 13))
 		if err != nil {
 			continue
 		}

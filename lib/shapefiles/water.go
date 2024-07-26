@@ -11,6 +11,9 @@ import (
 const level = 7
 
 func IsInWater(lat, lon float64) bool {
+	if lon == -180 || lon == 180 {
+		return true
+	}
 	merc := project.WGS84.ToMercator(orb.Point{lon, lat})
 	polies, ok := Waters[morton.Encode(lat, lon, level)]
 	if ok && planar.MultiPolygonContains(polies, merc) {

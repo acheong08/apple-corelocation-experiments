@@ -54,11 +54,7 @@ func main() {
 	tileCmd.Int64Flag("key", "The tile key used to determine region", &tileKey)
 	tileCmd.BoolFlag("vendor", "Tells the CLI to append the vendor of the MAC address to outpus", &displayVendor)
 	tileCmd.Action(func() error {
-		var options []lib.Modifier
-		if china {
-			options = append(options, lib.Options.WithRegion(lib.Options.China))
-		}
-		tiles, err := lib.GetTile(tileKey, options...)
+		tiles, err := lib.GetTile(tileKey)
 		if err != nil {
 			panic(err)
 		}

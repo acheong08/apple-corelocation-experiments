@@ -1,4 +1,6 @@
 map.html
+*.gob
+*.db
 __pycache__
 venv
 points/*.txt

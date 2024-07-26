@@ -2,6 +2,7 @@ package shapefiles_test
 
 import (
 	"testing"
+	"wloc/lib/morton"
 	"wloc/lib/shapefiles"
 )
 
@@ -32,6 +33,13 @@ func TestPartialWaterblockSea(t *testing.T) {
 	lat, lon := 5.304548, 100.359499
 	if !shapefiles.IsInWater(lat, lon) {
 		t.Fatal("near-land ocean not in polygon")
+	}
+}
+
+func TestMaxCoords(t *testing.T) {
+	lat, lon := morton.FromTile(415, 0, 13)
+	if !shapefiles.IsInWater(lat, lon) {
+		t.Fail()
 	}
 }
 
