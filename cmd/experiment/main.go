@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 	"wloc/lib"
 	"wloc/lib/morton"
 	"wloc/lib/shapefiles"
@@ -47,7 +48,7 @@ func main() {
 	database := InitDatabase()
 	ctx, cancel := context.WithCancel(context.Background())
 	wait := sync.WaitGroup{}
-	for i := range 400 {
+	for i := range 500 {
 		wait.Add(1)
 		go func() {
 			Datafetcher(ctx, &database, gen.Channel())
@@ -80,17 +81,21 @@ func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 		case <-ctx.Done():
 			return
 		default:
-			code := morton.Pack(coord.X, coord.Y, 13)
-			aps, err := lib.GetTile(code)
-			if err != nil {
-				if err.Error() == "unexpected status code: 404" {
+			for {
+				code := morton.Pack(coord.X, coord.Y, 13)
+				aps, err := lib.GetTile(code)
+				if err != nil {
+					if err.Error() == "unexpected status code: 404" {
+						break
+					}
+					log.Println("Something went from in tile call: ", err)
+					time.Sleep(100 * time.Millisecond)
 					continue
 				}
-				log.Println("Something went from in tile call: ", err)
-				continue
+				log.Printf("\nFound %d access points at %f, %f\n", len(aps), lat, lon)
+				database.Add(aps)
+				break
 			}
-			log.Printf("\nFound %d access points at %f, %f\n", len(aps), lat, lon)
-			database.Add(aps)
 		}
 	}
 }

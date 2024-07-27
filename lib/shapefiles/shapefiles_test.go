@@ -51,6 +51,12 @@ func TestMainlandChina(t *testing.T) {
 	}
 }
 
+func TestHainan(t *testing.T) {
+	if !shapefiles.IsInChina(19.568660, 110.262544) {
+		t.Fail()
+	}
+}
+
 func TestSpecialRegions(t *testing.T) {
 	// Taiwan, Macao, Hong Kong
 	if shapefiles.IsInChina(24.700922, 120.878601) {
