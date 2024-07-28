@@ -3,6 +3,7 @@ module wloc
 go 1.22.3
 
 require (
+	github.com/DataDog/zstd v1.5.5
 	github.com/a-h/templ v0.2.707
 	github.com/acheong08/clir v0.0.0-20240604141034-836339f05e01
 	github.com/buckhx/tiles v0.0.0-20160614171505-4994e5527da5
@@ -13,6 +14,7 @@ require (
 	github.com/leaanthony/clir v1.7.0
 	github.com/paulmach/orb v0.11.1
 	github.com/schollz/progressbar/v3 v3.14.4
+	github.com/tidwall/btree v1.7.0
 	gonum.org/v1/gonum v0.15.0
 	google.golang.org/protobuf v1.34.1
 	modernc.org/sqlite v1.31.1

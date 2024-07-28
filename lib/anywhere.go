@@ -57,9 +57,11 @@ func SearchProximity(lat, long float64, limit uint8, options ...Modifier) ([]dis
 		if len(devices) == 0 {
 			return nil, errors.New("could not find given BSSID")
 		}
-		points = make([]distance.Point, len(devices))
+		// points = make([]distance.Point, len(devices))
+		offset := len(points)
+		points = append(points, make([]distance.Point, len(devices))...)
 		for i, device := range devices {
-			points[i] = distance.Point{
+			points[offset+i] = distance.Point{
 				Id: device.BSSID,
 				Y:  device.Location.Lat,
 				X:  device.Location.Long,

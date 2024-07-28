@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"wloc/lib/mac"
 	"wloc/lib/morton"
 
 	"github.com/leaanthony/clir"
@@ -48,6 +49,14 @@ func main() {
 	unpack.Action(func() error {
 		mLat, mLong, _ := morton.Unpack(tileKey)
 		fmt.Println(mLat, mLong)
+		return nil
+	})
+
+	var bssid int64
+	macdecode := cli.NewSubCommand("mac", "Decode a MAC address")
+	macdecode.Int64Flag("mac", "MAC address int64", &bssid)
+	macdecode.Action(func() error {
+		fmt.Println(mac.Decode(bssid))
 		return nil
 	})
 
