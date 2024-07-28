@@ -1,8 +1,9 @@
 package mac
 
 import (
+	"encoding/binary"
+	"encoding/hex"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -36,10 +37,23 @@ func Encode(mac string) (int64, error) {
 	}
 
 	// Convert hexadecimal string to int64
-	i, err := strconv.ParseInt(macHex, 16, 64)
+	b, err := hex.DecodeString(macHex)
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse MAC address: %v", err)
+		return 0, fmt.Errorf("invalid hex")
 	}
+	// Pad the start with 0s
+	if len(b) != 8 {
+		for i := 0; i <= 8-len(b); i++ {
+			b = append([]byte{0}, b...)
+		}
+	}
+	return int64(binary.BigEndian.Uint64(b)), nil
+}
 
-	return i, nil
+func BytesToInt64(mac []byte) int64 {
+	var i int64
+	for _, b := range mac {
+		i = i<<8 + int64(b)
+	}
+	return i
 }

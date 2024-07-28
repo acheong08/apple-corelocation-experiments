@@ -1,4 +1,5 @@
 map.html
+*.zst
 *.gob
 *.db
 __pycache__
