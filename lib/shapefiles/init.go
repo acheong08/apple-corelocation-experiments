@@ -15,7 +15,7 @@ var _china []byte
 var _waters []byte
 
 var (
-	China  orb.Polygon
+	China  []orb.Polygon
 	Waters map[int64][]orb.Polygon
 )
 

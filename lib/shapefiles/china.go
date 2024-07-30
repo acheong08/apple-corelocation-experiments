@@ -6,5 +6,5 @@ import (
 )
 
 func IsInChina(lat, lon float64) bool {
-	return planar.PolygonContains(China, orb.Point{lon, lat})
+	return planar.MultiPolygonContains(China, orb.Point{lon, lat})
 }
