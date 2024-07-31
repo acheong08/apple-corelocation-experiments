@@ -92,7 +92,7 @@ func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 					time.Sleep(100 * time.Millisecond)
 					continue
 				}
-				log.Printf("\nFound %d access points at %f, %f\n", len(aps), lat, lon)
+				// log.Printf("\nFound %d access points at %f, %f\n", len(aps), lat, lon)
 				database.Add(aps)
 				break
 			}
