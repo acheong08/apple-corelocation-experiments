@@ -77,16 +77,21 @@ func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 		if shapefiles.IsInWater(lat, lon) {
 			continue
 		}
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			for {
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
 				code := morton.Pack(coord.X, coord.Y, 13)
 				aps, err := lib.GetTile(code)
 				if err != nil {
 					if err.Error() == "unexpected status code: 404" {
 						break
+					}
+					if err.Error() == "unexected status code: 503" {
+						log.Println("Rate limited. Exiting...")
+						return
 					}
 					log.Println("Something went from in tile call: ", err)
 					time.Sleep(100 * time.Millisecond)
