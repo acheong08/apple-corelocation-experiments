@@ -35,6 +35,7 @@ func main() {
 			break
 		}
 	}
+	log.Println("Num removed before valid: ", i)
 	j, _ := json.MarshalIndent(&wloc, "", " ")
 	fmt.Println(string(j))
 	if slices.Contains(os.Args, "-hex") {

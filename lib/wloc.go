@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
 	"io"
 	"log"
@@ -12,6 +13,16 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+var initialBytes []byte
+
+func init() {
+	var err error
+	initialBytes, err = hex.DecodeString("0001000a656e2d3030315f3030310013636f6d2e6170706c652e6c6f636174696f6e64000c31372e352e312e323146393000000001000000")
+	if err != nil {
+		panic(err)
+	}
+}
+
 func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
 	if applWloc == nil {
 		panic("nil pointer error")
@@ -20,8 +31,9 @@ func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	data := make([]byte, 50)
-	copyMultiByte(data, []byte{0x00, 0x01, 0x00, 0x05}, []byte("en_US"), []byte{0x00, 0x13}, []byte("com.apple.locationd"), []byte{0x00, 0x0a}, []byte("17.5.21F79"), []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00}, []byte{byte(len(serializedWloc))})
+	data := initialBytes
+	// copyMultiByte(data, []byte{0x00, 0x01, 0x00, 0x05}, []byte("en_US"), []byte{0x00, 0x13}, []byte("com.apple.locationd"), []byte{0x00, 0x0a}, []byte("17.5.21F79"), []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00}, []byte{byte(len(serializedWloc))})
+	data = append(data, byte(len(serializedWloc)))
 	data = append(data, serializedWloc...)
 
 	return data, nil
@@ -54,7 +66,7 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 		"Accept-Charset": "utf-8",
 		// "Accept-Encoding": "gzip, deflate",
 		"Accept-Language": "en-us",
-		"User-Agent":      "locationd/1753.17 CFNetwork/711.1.12 Darwin/14.0.0",
+		"User-Agent":      "locationd/2890.16.16 CFNetwork/1496.0.7 Darwin/23.5.0",
 		jsHeader:          jsHeaderValue,
 	} {
 		req.Header.Set(key, val)
@@ -82,8 +94,16 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 	return &respBlock, nil
 }
 
+var zero int32
+
 func QueryBssid(bssids []string, maxResults int32, options ...Modifier) ([]AP, error) {
-	block := &pb.AppleWLoc{}
+	block := &pb.AppleWLoc{
+		NumCellResults: &zero,
+		DeviceType: &pb.DeviceType{
+			OperatingSystem: "iPhone OS17.5/21F79",
+			Model:           "iPhone12,1",
+		},
+	}
 	block.WifiDevices = make([]*pb.WifiDevice, len(bssids))
 	for i, bssid := range bssids {
 		block.WifiDevices[i] = &pb.WifiDevice{Bssid: bssid}
@@ -94,7 +114,8 @@ func QueryBssid(bssids []string, maxResults int32, options ...Modifier) ([]AP, e
 		return nil, err
 	}
 	resp := make([]AP, len(block.GetWifiDevices()))
-	for i, d := range block.GetWifiDevices() {
+	i := 0
+	for _, d := range block.GetWifiDevices() {
 		long := coordFromInt(d.GetLocation().GetLongitude(), -8)
 		lat := coordFromInt(d.GetLocation().GetLatitude(), -8)
 		alt := coordFromInt(d.GetLocation().GetAltitude(), -8)
@@ -109,7 +130,9 @@ func QueryBssid(bssids []string, maxResults int32, options ...Modifier) ([]AP, e
 				Alt:  alt,
 			},
 		}
+		i++
 	}
+	resp = resp[:i]
 	return resp, nil
 }
 
@@ -148,14 +171,6 @@ func QueryCell(mmc, mnc, cellid, tacid uint32, numResults int32, options ...Modi
 		}
 	}
 	return cells, nil
-}
-
-func copyMultiByte(dst []byte, srcs ...[]byte) {
-	n := 0
-	for _, src := range srcs {
-		copy(dst[n:], src)
-		n += len(src)
-	}
 }
 
 func coordFromInt(n int64, pow int) float64 {
