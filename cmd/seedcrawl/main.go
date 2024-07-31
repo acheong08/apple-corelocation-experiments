@@ -77,7 +77,7 @@ func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 		if shapefiles.IsInWater(lat, lon) {
 			continue
 		}
-
+	outerLoop:
 		for {
 			select {
 			case <-ctx.Done():
@@ -87,7 +87,7 @@ func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 				aps, err := lib.GetTile(code)
 				if err != nil {
 					if err.Error() == "unexpected status code: 404" {
-						break
+						break outerLoop
 					}
 					if err.Error() == "unexected status code: 503" {
 						log.Println("Rate limited. Exiting...")
@@ -95,11 +95,11 @@ func Datafetcher(ctx context.Context, database *db, c <-chan Coordinate) {
 					}
 					log.Println("Something went from in tile call: ", err)
 					time.Sleep(100 * time.Millisecond)
-					continue
+					continue outerLoop
 				}
-				// log.Printf("\nFound %d access points at %f, %f\n", len(aps), lat, lon)
+				log.Printf("\nFound %d access points at %f, %f\n", len(aps), lat, lon)
 				database.Add(aps)
-				break
+				break outerLoop
 			}
 		}
 	}
