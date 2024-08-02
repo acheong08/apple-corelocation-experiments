@@ -1,37 +1,37 @@
 syntax = "proto3";
 
-option go_package = "./pb";
-
 import "pb/BSSIDApple.proto";
+
+option go_package = "./pb";
 
 // _CLPWifiAPLocationReadFrom
 message PbcWifiEntry {
-	string bssid = 1;
-	int32 channel = 2;
-	int32 rssi = 3;
-	optional PbcWlocLocation location = 4;
-	int32 hidden = 7;
+  string bssid = 1;
+  int32 channel = 2;
+  int32 rssi = 3;
+  optional PbcWlocLocation location = 4;
+  int32 hidden = 7;
   double timestamp = 8;
   int32 scan_type = 9;
 }
 
 message PbcWlocRequest {
-	DeviceType device_info = 163;
-	repeated PbcWifiEntry wifi_entries = 3;
+  DeviceType device_info = 163;
+  repeated PbcWifiEntry wifi_entries = 3;
 }
 
 // _CLPMotionActivityReadFrom
 message MotionActivity {
-	enum type {
-		unknown = 0;
-		stationary = 1;
-		walking = 2;
-		running = 3;
-		automotive = 4;
-		cycling = 5;
-	}
-	uint32 confidence = 1;
-	type activity = 2;
+  enum type {
+    unknown = 0;
+    stationary = 1;
+    walking = 2;
+    running = 3;
+    automotive = 4;
+    cycling = 5;
+  }
+  uint32 confidence = 1;
+  type activity = 2;
 }
 
 message PbcWlocLocation {
