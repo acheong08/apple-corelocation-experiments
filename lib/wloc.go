@@ -2,7 +2,6 @@ package lib
 
 import (
 	"bytes"
-	"encoding/hex"
 	"errors"
 	"io"
 	"log"
@@ -11,32 +10,21 @@ import (
 	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-var initialBytes []byte
-
-func init() {
-	var err error
-	initialBytes, err = hex.DecodeString("0001000a656e2d3030315f3030310013636f6d2e6170706c652e6c6f636174696f6e64000c31372e352e312e323146393000000001000000")
-	if err != nil {
-		panic(err)
+func serializeProto(p protoreflect.ProtoMessage, initial []byte) ([]byte, error) {
+	if p == nil {
+		panic("protobuf is nil")
 	}
-}
-
-func serializeWlocRequest(applWloc *pb.AppleWLoc) ([]byte, error) {
-	if applWloc == nil {
-		panic("nil pointer error")
-	}
-	serializedWloc, err := proto.Marshal(applWloc)
+	b, err := proto.Marshal(p)
 	if err != nil {
 		return nil, err
 	}
-	data := initialBytes
-	// copyMultiByte(data, []byte{0x00, 0x01, 0x00, 0x05}, []byte("en_US"), []byte{0x00, 0x13}, []byte("com.apple.locationd"), []byte{0x00, 0x0a}, []byte("17.5.21F79"), []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00}, []byte{byte(len(serializedWloc))})
-	data = append(data, byte(len(serializedWloc)))
-	data = append(data, serializedWloc...)
-
-	return data, nil
+	if initial != nil {
+		b = append(initial, b...)
+	}
+	return b, nil
 }
 
 func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error) {
@@ -49,7 +37,7 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 		}
 	}
 	// Serialize to bytes
-	serializedBlock, err := serializeWlocRequest(block)
+	serializedBlock, err := serializeProto(block, initialWlocBytes)
 	if err != nil {
 		return nil, errors.New("failed to serialize protobuf")
 	}
@@ -62,15 +50,7 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 	wlocURL = wlocURL + "/clls/wloc"
 	// Make HTTP request
 	req, _ := http.NewRequest(http.MethodPost, wlocURL, bytes.NewReader(serializedBlock))
-	for key, val := range map[string]string{
-		"Content-Type":   "application/x-www-form-urlencoded",
-		"Accept":         "*/*",
-		"Accept-Charset": "utf-8",
-		// "Accept-Encoding": "gzip, deflate",
-		"Accept-Language": "en-us",
-		"User-Agent":      "locationd/2890.16.16 CFNetwork/1496.0.7 Darwin/23.5.0",
-		jsHeader:          jsHeaderValue,
-	} {
+	for key, val := range headers {
 		req.Header.Set(key, val)
 	}
 	resp, err := http.DefaultClient.Do(req)

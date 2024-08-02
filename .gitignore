@@ -1,4 +1,5 @@
 map.html
+*.log
 *.zst
 *.gob
 *.db
