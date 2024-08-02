@@ -72,15 +72,20 @@ func main() {
 		return nil
 	})
 	experiment := cli.NewSubCommandInheritFlags("exp", "Experimental command for WLOC requests")
+	var mmc, mnc, cellid, tacid uint32
+	experiment.Uint32Flag("mmc", "Mobile Country Code", &mmc)
+	experiment.Uint32Flag("mnc", "Mobile Network Code", &mnc)
+	experiment.Uint32Flag("cellid", "Cell ID", &cellid)
+	experiment.Uint32Flag("tacid", "Tracking Area Code", &tacid)
 	experiment.Action(func() error {
 		zero := int32(0)
 		block := pb.AppleWLoc{
 			NumCellResults: &zero,
 			CellTowerRequest: &pb.CellTower{
-				Mmc:    310,
-				Mnc:    260,
-				CellId: 21140481,
-				TacId:  14450,
+				Mmc:    mmc,
+				Mnc:    mnc,
+				CellId: cellid,
+				TacId:  tacid,
 			},
 			DeviceType: &pb.DeviceType{
 				OperatingSystem: "iPhone OS17.5/21F79",

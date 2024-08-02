@@ -62,8 +62,8 @@ func GetTile(tileKey int64) ([]AP, error) {
 			aps[max] = AP{
 				BSSID: mac.Decode(device.GetBssid()),
 				Location: Location{
-					Lat:  coordFromInt(int64(device.GetEntry().GetLat()), -7),
-					Long: coordFromInt(int64(device.GetEntry().GetLong()), -7),
+					Lat:  CoordFromInt(int64(device.GetEntry().GetLat()), -7),
+					Long: CoordFromInt(int64(device.GetEntry().GetLong()), -7),
 				},
 			}
 			max++

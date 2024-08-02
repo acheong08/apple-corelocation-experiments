@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+option go_package = "./pb";
+
+import "pb/BSSIDApple.proto";
+
+// _CLPWifiAPLocationReadFrom
+message PbcWifiEntry {
+	string bssid = 1;
+	int32 channel = 2;
+	int32 rssi = 3;
+	optional PbcWlocLocation location = 4;
+	int32 hidden = 7;
+  double timestamp = 8;
+  int32 scan_type = 9;
+}
+
+message PbcWlocRequest {
+	DeviceType device_info = 163;
+	repeated PbcWifiEntry wifi_entries = 3;
+}
+
+// _CLPMotionActivityReadFrom
+message MotionActivity {
+	enum type {
+		unknown = 0;
+		stationary = 1;
+		walking = 2;
+		running = 3;
+		automotive = 4;
+		cycling = 5;
+	}
+	uint32 confidence = 1;
+	type activity = 2;
+}
+
+message PbcWlocLocation {
+  optional double latitude = 1;
+  optional double longitude = 2;
+  optional float horizontal_accuracy = 3;
+  optional float altitude = 5;
+  optional float vertical_accuracy = 6;
+  optional float speed = 7;
+  optional float course = 8;
+  optional double timestamp = 9;
+  optional int32 provider = 13; // Only shows up if your phone is tied to a cell provider
+  optional int32 motion_vehicle_connected_state_changed = 16;
+  optional int32 motion_vehicle_connected = 17;
+  optional MotionActivity raw_motion_activity = 18;
+  optional MotionActivity motion_activity = 19;
+  optional MotionActivity dominant_motion_activity = 20;
+  optional float course_accuracy = 21;
+  optional float speed_accuracy = 22;
+}

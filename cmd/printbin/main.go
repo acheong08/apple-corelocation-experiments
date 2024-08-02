@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	var wloc pb.AppleWLoc
+	var wloc pb.PbcWlocRequest
 	// Loop through removing starting bytes until it works
 	i := 0
 	for i = 0; i < len(b); i += 1 {

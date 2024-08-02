@@ -43,7 +43,9 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 	args := newWlocArgs()
 	if len(options) != 0 {
 		for _, option := range options {
-			option(&args)
+			if option != nil {
+				option(&args)
+			}
 		}
 	}
 	// Serialize to bytes
@@ -116,9 +118,9 @@ func QueryBssid(bssids []string, maxResults int32, options ...Modifier) ([]AP, e
 	resp := make([]AP, len(block.GetWifiDevices()))
 	i := 0
 	for _, d := range block.GetWifiDevices() {
-		long := coordFromInt(d.GetLocation().GetLongitude(), -8)
-		lat := coordFromInt(d.GetLocation().GetLatitude(), -8)
-		alt := coordFromInt(d.GetLocation().GetAltitude(), -8)
+		long := CoordFromInt(d.GetLocation().GetLongitude(), -8)
+		lat := CoordFromInt(d.GetLocation().GetLatitude(), -8)
+		alt := CoordFromInt(d.GetLocation().GetAltitude(), -8)
 		if long == -180 && lat == -180 {
 			continue
 		}
@@ -164,15 +166,19 @@ func QueryCell(mmc, mnc, cellid, tacid uint32, numResults int32, options ...Modi
 				TacId:  c.GetTacId(),
 			},
 			Location: Location{
-				Long: coordFromInt(c.GetLocation().GetLongitude(), -8),
-				Lat:  coordFromInt(c.GetLocation().GetLatitude(), -8),
-				Alt:  coordFromInt(c.GetLocation().GetAltitude(), -8),
+				Long: CoordFromInt(c.GetLocation().GetLongitude(), -8),
+				Lat:  CoordFromInt(c.GetLocation().GetLatitude(), -8),
+				Alt:  CoordFromInt(c.GetLocation().GetAltitude(), -8),
 			},
 		}
 	}
 	return cells, nil
 }
 
-func coordFromInt(n int64, pow int) float64 {
+func CoordFromInt(n int64, pow int) float64 {
 	return float64(n) * math.Pow10(pow)
+}
+
+func IntFromCoord(coord float64, pow int) int64 {
+	return int64(coord * math.Pow10(pow))
 }

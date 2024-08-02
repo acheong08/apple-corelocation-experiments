@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"wloc/lib"
 	"wloc/lib/mac"
 	"wloc/lib/morton"
 
@@ -57,6 +58,21 @@ func main() {
 	macdecode.Int64Flag("mac", "MAC address int64", &bssid)
 	macdecode.Action(func() error {
 		fmt.Println(mac.Decode(bssid))
+		return nil
+	})
+
+	var coord int64
+	coorddecode := cli.NewSubCommand("coordd", "Decode a coordinate")
+	coorddecode.Int64Flag("coord", "Coordinate int64", &coord)
+	coorddecode.Action(func() error {
+		fmt.Printf("%f\n", lib.CoordFromInt(coord, -8))
+		return nil
+	})
+	var coordf float64
+	coordencode := cli.NewSubCommand("coorde", "Encode a coordinate")
+	coordencode.Float64Flag("coord", "Coordinate float64", &coordf)
+	coordencode.Action(func() error {
+		fmt.Printf("%d\n", lib.IntFromCoord(coordf, 8))
 		return nil
 	})
 
