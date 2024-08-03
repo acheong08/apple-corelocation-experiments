@@ -22,7 +22,7 @@ func serializeProto(p protoreflect.ProtoMessage, initial []byte) ([]byte, error)
 		return nil, err
 	}
 	if initial != nil {
-		b = append(initial, b...)
+		b = append(initial, append([]byte{byte(len(b))}, b...)...)
 	}
 	return b, nil
 }
