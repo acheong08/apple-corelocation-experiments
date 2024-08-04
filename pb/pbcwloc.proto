@@ -35,20 +35,20 @@ message MotionActivity {
 }
 
 message PbcWlocLocation {
-  optional double latitude = 1;
-  optional double longitude = 2;
-  optional float horizontal_accuracy = 3;
-  optional float altitude = 5;
-  optional float vertical_accuracy = 6;
+  double latitude = 1;
+  double longitude = 2;
+  float horizontal_accuracy = 3;
+  float altitude = 5;
+  float vertical_accuracy = 6;
   optional float speed = 7;
   optional float course = 8;
-  optional double timestamp = 9;
-  optional int32 provider = 13; // Only shows up if your phone is tied to a cell provider
-  optional int32 motion_vehicle_connected_state_changed = 16;
-  optional int32 motion_vehicle_connected = 17;
-  optional MotionActivity raw_motion_activity = 18;
-  optional MotionActivity motion_activity = 19;
-  optional MotionActivity dominant_motion_activity = 20;
+  double timestamp = 9;
+  int32 provider = 13; // Only shows up if your phone is tied to a cell provider
+  int32 motion_vehicle_connected_state_changed = 16;
+  int32 motion_vehicle_connected = 17;
+  MotionActivity raw_motion_activity = 18;
+  MotionActivity motion_activity = 19;
+  MotionActivity dominant_motion_activity = 20;
   optional float course_accuracy = 21;
   optional float speed_accuracy = 22;
 }
