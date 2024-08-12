@@ -71,8 +71,7 @@ Once that data has been collected, we can begin using the wloc API to fetch and 
 
 Seed data: https://tmp.duti.dev/seeds.db.zst
 
-![Grafana plot of collected seeds](https://github.com/user-attachments/assets/8da21d51-a506-4c32-94b7-b3ae853d65ab)
-
+<img src="https://github.com/user-attachments/assets/8da21d51-a506-4c32-94b7-b3ae853d65ab" alt="Grafana plot of collected seeds" height=400></img>
 
 ## Submitting data
 
@@ -86,7 +85,7 @@ It seems to only allow updating of existing records rather than collecting new r
 
 Using the info here, we can easily spoof your iPhone's location. You can find a server implementation [here](https://github.com/acheong08/apple-corelocation-experiments/tree/main/cmd/fakeloc). After starting the server, run `mitmproxy` with [this](https://github.com/acheong08/apple-corelocation-experiments/blob/main/wloc.py) script which forwards wloc requests to your own server. Remember to change the IP address.
 
-![screenshot of maps with spoofed location](https://github.com/user-attachments/assets/a6ccdbc4-4317-4db8-8f3f-303e2e5a7c2f)
+<img src="https://github.com/user-attachments/assets/a6ccdbc4-4317-4db8-8f3f-303e2e5a7c2f" alt="screenshot of maps with spoofed location" height="400"></img>
 
 ## Ichnaea
 
