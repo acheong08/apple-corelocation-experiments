@@ -59,10 +59,38 @@ Click on any spot on the map and wait for a bit. It will plot nearby devices in 
 
 How it works: It first uses a spiral pattern to find the closest valid tile (limited to 20 to fail fast). Once it finds a starting point, it finds all the nearby access points using the WLOC API. It then takes the closest access point and tries again until there are no closer access points.
 
-## Impact
+## Mass data collection
 
-In the `umd.edu` paper, they were forced to brute force BSSIDs over the course of 2 years to slowly build up their network. This relies on chance and isolated blocks might not be easily found. With the discovery of the tile API, we are able to create a starting point anywhere in the world and begin exploring from there (given the parameters for which an AP is available over that API). I have tested multiple regions (e.g. Gaza, London, Los Angeles) and it seems to work in most populated cities. However, there appears to be less available networks in certain countries (e.g. Brazil), possibly due to privacy laws.
+It is relatively simple to collect data via the tile API. The working code is [here](https://github.com/acheong08/apple-corelocation-experiments/tree/main/cmd/seedcrawl). You can collect around 9 million records by going through every tile (on land). Some work was done to detect if a coordinate is in water (to skip) or in China (to choose the right API). You can find some details [here](https://github.com/acheong08/apple-corelocation-experiments/tree/main/lib/shapefiles). 
 
+Source for China's shapefile: [GaryBikini/ChinaAdminDivisonSHP](https://github.com/GaryBikini/ChinaAdminDivisonSHP/). This was [forked](https://github.com/acheong08/ChinaAdminDivisonSHP/) to remove special administration regions which are part of the international API.
+
+Source for water polygons [here](https://osmdata.openstreetmap.de/data/water-polygons.html)
+
+Once that data has been collected, we can begin using the wloc API to fetch and explore nearby sections. My code for that is incomplete but a friend was able to fetch around 1 billion records. His source code can be found here: https://codeberg.org/joelkoen/wtfps/.
+
+Seed data: https://tmp.duti.dev/seeds.db.zst
+
+![Grafana plot of collected seeds](https://github.com/user-attachments/assets/8da21d51-a506-4c32-94b7-b3ae853d65ab)
+
+
+## Submitting data
+
+To trigger data submission, turn on iPhone Analytics, Routing and Traffic, and Improve Maps in Location privacy settings. Then visit Maps, set a location, and start directions.
+
+The endpoint is `https://gsp10-ssl.apple.com/hcy/pbcwloc`, labelled as `_CLPCellWifiCollectionRequest` in `CoreLocationProtobuf`.
+
+It seems to only allow updating of existing records rather than collecting new records. More investigation is ongoing. You can find my attempt at uploading fake data [here](https://github.com/acheong08/apple-corelocation-experiments/tree/main/cmd/fakeloc).
+
+## Spoofing your location
+
+Using the info here, we can easily spoof your iPhone's location. You can find a server implementation [here](https://github.com/acheong08/apple-corelocation-experiments/tree/main/cmd/fakeloc). After starting the server, run `mitmproxy` with [this](https://github.com/acheong08/apple-corelocation-experiments/blob/main/wloc.py) script which forwards wloc requests to your own server. Remember to change the IP address.
+
+![screenshot of maps with spoofed location](https://github.com/user-attachments/assets/a6ccdbc4-4317-4db8-8f3f-303e2e5a7c2f)
+
+## Ichnaea
+
+This is the format used by Mozilla/Google/etc for their location service. We can imitate that with [this](https://github.com/acheong08/apple-corelocation-experiments/blob/main/cmd/ichnaea/main.go). I have tested this with geoclue and it works just fine.
 
 ## To do
 - If Apple uses device data to add new BSSIDs to their database, try to add fake data
