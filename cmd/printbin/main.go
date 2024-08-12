@@ -26,9 +26,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	var wloc pb.PbcWlocRequest
+	var wloc pb.AppleWLoc
 	// Loop through removing starting bytes until it works
-	i := 109
+	i := 0
 	for i = 0; i < len(b); i += 1 {
 		err = proto.Unmarshal(b[i:], &wloc)
 		if err == nil {
@@ -36,8 +36,12 @@ func main() {
 		}
 	}
 	log.Println("Num removed before valid: ", i)
-	j, _ := json.MarshalIndent(&wloc, "", " ")
-	fmt.Println(string(j))
+	log.Printf("Removed: %x\n", b[:i])
+	log.Println("Content length: ", len(b[i:]))
+	if slices.Contains(os.Args, "-json") {
+		j, _ := json.MarshalIndent(&wloc, "", " ")
+		fmt.Println(string(j))
+	}
 	if slices.Contains(os.Args, "-hex") {
 		fmt.Printf("%x\n", b[i:])
 	}

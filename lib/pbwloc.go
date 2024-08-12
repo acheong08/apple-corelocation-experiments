@@ -7,7 +7,7 @@ import (
 )
 
 func RequestPbcWloc(p *pb.PbcWlocRequest) error {
-	b, err := serializeProto(p, initialPbcWlocBytes)
+	b, err := SerializeProto(p, initialPbcWlocBytes)
 	if err != nil {
 		return err
 	}
