@@ -17,7 +17,7 @@ import (
 
 var center = orb.Point{80.289058, 9.036947}
 
-var bssid = strings.ToLower("DE:AD:BA:BE:CA:FE")
+var bssid = strings.ToLower("DE:AD:DE:AD:FE:D5")
 
 func main() {
 	maxDistance := 400.0
