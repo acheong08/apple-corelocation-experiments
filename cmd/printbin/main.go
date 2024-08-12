@@ -28,7 +28,7 @@ func main() {
 	}
 	var wloc pb.PbcWlocRequest
 	// Loop through removing starting bytes until it works
-	i := 0
+	i := 109
 	for i = 0; i < len(b); i += 1 {
 		err = proto.Unmarshal(b[i:], &wloc)
 		if err == nil {

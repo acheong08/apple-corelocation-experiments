@@ -16,7 +16,7 @@ message PbcWifiEntry {
 }
 
 message PbcWlocRequest {
-  DeviceType device_info = 163;
+  DeviceType device_info = 1;
   repeated PbcWifiEntry wifi_entries = 3;
 }
 
