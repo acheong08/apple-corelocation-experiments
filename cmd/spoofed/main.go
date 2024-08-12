@@ -16,7 +16,7 @@ import (
 
 var (
 	initialBytes []byte
-	lat, lon     int64 = lib.IntFromCoord(35.777231, 8), lib.IntFromCoord(138.662598, 8)
+	lat, lon     int64 = lib.IntFromCoord(34.074403, 8), lib.IntFromCoord(143.573894, 8)
 )
 
 func init() {

@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"time"
 	"wloc/lib"
 	"wloc/lib/mac"
-	"wloc/lib/morton"
 
 	_ "modernc.org/sqlite"
 )
@@ -25,10 +23,8 @@ func InitDatabase() db {
 	}
 	if _, err := d.Exec(`CREATE TABLE IF NOT EXISTS seeds (
 			bssid INTEGER PRIMARY KEY,
-			tilekey INTEGER NOT NULL,
 			lat REAL NOT NULL,
 			lon REAL NOT NULL,
-			created INTEGER NOT NULL
 		)
 		`); err != nil {
 		panic(fmt.Errorf("Failed to create table: %w", err))
@@ -49,7 +45,7 @@ func (d *db) Add(s []lib.AP) {
 		if err != nil {
 			continue
 		}
-		_, err = tx.Exec("INSERT OR IGNORE INTO seeds (bssid, tilekey, lat, lon, created) VALUES (?,?,?,?,?)", bssid, morton.Encode(ap.Location.Lat, ap.Location.Long, 13), ap.Location.Lat, ap.Location.Long, time.Now().Unix())
+		_, err = tx.Exec("INSERT OR IGNORE INTO seeds (bssid, lat, lon) VALUES (?,?,?,?,?)", bssid, ap.Location.Lat, ap.Location.Long)
 		if err != nil {
 			log.Println("Failed to insert into seeds ", bssid)
 			continue
