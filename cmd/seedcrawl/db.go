@@ -24,7 +24,7 @@ func InitDatabase() db {
 	if _, err := d.Exec(`CREATE TABLE IF NOT EXISTS seeds (
 			bssid INTEGER PRIMARY KEY,
 			lat REAL NOT NULL,
-			lon REAL NOT NULL,
+			lon REAL NOT NULL
 		)
 		`); err != nil {
 		panic(fmt.Errorf("Failed to create table: %w", err))
