@@ -17,7 +17,7 @@ Apple collects information from iPhones such as speed, activity type (walking/dr
 
 ### Cell towers
 
-Using the same API as above, we can also request cell tower information. `MMC`, `MNC`, `CellId`, and `TacID` is sent off and used to find the surrounding cell towers. It seems to have more data than opencellid.org but missing UMTS and GSM (only LTE is available).
+Using the same API as above, we can also request cell tower information. `MCC`, `MNC`, `CellId`, and `TacID` is sent off and used to find the surrounding cell towers. It seems to have more data than opencellid.org but missing UMTS and GSM (only LTE is available).
 
 ## Wifi Tile
 

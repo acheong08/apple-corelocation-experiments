@@ -118,11 +118,11 @@ func QueryBssid(bssids []string, maxResults int32, options ...Modifier) ([]AP, e
 	return resp, nil
 }
 
-func QueryCell(mmc, mnc, cellid, tacid uint32, numResults int32, options ...Modifier) ([]Cell, error) {
+func QueryCell(mcc, mnc, cellid, tacid uint32, numResults int32, options ...Modifier) ([]Cell, error) {
 	block := &pb.AppleWLoc{
 		NumCellResults: &numResults,
 		CellTowerRequest: &pb.CellTower{
-			Mmc:    mmc,
+			Mcc:    mcc,
 			Mnc:    mnc,
 			CellId: cellid,
 			TacId:  tacid,
@@ -140,7 +140,7 @@ func QueryCell(mmc, mnc, cellid, tacid uint32, numResults int32, options ...Modi
 	for i, c := range block.GetCellTowerResponse() {
 		cells[i] = Cell{
 			Tower: TowerInfo{
-				Mmc:    c.GetMmc(),
+				Mcc:    c.GetMcc(),
 				Mnc:    c.GetMnc(),
 				CellId: c.GetCellId(),
 				TacId:  c.GetTacId(),

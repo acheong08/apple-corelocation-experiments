@@ -24,7 +24,7 @@ message AppleWLoc {
 
 // https://en.wikipedia.org/wiki/Cell_Global_Identity
 message CellTower {
-  uint32 mmc = 1; // This seems like a typo for mcc
+  uint32 mcc = 1;
   uint32 mnc = 2;
   uint32 cell_id = 3;
   uint32 tac_id = 4;
