@@ -11,7 +11,7 @@ type Cell struct {
 }
 
 type TowerInfo struct {
-	Mmc    uint32 `json:"mobileCountryCode"`
+	Mcc    uint32 `json:"mobileCountryCode"`
 	Mnc    uint32 `json:"mobileNetworkCode"`
 	CellId uint32 `json:"cellId"`
 	TacId  uint32 `json:"locationAreaCode"`

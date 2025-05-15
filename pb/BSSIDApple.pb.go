@@ -181,7 +181,7 @@ type CellTower struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Mmc      uint32    `protobuf:"varint,1,opt,name=mmc,proto3" json:"mmc,omitempty"` // This seems like a typo for mcc
+	Mcc      uint32    `protobuf:"varint,1,opt,name=mcc,proto3" json:"mcc,omitempty"` // This seems like a typo for mcc
 	Mnc      uint32    `protobuf:"varint,2,opt,name=mnc,proto3" json:"mnc,omitempty"`
 	CellId   uint32    `protobuf:"varint,3,opt,name=cell_id,json=cellId,proto3" json:"cell_id,omitempty"`
 	TacId    uint32    `protobuf:"varint,4,opt,name=tac_id,json=tacId,proto3" json:"tac_id,omitempty"`
@@ -222,9 +222,9 @@ func (*CellTower) Descriptor() ([]byte, []int) {
 	return file_pb_BSSIDApple_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CellTower) GetMmc() uint32 {
+func (x *CellTower) GetMcc() uint32 {
 	if x != nil {
-		return x.Mmc
+		return x.Mcc
 	}
 	return 0
 }
