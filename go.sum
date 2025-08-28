@@ -26,7 +26,7 @@ github.com/gptlang/oui v0.0.0-20240522122259-08e97ad0b56a h1:Kny/ByrZv8MypCW2Adf
 github.com/gptlang/oui v0.0.0-20240522122259-08e97ad0b56a/go.mod h1:YUq0hxQUrUHFGhu2al1wtNQJO05Y0j7Q3SYYqsS4ItU=
 github.com/hashicorp/golang-lru/v2 v2.0.7 h1:a+bsQ5rvGLjzHuww6tVxozPZFVghXaHOwFs4luLUK2k=
 github.com/hashicorp/golang-lru/v2 v2.0.7/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
-github.com/jftuga/geodist v1.0.0 h1:WzDVdHJGyCF2lDIbTLCUJxchlvnBEQyORSB2AN9/Mns=
+github.com/jftuga/geodist v1.0.0 h1:PFPQlZtj10u8ETAYTyxE0DWMl1bwA+Xzrqb4+oLkkC0=
 github.com/jftuga/geodist v1.0.0/go.mod h1:BohEDxpZ8S5ADAxW/9EKPSKWOVl0+3wHENIT40m4UO4=
 github.com/jonas-p/go-shp v0.1.1 h1:LY81nN67DBCz6VNFn2kS64CjmnDo9IP8rmSkTvhO9jE=
 github.com/jonas-p/go-shp v0.1.1/go.mod h1:MRIhyxDQ6VVp0oYeD7yPGr5RSTNScUFKCDsI5DR7PtI=

@@ -16,7 +16,7 @@ import (
 
 var (
 	initialBytes []byte
-	lat, lon     int64 = lib.IntFromCoord(34.074403, 8), lib.IntFromCoord(143.573894, 8)
+	lat, lon     int64 = lib.IntFromCoord(51.510420, 8), lib.IntFromCoord(-3.218306, 8)
 )
 
 func init() {
@@ -39,7 +39,7 @@ func main() {
 			return c.String(400, "failed to read body")
 		}
 		var p pb.AppleWLoc
-		if err := proto.Unmarshal(b[57:], &p); err != nil {
+		if err := proto.Unmarshal(b[58:], &p); err != nil {
 			return c.String(400, "failed to parse protobuf")
 		}
 		for i := range len(p.GetWifiDevices()) {
@@ -65,6 +65,7 @@ func main() {
 		log.Printf("%x\n", b)
 		return c.Blob(200, "", b)
 	})
+	log.Println("Starting server")
 	log.Fatal(http.ListenAndServe(":9090", e))
 }
 

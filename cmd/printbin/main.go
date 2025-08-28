@@ -29,7 +29,7 @@ func main() {
 	var wloc pb.AppleWLoc
 	// Loop through removing starting bytes until it works
 	i := 0
-	for i = 0; i < len(b); i += 1 {
+	for i = 50; i < len(b); i += 1 {
 		err = proto.Unmarshal(b[i:], &wloc)
 		if err == nil {
 			break
