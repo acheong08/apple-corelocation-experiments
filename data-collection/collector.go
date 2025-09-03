@@ -119,7 +119,7 @@ func parseTileKeys(content string) ([]int64, error) {
 		return nil, fmt.Errorf("empty file content")
 	}
 
-	parts := strings.Split(content, ",")
+	parts := strings.Split(content, "\n")
 	tileKeys := make([]int64, 0, len(parts))
 
 	for _, part := range parts {
