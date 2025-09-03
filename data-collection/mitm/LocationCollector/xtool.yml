@@ -1,0 +1,14 @@
+version: 1
+bundleID: com.example.LocationCollector
+
+entitlements:
+  com.apple.developer.networking.networkextension:
+    - packet-tunnel-provider
+  com.apple.developer.networking.vpn.api: true
+
+targets:
+  VPNTunnel:
+    bundleID: com.example.LocationCollector.VPNTunnel
+    entitlements:
+      com.apple.developer.networking.networkextension:
+        - packet-tunnel-provider
