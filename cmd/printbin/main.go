@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"slices"
+	"strconv"
 	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
@@ -14,8 +15,9 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Usage: printbin <file>")
+		log.Fatal("Usage: printbin <file> <optional: length>")
 	}
+	stripLen := 50
 	filePath := os.Args[1]
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -26,10 +28,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	if len(os.Args) == 3 {
+		stripLen, _ = strconv.Atoi(os.Args[2])
+	}
 	var wloc pb.AppleWLoc
 	// Loop through removing starting bytes until it works
 	i := 0
-	for i = 50; i < len(b); i += 1 {
+	for i = stripLen; i < len(b); i += 1 {
 		err = proto.Unmarshal(b[i:], &wloc)
 		if err == nil {
 			break

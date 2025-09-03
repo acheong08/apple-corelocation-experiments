@@ -15,17 +15,20 @@ import (
 	"github.com/paulmach/orb/geo"
 )
 
-var center = orb.Point{80.289058, 9.036947}
+var center = orb.Point{52.211212, 0.091250}
 
-var bssid = strings.ToLower("DE:AD:DE:AD:FE:D5")
+var bssid = strings.ToLower("98:8f:0:54:4a:09")
 
 func main() {
-	maxDistance := 400.0
-	minDistance := 0.0
-	for i := minDistance; i < maxDistance; i += 50 {
-		rssi := int32(((i / maxDistance) * 100.0) * -1)
-		log.Printf("Requesting with distance %f and rssi %d", i, rssi)
-		requestWithRadiusAndRssi(i, rssi)
+	for {
+		maxDistance := 400.0
+		minDistance := 0.0
+		for i := minDistance; i < maxDistance; i += 50 {
+			rssi := int32(((i / maxDistance) * 100.0) * -1)
+			log.Printf("Requesting with distance %f and rssi %d", i, rssi)
+			requestWithRadiusAndRssi(i, rssi)
+			time.Sleep(30 * time.Second)
+		}
 	}
 }
 
@@ -46,7 +49,7 @@ func requestWithRadiusAndRssi(radius float64, rssi int32) {
 				Latitude:                           point.Lat(),
 				Longitude:                          point.Lon(),
 				HorizontalAccuracy:                 float32(rand.NormFloat64()*5 + 3),
-				Altitude:                           float32(rand.NormFloat64()*2 + 4),
+				Altitude:                           float32(rand.NormFloat64()*2 + 20),
 				VerticalAccuracy:                   float32(rand.NormFloat64()*6 + 5),
 				Timestamp:                          t,
 				Provider:                           1,
