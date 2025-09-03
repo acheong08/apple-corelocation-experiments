@@ -1,4 +1,6 @@
 map.html
+cert.*
+bin
 *.log
 *.zst
 *.gob
