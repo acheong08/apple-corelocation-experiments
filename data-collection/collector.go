@@ -31,6 +31,9 @@ func (c *Collector) Start(ctx context.Context) error {
 
 	log.Printf("Starting data collection with %d tile keys, interval: %v", len(c.tileKeys), c.interval)
 
+	if err := c.collectData(); err != nil {
+		log.Printf("Error collecting data: %v", err)
+	}
 	for {
 		select {
 		case <-ctx.Done():
