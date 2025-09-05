@@ -104,7 +104,7 @@ func dedupeResults(results []ParseResult) *ParseResult {
 	return &bestResult
 }
 
-func printResults(result *ParseResult) {
+func printResults(result *ParseResult, long bool) {
 	fmt.Printf("  Header Length: %d bytes\n", result.HeaderLength)
 	fmt.Printf("  Body Length: %d bytes (0x%04x)\n", result.BodyLength, result.BodyLength)
 
@@ -115,7 +115,11 @@ func printResults(result *ParseResult) {
 	if len(result.Body) > 0 && len(result.Body) <= 100 {
 		fmt.Printf("  Body: %s\n", hex.EncodeToString(result.Body))
 	} else if len(result.Body) > 100 {
-		fmt.Printf("  Body: %s (%d bytes total)\n", hex.EncodeToString(result.Body), len(result.Body))
+		if long {
+			fmt.Printf("  Body: %s (%d bytes total)\n", hex.EncodeToString(result.Body), len(result.Body))
+		} else {
+			fmt.Printf("  Body: %s... (%d bytes total)\n", hex.EncodeToString(result.Body)[:50], len(result.Body))
+		}
 	}
 	fmt.Println()
 }
@@ -124,6 +128,7 @@ func main() {
 	var (
 		hexData = flag.String("hex", "", "Hex string to parse")
 		file    = flag.String("file", "", "File containing binary data")
+		long    = flag.Bool("long", false, "Print full hex out body")
 	)
 	flag.Parse()
 
@@ -153,7 +158,7 @@ func main() {
 	results := reverseParseHeaderLength(data)
 	if results != nil {
 		fmt.Println("✅ Found valid parsing configuration(s)")
-		printResults(results)
+		printResults(results, *long)
 	} else {
 		fmt.Printf("❌ No valid parsing configurations found\n")
 	}
