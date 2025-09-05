@@ -13,18 +13,17 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-func SerializeProto(p protoreflect.ProtoMessage, initial []byte) ([]byte, error) {
+func SerializeProto(p protoreflect.ProtoMessage, arpcReq ArpcRequest) ([]byte, error) {
 	if p == nil {
 		panic("protobuf is nil")
 	}
-	b, err := proto.Marshal(p)
+	var err error
+	arpcReq.Payload, err = proto.Marshal(p)
 	if err != nil {
 		return nil, err
 	}
-	if initial != nil {
-		b = append(initial, append([]byte{byte(len(b))}, b...)...)
-	}
-	return b, nil
+
+	return arpcReq.Serialize()
 }
 
 func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error) {
@@ -37,7 +36,7 @@ func RequestWloc(block *pb.AppleWLoc, options ...Modifier) (*pb.AppleWLoc, error
 		}
 	}
 	// Serialize to bytes
-	serializedBlock, err := SerializeProto(block, initialWlocBytes)
+	serializedBlock, err := SerializeProto(block, wlocArpcRequest)
 	if err != nil {
 		return nil, errors.New("failed to serialize protobuf")
 	}

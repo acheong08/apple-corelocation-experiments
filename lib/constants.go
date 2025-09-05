@@ -2,11 +2,9 @@
 
 package lib
 
-import "encoding/hex"
-
 var (
-	initialWlocBytes    []byte
-	initialPbcWlocBytes []byte
+	wlocArpcRequest    ArpcRequest
+	pbcWlocArpcRequest ArpcRequest
 )
 
 var headers = map[string]string{
@@ -19,11 +17,21 @@ var headers = map[string]string{
 }
 
 func init() {
-	var err error
-	if initialWlocBytes, err = hex.DecodeString("0001000a656e2d3030315f3030310013636f6d2e6170706c652e6c6f636174696f6e64000c31372e352e312e323146393000000001000000"); err != nil {
-		panic(err)
+	wlocArpcRequest = ArpcRequest{
+		Version:       "1",
+		Locale:        "en-001_001",
+		AppIdentifier: "com.apple.locationd",
+		OsVersion:     "18.6.2.22G100",
+		FunctionId:    1,
+		Payload:       []byte{},
 	}
-	if initialPbcWlocBytes, err = hex.DecodeString("0001000a656e2d3030315f3030310013636f6d2e6170706c652e6c6f636174696f6e64000d31372e342e312e323145323336000000640000"); err != nil {
-		panic(err)
+
+	pbcWlocArpcRequest = ArpcRequest{
+		Version:       "1",
+		Locale:        "en-001_001",
+		AppIdentifier: "com.apple.locationd",
+		OsVersion:     "17.4.1.21E236",
+		FunctionId:    100,
+		Payload:       []byte{},
 	}
 }
