@@ -70,6 +70,34 @@ There are a couple main points of concern:
 - `/dispatcher.arpc` occasionally receives information on transactions you made. When all privacy settings are enabled, data is still stored until you disable them, where they are then sent in bulk to Apple. This means that you cannot have brief periods of privacy as they will be sent weeks later if privacy settings are disabled at any time, even accidentally (e.g. updates).
 - `/hvr/v3/use` receives a wide range of opaque binary data. I have observed various personally identifiable information including my home location which is set in the Contacts app, various IP addresses and ports I'm connected to, and open apps.
 
-TODO: Read Apple privacy policy and see if that's documented anywhere
+### Comparison to Apple's privacy claims
+
+The most important claim on Apple's privacy policy is that "The crowd-sourced location data gathered by Apple does not personally identify you.".
+
+"Additionally, when you open an app near a point of interest (for example, a business or park) your iPhone will send location data in an anonymous and encrypted form to Apple which Apple may aggregate and use to let users know if that point of interest is open and how busy it is." - The broad definition of a _point of interest_ allows Apple to simply collect any of your app and location data anywhere. In requests captured, multiple App + location combinations are batched with around 3 requests made per day and contained all the apps I had open between requests spanning a multiple kilometer range.
+_TODO: Statistical methods to identify a user by usage patterns. How similar are your combination of apps vs other people within the same geographic region._
+
+"Your iPhone will use your current location to help provide more accurate merchant names when you use your physical Apple Card." - Requests also show that transaction and merchant information are also collected even if you do not own a physical Apple Card. Instead, NFC payments are stored on device even if this setting is disabled, and will be sent once re-enabled.
+
+"Your iPhone and iCloud-connected devices will keep track of places you have recently been, as well as how often and when you visited them, in order to learn places that are significant to you. This data is end-to-end encrypted and cannot be read by Apple." - This is clearly false as my home address was observed in a request to `/hvr/v3/use` despite having stayed in a different city since the privacy options were disabled. This implies that once again, data is stored on device long term and will be sent even if analytics is only temporarily enabled.
 
 ## Location database update patterns
+
+Various SQL queries used for data analysis can be found in `./data-collection/*.sql`.
+
+- Location updates do not happen all at once. There is a 5 hour span within which tiles are updated.
+- During the update period, a BSSID updates between 5 and 21 times. Most of the updates involve the location oscillating between only 2 unique points.
+- Average distance changed: 0.93849896521469
+- Median distance changed: 0.5414854223124
+- Max distance changed: 19.4270982337201
+- Minimum distance changed: 0.0589454837410194
+- Similar to quantum states, behavior changes with observation. The more requests are made for a tile, the smaller the change for the next update period.
+- While there is load balancing done at the DNS level, the database appears the same
+
+This honestly still doesn't tell us much about the inner workings and architecture of the database. More focus on data sent.
+
+## Behavioral analysis of device by network observer
+
+Many of the requests made to Apple are behavior specific, such as when using maps, transit, or the device is idle.
+Even without access to the encrypted requests, a passive observer such as your ISP, VPN provider, or simply Wireshark in monitor mode, may be able to infer what you are doing solely based off of analytics request domains.
+Proposal: Train a small machine learning model to guess behavior from traffic, and measure accuracy as privacy settings are enabled.
