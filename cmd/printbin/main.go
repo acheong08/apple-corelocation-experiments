@@ -130,8 +130,8 @@ func main() {
 		panic(err)
 	}
 
-	arpcData, err := lib.ParseArpcRequest(b)
-	if err != nil {
+	arpcData := lib.ArpcRequest{}
+	if err := arpcData.Deserialize(b); err != nil {
 		log.Printf("Failed to parse as ARPC: %v\n", err)
 		log.Println("Trying direct protobuf decode...")
 		tryDecodeProtobuf(b)

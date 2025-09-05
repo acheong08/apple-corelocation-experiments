@@ -38,8 +38,8 @@ func main() {
 		if err != nil {
 			return c.String(400, "failed to read body")
 		}
-		arpc, err := lib.ParseArpcRequest(b)
-		if err != nil {
+		arpc := lib.ArpcRequest{}
+		if err := arpc.Deserialize(b); err != nil {
 			return c.String(400, "invalid arpc")
 		}
 		var p pb.AppleWLoc

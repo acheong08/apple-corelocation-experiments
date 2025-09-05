@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"strconv"
 )
 
 func readPascalString(r io.Reader) (string, error) {
@@ -18,7 +19,7 @@ func readPascalString(r io.Reader) (string, error) {
 	return string(str), err
 }
 
-type ArpcWrapper struct {
+type ArpcRequest struct {
 	Version       string
 	Locale        string
 	AppIdentifier string
@@ -27,51 +28,97 @@ type ArpcWrapper struct {
 	Payload       []byte
 }
 
-func ParseArpcRequest(data []byte) (ArpcWrapper, error) {
+func (a *ArpcRequest) Deserialize(data []byte) error {
 	r := io.NewSectionReader(
 		bytes.NewReader(data), 0, int64(len(data)),
 	)
 	versionBytes := make([]byte, 2)
 	if _, err := r.Read(versionBytes); err != nil {
-		return ArpcWrapper{}, err
+		return err
 	}
 	version := binary.BigEndian.Uint16(versionBytes)
 
 	locale, err := readPascalString(r)
 	if err != nil {
-		return ArpcWrapper{}, err
+		return err
 	}
 	appIdentifier, err := readPascalString(r)
 	if err != nil {
-		return ArpcWrapper{}, err
+		return err
 	}
 	osVersion, err := readPascalString(r)
 	if err != nil {
-		return ArpcWrapper{}, err
+		return err
 	}
 	unknownBytes := make([]byte, 4)
 	if _, err := r.Read(unknownBytes); err != nil {
-		return ArpcWrapper{}, err
+		return err
 	}
 	unknown := int(binary.BigEndian.Uint32(unknownBytes))
 
 	payloadLenBytes := make([]byte, 4)
 	if _, err := r.Read(payloadLenBytes); err != nil {
-		return ArpcWrapper{}, err
+		return err
 	}
 	payloadLen := int(binary.BigEndian.Uint32(payloadLenBytes))
 
 	payload := make([]byte, payloadLen)
 	if _, err := r.Read(payload); err != nil {
-		return ArpcWrapper{}, err
+		return err
 	}
 
-	return ArpcWrapper{
+	*a = ArpcRequest{
 		Version:       fmt.Sprintf("%d", version),
 		Locale:        locale,
 		AppIdentifier: appIdentifier,
 		OsVersion:     osVersion,
 		FunctionId:    unknown,
 		Payload:       payload,
-	}, nil
+	}
+	return nil
+}
+
+func writePascalString(w io.Writer, s string) error {
+	length := uint16(len(s))
+	if err := binary.Write(w, binary.BigEndian, length); err != nil {
+		return err
+	}
+	_, err := w.Write([]byte(s))
+	return err
+}
+
+func (a *ArpcRequest) Serialize() ([]byte, error) {
+	buf := new(bytes.Buffer)
+
+	version, err := strconv.Atoi(a.Version)
+	if err != nil {
+		return nil, err
+	}
+	if err := binary.Write(buf, binary.BigEndian, uint16(version)); err != nil {
+		return nil, err
+	}
+
+	if err := writePascalString(buf, a.Locale); err != nil {
+		return nil, err
+	}
+	if err := writePascalString(buf, a.AppIdentifier); err != nil {
+		return nil, err
+	}
+	if err := writePascalString(buf, a.OsVersion); err != nil {
+		return nil, err
+	}
+
+	if err := binary.Write(buf, binary.BigEndian, uint32(a.FunctionId)); err != nil {
+		return nil, err
+	}
+
+	if err := binary.Write(buf, binary.BigEndian, uint32(len(a.Payload))); err != nil {
+		return nil, err
+	}
+
+	if _, err := buf.Write(a.Payload); err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
 }
