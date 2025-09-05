@@ -83,7 +83,7 @@ func (c *Collector) processBSSID(bssid string, lat, long float64) error {
 	}
 
 	const epsilon = 1e-6
-	if hasLocationChanged(existing.Lat, existing.Long, lat, long, epsilon) {
+	if existing.Lat != lat || existing.Long != long {
 		distance := calculateDistance(existing.Lat, existing.Long, lat, long)
 		log.Printf("Location changed for BSSID %s: (%.6f, %.6f) -> (%.6f, %.6f), distance: %.2fm",
 			bssid, existing.Lat, existing.Long, lat, long, distance)
@@ -91,10 +91,6 @@ func (c *Collector) processBSSID(bssid string, lat, long float64) error {
 	}
 
 	return c.db.UpdateLastSeen(bssid)
-}
-
-func hasLocationChanged(oldLat, oldLong, newLat, newLong, epsilon float64) bool {
-	return math.Abs(oldLat-newLat) > epsilon || math.Abs(oldLong-newLong) > epsilon
 }
 
 func calculateDistance(lat1, lon1, lat2, lon2 float64) float64 {

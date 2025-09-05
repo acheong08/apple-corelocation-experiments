@@ -10,4 +10,4 @@ Documenting the various endpoints, which binary calls them, and what the purpose
 | gspe35-ssl.ls.apple.com, configuration.ls.apple.com | * |  | Hardware and software versions | Configuration depending on environment (prod, staging, beta) |
 | gsp10-ssl.apple.com | /au, /pds/pd | locationd | App IDs, exact location they were opened, and various other metadata!!! | Acknowledgement |
 |  | /hcy/pbcwloc |  | Surrounding BSSIDs, cell provider, location, movement and activity |  |
-| gsp64-ssl.ls.apple.com | /hvr/v3/use, /hvr/v2/rtloc | geoanalyticsd, nsurlsessiond | Opaque binary data. Includes open apps, home location (NOT CURRENT). Some requests are encrypted! (~7.5 entropy with metadata removed) |  |
+| gsp64-ssl.ls.apple.com | /hvr/v3/use, /hvr/v2/rtloc | geoanalyticsd, nsurlsessiond | Opaque binary data. Includes open apps, home location (NOT CURRENT). IP address and ports, possible open connections. Some requests are encrypted! (~7.5 entropy with metadata removed) |  |
