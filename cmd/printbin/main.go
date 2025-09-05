@@ -109,7 +109,6 @@ func tryDecodeProtobuf(data []byte) {
 		fmt.Println(string(j))
 	} else {
 		fmt.Printf("Failed to decode as protobuf: %v\n", err)
-		fmt.Printf("Raw hex: %x\n", data)
 	}
 }
 
