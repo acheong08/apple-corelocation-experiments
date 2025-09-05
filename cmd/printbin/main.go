@@ -9,68 +9,102 @@ import (
 	"slices"
 	"wloc/lib"
 
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/types/dynamicpb"
+	"google.golang.org/protobuf/encoding/protowire"
 )
 
-func decodeGenericProtobuf(data []byte) (map[string]any, error) {
-	msg := &dynamicpb.Message{}
-
-	decoder := proto.UnmarshalOptions{
-		AllowPartial: true,
-	}
-
-	if data == nil {
-		panic("data is nil")
-	}
-	err := decoder.Unmarshal(data, msg)
-	if err != nil {
-		return nil, err
-	}
-
+func decodeRawProtobuf(data []byte) (map[string]any, error) {
 	result := make(map[string]any)
 
-	msg.Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
-		fieldNum := int(fd.Number())
-		fieldName := fmt.Sprintf("field_%d", fieldNum)
+	for len(data) > 0 {
+		fieldNum, wireType, n := protowire.ConsumeTag(data)
+		if n < 0 {
+			return nil, fmt.Errorf("invalid tag")
+		}
+		data = data[n:]
 
-		switch fd.Kind() {
-		case protoreflect.StringKind:
-			result[fieldName] = v.String()
-		case protoreflect.BytesKind:
-			result[fieldName] = fmt.Sprintf("bytes[%d]: %x", len(v.Bytes()), v.Bytes())
-		case protoreflect.Int32Kind, protoreflect.Int64Kind:
-			result[fieldName] = v.Int()
-		case protoreflect.Uint32Kind, protoreflect.Uint64Kind:
-			result[fieldName] = v.Uint()
-		case protoreflect.FloatKind, protoreflect.DoubleKind:
-			result[fieldName] = v.Float()
-		case protoreflect.BoolKind:
-			result[fieldName] = v.Bool()
-		case protoreflect.MessageKind:
-			if submsg, ok := v.Message().(*dynamicpb.Message); ok {
-				subdata, err := proto.Marshal(submsg)
-				if err == nil {
-					if subresult, err := decodeGenericProtobuf(subdata); err == nil {
-						result[fieldName] = subresult
-					} else {
-						result[fieldName] = fmt.Sprintf("nested_message[%d_bytes]", proto.Size(submsg))
-					}
+		fieldName := fmt.Sprintf("%d", fieldNum)
+
+		var value any
+
+		switch wireType {
+		case protowire.VarintType:
+			v, n := protowire.ConsumeVarint(data)
+			if n < 0 {
+				return nil, fmt.Errorf("invalid varint")
+			}
+			value = v
+			data = data[n:]
+
+		case protowire.Fixed64Type:
+			v, n := protowire.ConsumeFixed64(data)
+			if n < 0 {
+				return nil, fmt.Errorf("invalid fixed64")
+			}
+			value = v
+			data = data[n:]
+
+		case protowire.BytesType:
+			v, n := protowire.ConsumeBytes(data)
+			if n < 0 {
+				return nil, fmt.Errorf("invalid bytes")
+			}
+
+			// Try to decode as nested message
+			if nested, err := decodeRawProtobuf(v); err == nil && len(nested) > 0 {
+				value = nested
+			} else {
+				// Treat as string if valid UTF-8, otherwise as bytes
+				if isValidUTF8(v) {
+					value = string(v)
+				} else {
+					value = fmt.Sprintf("bytes[%d]: %x", len(v), v)
 				}
 			}
+			data = data[n:]
+
+		case protowire.Fixed32Type:
+			v, n := protowire.ConsumeFixed32(data)
+			if n < 0 {
+				return nil, fmt.Errorf("invalid fixed32")
+			}
+			value = v
+			data = data[n:]
+
 		default:
-			result[fieldName] = fmt.Sprintf("unknown_type_%s", fd.Kind())
+			return nil, fmt.Errorf("unknown wire type: %d", wireType)
 		}
-		return true
-	})
+
+		// Handle repeated fields by creating arrays
+		if existing, exists := result[fieldName]; exists {
+			// Convert to array if not already
+			if arr, isArray := existing.([]any); isArray {
+				result[fieldName] = append(arr, value)
+			} else {
+				result[fieldName] = []any{existing, value}
+			}
+		} else {
+			result[fieldName] = value
+		}
+	}
 
 	return result, nil
 }
 
+func isValidUTF8(data []byte) bool {
+	for _, b := range data {
+		if b < 32 && b != 9 && b != 10 && b != 13 {
+			return false
+		}
+		if b > 126 {
+			return false
+		}
+	}
+	return true
+}
+
 func tryDecodeProtobuf(data []byte) {
-	if result, err := decodeGenericProtobuf(data); err == nil {
-		fmt.Println("=== Generic Protobuf Structure ===")
+	if result, err := decodeRawProtobuf(data); err == nil {
+		fmt.Println("=== Raw Protobuf Structure ===")
 		j, _ := json.MarshalIndent(result, "", "  ")
 		fmt.Println(string(j))
 	} else {
@@ -96,7 +130,7 @@ func main() {
 		panic(err)
 	}
 
-	arpcData, err := lib.ParseArpc(b)
+	arpcData, err := lib.ParseArpcRequest(b)
 	if err != nil {
 		log.Printf("Failed to parse as ARPC: %v\n", err)
 		log.Println("Trying direct protobuf decode...")
@@ -116,6 +150,8 @@ func main() {
 		fmt.Printf("Payload hex: %x\n", arpcData.Payload)
 	}
 
-	fmt.Println("\n=== Payload Analysis ===")
-	tryDecodeProtobuf(arpcData.Payload)
+	if slices.Contains(os.Args, "-proto") {
+		fmt.Println("\n=== Payload Analysis ===")
+		tryDecodeProtobuf(arpcData.Payload)
+	}
 }

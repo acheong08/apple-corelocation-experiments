@@ -38,8 +38,12 @@ func main() {
 		if err != nil {
 			return c.String(400, "failed to read body")
 		}
+		arpc, err := lib.ParseArpcRequest(b)
+		if err != nil {
+			return c.String(400, "invalid arpc")
+		}
 		var p pb.AppleWLoc
-		if err := proto.Unmarshal(b[58:], &p); err != nil {
+		if err := proto.Unmarshal(arpc.Payload, &p); err != nil {
 			return c.String(400, "failed to parse protobuf")
 		}
 		for i := range len(p.GetWifiDevices()) {

@@ -27,7 +27,7 @@ type ArpcWrapper struct {
 	Payload       []byte
 }
 
-func ParseArpc(data []byte) (ArpcWrapper, error) {
+func ParseArpcRequest(data []byte) (ArpcWrapper, error) {
 	r := io.NewSectionReader(
 		bytes.NewReader(data), 0, int64(len(data)),
 	)
