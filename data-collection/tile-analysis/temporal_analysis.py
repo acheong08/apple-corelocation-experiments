@@ -3,6 +3,7 @@
 import sqlite3
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 def connect_db():
     """Connect to the database"""
@@ -57,7 +58,7 @@ def plot_update_intervals(conn):
     print(f"Short intervals (≤200 minutes):")
     print(f"  Count: {len(short_intervals)} ({len(short_intervals)/len(df)*100:.1f}%)")
     print(f"  Mean: {short_intervals['minutes_between'].mean():.1f} minutes")
-    print(f"  Median: {short_intervals['minutes_between'].median():.1f} minutes")
+    print(f"  Median: {np.median(short_intervals['minutes_between']):.1f} minutes")
     print(f"  Min: {short_intervals['minutes_between'].min():.1f} minutes")
     print(f"  Max: {short_intervals['minutes_between'].max():.1f} minutes")
     print()
@@ -65,7 +66,7 @@ def plot_update_intervals(conn):
     print(f"Long intervals (≥1100 minutes):")
     print(f"  Count: {len(long_intervals)} ({len(long_intervals)/len(df)*100:.1f}%)")
     print(f"  Mean: {long_intervals['minutes_between'].mean():.1f} minutes")
-    print(f"  Median: {long_intervals['minutes_between'].median():.1f} minutes")
+    print(f"  Median: {np.median(long_intervals['minutes_between']):.1f} minutes")
     print(f"  Min: {long_intervals['minutes_between'].min():.1f} minutes")
     print(f"  Max: {long_intervals['minutes_between'].max():.1f} minutes")
     print()

@@ -35,10 +35,11 @@ unique_location_counts AS (
 
 -- Main results
 SELECT 
-    u.bssid,
     u.total_unique_locations,
     l.total_changes,
+    COUNT(u.bssid) as bssid_count,
     ROUND(CAST(l.total_changes AS FLOAT) / u.total_unique_locations, 2) as changes_per_location
 FROM unique_location_counts u
 JOIN location_counts l ON u.bssid = l.bssid
+GROUP BY u.total_unique_locations, l.total_changes
 ORDER BY u.total_unique_locations DESC, l.total_changes DESC;
