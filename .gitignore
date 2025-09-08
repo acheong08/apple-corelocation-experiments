@@ -1,4 +1,5 @@
 map.html
+.DS_Store
 cert.*
 bin
 *.log

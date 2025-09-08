@@ -1,0 +1,194 @@
+import Foundation
+import CoreLocation
+
+@MainActor
+class DataManager: ObservableObject {
+    @Published var eventTypes: [EventType] = []
+    @Published var outputLocations: [OutputLocation] = []
+    @Published var recentLogs: [LogEntry] = []
+    
+    private let documentsDirectory: URL
+    private let eventTypesFile: URL
+    private let outputLocationsFile: URL
+    
+    init() {
+        documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        eventTypesFile = documentsDirectory.appendingPathComponent("eventTypes.json")
+        outputLocationsFile = documentsDirectory.appendingPathComponent("outputLocations.json")
+        
+        loadData()
+        createDefaultOutputLocation()
+    }
+    
+    // MARK: - Event Types Management
+    
+    func addEventType(_ eventType: EventType) {
+        eventTypes.append(eventType)
+        saveEventTypes()
+    }
+    
+    func removeEventType(_ eventType: EventType) {
+        eventTypes.removeAll { $0.id == eventType.id }
+        saveEventTypes()
+    }
+    
+    func updateEventType(_ eventType: EventType) {
+        if let index = eventTypes.firstIndex(where: { $0.id == eventType.id }) {
+            eventTypes[index] = eventType
+            saveEventTypes()
+        }
+    }
+    
+    // MARK: - Output Locations Management
+    
+    func addOutputLocation(_ location: OutputLocation) {
+        outputLocations.append(location)
+        saveOutputLocations()
+    }
+    
+    func removeOutputLocation(_ location: OutputLocation) {
+        outputLocations.removeAll { $0.id == location.id }
+        saveOutputLocations()
+    }
+    
+    func updateOutputLocation(_ location: OutputLocation) {
+        if let index = outputLocations.firstIndex(where: { $0.id == location.id }) {
+            outputLocations[index] = location
+            saveOutputLocations()
+        }
+    }
+    
+    // MARK: - Logging
+    
+    func logEvent(eventTypeId: UUID, data: [String: LogValue], location: LocationData? = nil) throws {
+        guard let eventType = eventTypes.first(where: { $0.id == eventTypeId }) else {
+            throw LoggingError.eventTypeNotFound
+        }
+        
+        let logEntry = LogEntry(
+            eventTypeId: eventTypeId,
+            eventTypeName: eventType.name,
+            data: data,
+            location: location
+        )
+        
+        recentLogs.insert(logEntry, at: 0)
+        if recentLogs.count > 100 {
+            recentLogs.removeLast()
+        }
+        
+        try writeToJSONLFiles(logEntry)
+    }
+    
+    private func writeToJSONLFiles(_ logEntry: LogEntry) throws {
+        let activeLocations = outputLocations.filter { $0.isActive }
+        
+        for outputLocation in activeLocations {
+            let fileURL = documentsDirectory.appendingPathComponent(outputLocation.filePath)
+            
+            // Create directory if it doesn't exist
+            let directory = fileURL.deletingLastPathComponent()
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            
+            // Convert log entry to JSON
+            let jsonData = try createJSONLEntry(from: logEntry)
+            let jsonString = String(data: jsonData, encoding: .utf8)! + "\n"
+            
+            // Append to file
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                let fileHandle = try FileHandle(forWritingTo: fileURL)
+                fileHandle.seekToEndOfFile()
+                fileHandle.write(jsonString.data(using: .utf8)!)
+                fileHandle.closeFile()
+            } else {
+                try jsonString.write(to: fileURL, atomically: true, encoding: .utf8)
+            }
+        }
+    }
+    
+    private func createJSONLEntry(from logEntry: LogEntry) throws -> Data {
+        var jsonObject: [String: Any] = [
+            "id": logEntry.id.uuidString,
+            "eventTypeId": logEntry.eventTypeId.uuidString,
+            "eventTypeName": logEntry.eventTypeName,
+            "timestamp": ISO8601DateFormatter().string(from: logEntry.timestamp)
+        ]
+        
+        // Add data fields
+        var dataObject: [String: Any] = [:]
+        for (key, value) in logEntry.data {
+            dataObject[key] = value.toJSONValue()
+        }
+        jsonObject["data"] = dataObject
+        
+        // Add location if available
+        if let location = logEntry.location {
+            jsonObject["location"] = [
+                "latitude": location.latitude,
+                "longitude": location.longitude,
+                "altitude": location.altitude as Any,
+                "accuracy": location.accuracy,
+                "timestamp": ISO8601DateFormatter().string(from: location.timestamp)
+            ]
+        }
+        
+        return try JSONSerialization.data(withJSONObject: jsonObject)
+    }
+    
+    // MARK: - Data Persistence
+    
+    private func loadData() {
+        loadEventTypes()
+        loadOutputLocations()
+    }
+    
+    private func loadEventTypes() {
+        guard FileManager.default.fileExists(atPath: eventTypesFile.path),
+              let data = try? Data(contentsOf: eventTypesFile),
+              let types = try? JSONDecoder().decode([EventType].self, from: data) else {
+            return
+        }
+        eventTypes = types
+    }
+    
+    private func saveEventTypes() {
+        guard let data = try? JSONEncoder().encode(eventTypes) else { return }
+        try? data.write(to: eventTypesFile)
+    }
+    
+    private func loadOutputLocations() {
+        guard FileManager.default.fileExists(atPath: outputLocationsFile.path),
+              let data = try? Data(contentsOf: outputLocationsFile),
+              let locations = try? JSONDecoder().decode([OutputLocation].self, from: data) else {
+            return
+        }
+        outputLocations = locations
+    }
+    
+    private func saveOutputLocations() {
+        guard let data = try? JSONEncoder().encode(outputLocations) else { return }
+        try? data.write(to: outputLocationsFile)
+    }
+    
+    private func createDefaultOutputLocation() {
+        if outputLocations.isEmpty {
+            let defaultLocation = OutputLocation(
+                name: "Default Log",
+                filePath: "logs/events.jsonl"
+            )
+            addOutputLocation(defaultLocation)
+        }
+    }
+}
+
+enum LoggingError: Error {
+    case eventTypeNotFound
+    case invalidData
+    case fileWriteError
+}
+
+// MARK: - Shared Instance
+
+extension DataManager {
+    static let shared = DataManager()
+}
