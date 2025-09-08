@@ -8,9 +8,4 @@ struct ios_shortcut_loggerApp: App {
             ContentView()
         }
     }
-    
-    init() {
-        // Register app shortcuts
-        ShortcutsProvider.updateAppShortcutParameters()
-    }
 }

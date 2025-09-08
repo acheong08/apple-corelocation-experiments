@@ -6,207 +6,25 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            EventTypesView()
-                .tabItem {
-                    Image(systemName: "list.bullet")
-                    Text("Event Types")
-                }
-                .tag(0)
-            
             OutputLocationsView()
                 .tabItem {
                     Image(systemName: "folder")
                     Text("Output")
                 }
-                .tag(1)
+                .tag(0)
             
             RecentLogsView()
                 .tabItem {
                     Image(systemName: "clock")
                     Text("Recent Logs")
                 }
-                .tag(2)
+                .tag(1)
         }
         .environmentObject(dataManager)
     }
 }
 
-struct EventTypesView: View {
-    @EnvironmentObject var dataManager: DataManager
-    @State private var showingAddEventType = false
-    
-    var body: some View {
-        NavigationView {
-            List {
-                ForEach(dataManager.eventTypes) { eventType in
-                    EventTypeRow(eventType: eventType)
-                }
-                .onDelete(perform: deleteEventTypes)
-            }
-            .navigationTitle("Event Types")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add") {
-                        showingAddEventType = true
-                    }
-                }
-            }
-            .sheet(isPresented: $showingAddEventType) {
-                AddEventTypeView()
-            }
-        }
-    }
-    
-    private func deleteEventTypes(offsets: IndexSet) {
-        for index in offsets {
-            dataManager.removeEventType(dataManager.eventTypes[index])
-        }
-    }
-}
 
-struct EventTypeRow: View {
-    let eventType: EventType
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(eventType.name)
-                .font(.headline)
-            Text(eventType.description)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            if !eventType.fields.isEmpty {
-                Text("Fields: \(eventType.fields.map { $0.name }.joined(separator: ", "))")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding(.vertical, 2)
-    }
-}
-
-struct AddEventTypeView: View {
-    @EnvironmentObject var dataManager: DataManager
-    @Environment(\.dismiss) var dismiss
-    
-    @State private var name = ""
-    @State private var description = ""
-    @State private var fields: [EventField] = []
-    @State private var showingAddField = false
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                Section("Event Type Details") {
-                    TextField("Name", text: $name)
-                    TextField("Description", text: $description)
-                }
-                
-                Section("Fields") {
-                    ForEach(fields) { field in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(field.name)
-                                    .font(.headline)
-                                Text("\(field.type.rawValue)\(field.isRequired ? " (required)" : "")")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                        }
-                    }
-                    .onDelete(perform: deleteFields)
-                    
-                    Button("Add Field") {
-                        showingAddField = true
-                    }
-                }
-            }
-            .navigationTitle("New Event Type")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        saveEventType()
-                    }
-                    .disabled(name.isEmpty)
-                }
-            }
-            .sheet(isPresented: $showingAddField) {
-                AddFieldView { field in
-                    fields.append(field)
-                }
-            }
-        }
-    }
-    
-    private func deleteFields(offsets: IndexSet) {
-        fields.remove(atOffsets: offsets)
-    }
-    
-    private func saveEventType() {
-        let eventType = EventType(
-            name: name,
-            description: description,
-            fields: fields
-        )
-        dataManager.addEventType(eventType)
-        dismiss()
-    }
-}
-
-struct AddFieldView: View {
-    @Environment(\.dismiss) var dismiss
-    let onSave: (EventField) -> Void
-    
-    @State private var name = ""
-    @State private var type = EventField.FieldType.text
-    @State private var isRequired = false
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                TextField("Field Name", text: $name)
-                
-                Picker("Type", selection: $type) {
-                    ForEach(EventField.FieldType.allCases, id: \.self) { fieldType in
-                        Text(fieldType.rawValue.capitalized).tag(fieldType)
-                    }
-                }
-                
-                Toggle("Required", isOn: $isRequired)
-            }
-            .navigationTitle("New Field")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        let field = EventField(
-                            name: name,
-                            type: type,
-                            isRequired: isRequired
-                        )
-                        onSave(field)
-                        dismiss()
-                    }
-                    .disabled(name.isEmpty)
-                }
-            }
-        }
-    }
-}
 
 struct OutputLocationsView: View {
     @EnvironmentObject var dataManager: DataManager

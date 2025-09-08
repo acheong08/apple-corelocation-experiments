@@ -3,40 +3,18 @@ import CoreLocation
 
 @MainActor
 class DataManager: ObservableObject {
-    @Published var eventTypes: [EventType] = []
     @Published var outputLocations: [OutputLocation] = []
     @Published var recentLogs: [LogEntry] = []
     
     private let documentsDirectory: URL
-    private let eventTypesFile: URL
     private let outputLocationsFile: URL
     
     init() {
         documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        eventTypesFile = documentsDirectory.appendingPathComponent("eventTypes.json")
         outputLocationsFile = documentsDirectory.appendingPathComponent("outputLocations.json")
         
         loadData()
         createDefaultOutputLocation()
-    }
-    
-    // MARK: - Event Types Management
-    
-    func addEventType(_ eventType: EventType) {
-        eventTypes.append(eventType)
-        saveEventTypes()
-    }
-    
-    func removeEventType(_ eventType: EventType) {
-        eventTypes.removeAll { $0.id == eventType.id }
-        saveEventTypes()
-    }
-    
-    func updateEventType(_ eventType: EventType) {
-        if let index = eventTypes.firstIndex(where: { $0.id == eventType.id }) {
-            eventTypes[index] = eventType
-            saveEventTypes()
-        }
     }
     
     // MARK: - Output Locations Management
@@ -60,14 +38,9 @@ class DataManager: ObservableObject {
     
     // MARK: - Logging
     
-    func logEvent(eventTypeId: UUID, data: [String: LogValue], location: LocationData? = nil) throws {
-        guard let eventType = eventTypes.first(where: { $0.id == eventTypeId }) else {
-            throw LoggingError.eventTypeNotFound
-        }
-        
+    func logEvent(eventTypeName: String, data: [String: LogValue], location: LocationData? = nil) throws {
         let logEntry = LogEntry(
-            eventTypeId: eventTypeId,
-            eventTypeName: eventType.name,
+            eventTypeName: eventTypeName,
             data: data,
             location: location
         )
@@ -109,7 +82,6 @@ class DataManager: ObservableObject {
     private func createJSONLEntry(from logEntry: LogEntry) throws -> Data {
         var jsonObject: [String: Any] = [
             "id": logEntry.id.uuidString,
-            "eventTypeId": logEntry.eventTypeId.uuidString,
             "eventTypeName": logEntry.eventTypeName,
             "timestamp": ISO8601DateFormatter().string(from: logEntry.timestamp)
         ]
@@ -138,22 +110,7 @@ class DataManager: ObservableObject {
     // MARK: - Data Persistence
     
     private func loadData() {
-        loadEventTypes()
         loadOutputLocations()
-    }
-    
-    private func loadEventTypes() {
-        guard FileManager.default.fileExists(atPath: eventTypesFile.path),
-              let data = try? Data(contentsOf: eventTypesFile),
-              let types = try? JSONDecoder().decode([EventType].self, from: data) else {
-            return
-        }
-        eventTypes = types
-    }
-    
-    private func saveEventTypes() {
-        guard let data = try? JSONEncoder().encode(eventTypes) else { return }
-        try? data.write(to: eventTypesFile)
     }
     
     private func loadOutputLocations() {

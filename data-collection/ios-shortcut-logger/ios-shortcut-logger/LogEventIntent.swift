@@ -269,25 +269,6 @@ private func logEvent(
 ) async throws {
     let dataManager = await DataManager.shared
 
-    // Find or create the event type
-    var foundEventType = await dataManager.eventTypes.first(where: {
-        $0.name == eventTypeName
-    })
-
-    // If event type doesn't exist, create it
-    if foundEventType == nil {
-        let newEventType = EventType(
-            name: eventTypeName,
-            description: "Auto-created event type for \(eventTypeName)"
-        )
-        await dataManager.addEventType(newEventType)
-        foundEventType = newEventType
-    }
-
-    guard let eventType = foundEventType else {
-        throw LogEventError.eventTypeNotFound(eventTypeName)
-    }
-
     // Get location if requested
     var locationData: LocationData? = nil
     if includeLocation {
@@ -296,7 +277,7 @@ private func logEvent(
 
     // Log the event
     try await dataManager.logEvent(
-        eventTypeId: eventType.id,
+        eventTypeName: eventTypeName,
         data: data,
         location: locationData
     )
@@ -381,80 +362,4 @@ class LocationDelegate: NSObject, CLLocationManagerDelegate {
     }
 }
 
-// MARK: - App Shortcuts Provider
 
-struct ShortcutsProvider: AppShortcutsProvider {
-    static var appShortcuts: [AppShortcut] = [
-
-        // Map Events
-        AppShortcut(
-            intent: LogFirstPartyMapOpenIntent(),
-            phrases: [],
-            shortTitle: "Map Open",
-            systemImageName: "map"
-        ),
-        AppShortcut(
-            intent: LogFirstPartyMapCloseIntent(),
-            phrases: [],
-            shortTitle: "Map Close",
-            systemImageName: "map"
-        ),
-        AppShortcut(
-            intent: LogThirdPartyMapOpenIntent(),
-            phrases: [],
-            shortTitle: "3rd Map Open",
-            systemImageName: "map.fill"
-        ),
-        AppShortcut(
-            intent: LogThirdPartyMapCloseIntent(),
-            phrases: [],
-            shortTitle: "3rd Map Close",
-            systemImageName: "map.fill"
-        ),
-
-        // Charging Events
-        AppShortcut(
-            intent: LogPluggedInIntent(),
-            phrases: [],
-            shortTitle: "Plugged In",
-            systemImageName: "bolt.fill"
-        ),
-        AppShortcut(
-            intent: LogPluggedOutIntent(),
-            phrases: [],
-            shortTitle: "Plugged Out",
-            systemImageName: "bolt.slash"
-        ),
-
-        // Alarm Event
-        AppShortcut(
-            intent: LogAlarmGoesOffIntent(),
-            phrases: [],
-            shortTitle: "Alarm Off",
-            systemImageName: "alarm"
-        ),
-
-        // Airplane Mode Events
-        AppShortcut(
-            intent: LogAirplaneModeOnIntent(),
-            phrases: [],
-            shortTitle: "Airplane On",
-            systemImageName: "airplane"
-        ),
-        AppShortcut(
-            intent: LogAirplaneModeOffIntent(),
-            phrases: [],
-            shortTitle: "Airplane Off",
-            systemImageName: "airplane"
-        ),
-
-        // Transaction Event
-        AppShortcut(
-            intent: LogTransactionMadeIntent(),
-            phrases: [],
-            shortTitle: "Transaction",
-            systemImageName: "creditcard"
-        ),
-
-    ]
-}
