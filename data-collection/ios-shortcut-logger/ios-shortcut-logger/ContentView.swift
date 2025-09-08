@@ -4,8 +4,6 @@ import UIKit
 struct ContentView: View {
     @StateObject private var dataManager = DataManager.shared
     @State private var selectedTab = 0
-    @State private var showingUpdateAlert = false
-    @State private var updateMessage = ""
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -16,26 +14,14 @@ struct ContentView: View {
                 }
                 .tag(0)
             
-            OutputLocationsView()
-                .tabItem {
-                    Image(systemName: "folder")
-                    Text("Output")
-                }
-                .tag(1)
-            
             RecentLogsView()
                 .tabItem {
                     Image(systemName: "clock")
                     Text("Recent Logs")
                 }
-                .tag(2)
+                .tag(1)
         }
         .environmentObject(dataManager)
-        .alert("State Update", isPresented: $showingUpdateAlert) {
-            Button("OK") { }
-        } message: {
-            Text(updateMessage)
-        }
     }
 }
 
@@ -45,7 +31,6 @@ struct SystemStateView: View {
     @State private var showingShareSheet = false
     @State private var shareItems: [Any] = []
     @State private var airplaneModeOn = false
-    @State private var showingAirplaneModeAlert = false
     
     var body: some View {
         NavigationView {
@@ -85,7 +70,7 @@ struct SystemStateView: View {
                 Button(action: exportLogs) {
                     HStack {
                         Image(systemName: "square.and.arrow.up")
-                        Text("Export Logs")
+                        Text("Share Logs")
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -121,112 +106,9 @@ struct SystemStateView: View {
     }
     
     private func exportLogs() {
-        let logFiles = dataManager.getAllLogFiles()
-        if !logFiles.isEmpty {
-            shareItems = logFiles
-            showingShareSheet = true
-        }
-    }
-}
-
-
-
-struct OutputLocationsView: View {
-    @EnvironmentObject var dataManager: DataManager
-    @State private var showingAddLocation = false
-    
-    var body: some View {
-        NavigationView {
-            List {
-                ForEach(dataManager.outputLocations) { location in
-                    OutputLocationRow(location: location)
-                }
-                .onDelete(perform: deleteLocations)
-            }
-            .navigationTitle("Output Locations")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Add") {
-                        showingAddLocation = true
-                    }
-                }
-            }
-            .sheet(isPresented: $showingAddLocation) {
-                AddOutputLocationView()
-            }
-        }
-    }
-    
-    private func deleteLocations(offsets: IndexSet) {
-        for index in offsets {
-            dataManager.removeOutputLocation(dataManager.outputLocations[index])
-        }
-    }
-}
-
-struct OutputLocationRow: View {
-    let location: OutputLocation
-    @EnvironmentObject var dataManager: DataManager
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(location.name)
-                    .font(.headline)
-                Text(location.filePath)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            Spacer()
-            
-            Toggle("", isOn: .constant(location.isActive))
-                .onChange(of: location.isActive) {
-                    // Note: This would need proper updating logic
-                }
-        }
-    }
-}
-
-struct AddOutputLocationView: View {
-    @EnvironmentObject var dataManager: DataManager
-    @Environment(\.dismiss) var dismiss
-    
-    @State private var name = ""
-    @State private var filePath = ""
-    
-    var body: some View {
-        NavigationView {
-            Form {
-                TextField("Name", text: $name)
-                TextField("File Path", text: $filePath)
-                    .autocapitalization(.none)
-                    .placeholder(when: filePath.isEmpty) {
-                        Text("logs/events.jsonl")
-                            .foregroundColor(.secondary)
-                    }
-            }
-            .navigationTitle("New Output Location")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        let location = OutputLocation(
-                            name: name,
-                            filePath: filePath.isEmpty ? "logs/events.jsonl" : filePath
-                        )
-                        dataManager.addOutputLocation(location)
-                        dismiss()
-                    }
-                    .disabled(name.isEmpty)
-                }
-            }
-        }
+        let logContent = dataManager.getLogContent()
+        shareItems = [logContent]
+        showingShareSheet = true
     }
 }
 
@@ -290,19 +172,6 @@ struct LogEntryRow: View {
             return bool ? "true" : "false"
         case .date(let date):
             return DateFormatter.localizedString(from: date, dateStyle: .short, timeStyle: .short)
-        }
-    }
-}
-
-extension View {
-    func placeholder<Content: View>(
-        when shouldShow: Bool,
-        alignment: Alignment = .leading,
-        @ViewBuilder placeholder: () -> Content) -> some View {
-        
-        ZStack(alignment: alignment) {
-            placeholder().opacity(shouldShow ? 1 : 0)
-            self
         }
     }
 }

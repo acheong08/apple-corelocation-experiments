@@ -44,19 +44,3 @@ struct LocationData: Codable {
     let accuracy: Double
     let timestamp: Date
 }
-
-struct OutputLocation: Codable, Identifiable {
-    let id: UUID
-    let name: String
-    let filePath: String
-    let isActive: Bool
-    let createdAt: Date
-    
-    init(name: String, filePath: String, isActive: Bool = true) {
-        self.id = UUID()
-        self.name = name
-        self.filePath = filePath
-        self.isActive = isActive
-        self.createdAt = Date()
-    }
-}
