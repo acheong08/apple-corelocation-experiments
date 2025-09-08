@@ -2,6 +2,7 @@ package lib
 
 import (
 	"bytes"
+	"errors"
 	"net/http"
 	"wloc/pb"
 )
@@ -20,5 +21,8 @@ func RequestPbcWloc(p *pb.PbcWlocRequest) error {
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return errors.New("server replied with non-200 status code")
+	}
 	return nil
 }
