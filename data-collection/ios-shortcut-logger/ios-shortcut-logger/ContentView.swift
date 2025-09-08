@@ -124,10 +124,12 @@ struct SystemStateView: View {
     }
     
     private func clearLogs() {
-        do {
-            try dataManager.clearLogs()
-        } catch {
-            print("Failed to clear logs: \(error)")
+        Task {
+            do {
+                try await dataManager.clearLogs()
+            } catch {
+                print("Failed to clear logs: \(error)")
+            }
         }
     }
 }

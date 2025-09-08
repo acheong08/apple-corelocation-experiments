@@ -21,13 +21,25 @@ actor StateTracker {
     static let shared = StateTracker()
     
     private var states: [String: Bool] = [:]
+    private let userDefaults = UserDefaults.standard
+    private let statesKey = "StateTrackerStates"
     
-    private init() {}
+    private init() {
+        // Load states synchronously in init
+        if let savedStates = UserDefaults.standard.object(forKey: "StateTrackerStates") as? [String: Bool] {
+            states = savedStates
+        }
+    }
+    
+    private func saveStates() {
+        userDefaults.set(states, forKey: statesKey)
+    }
     
     func toggle(_ key: String) -> Bool {
         let currentState = states[key] ?? false
         let newState = !currentState
         states[key] = newState
+        saveStates()
         return newState
     }
     
@@ -37,6 +49,12 @@ actor StateTracker {
     
     func setState(_ key: String, to value: Bool) {
         states[key] = value
+        saveStates()
+    }
+    
+    func clearAllStates() {
+        states.removeAll()
+        saveStates()
     }
     
     func updateSystemStates(airplaneModeOverride: Bool? = nil) async -> [(String, Bool, Bool)] {
@@ -75,6 +93,11 @@ actor StateTracker {
                 states[key] = false
                 changes.append((key, true, false))
             }
+        }
+        
+        // Save states if there were any changes
+        if !changes.isEmpty {
+            saveStates()
         }
         
         return changes

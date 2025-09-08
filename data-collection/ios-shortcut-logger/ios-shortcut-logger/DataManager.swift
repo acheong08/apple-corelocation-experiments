@@ -89,12 +89,15 @@ class DataManager: ObservableObject {
         return logs.sorted { $0.timestamp > $1.timestamp }
     }
     
-    func clearLogs() throws {
+    func clearLogs() async throws {
         recentLogs.removeAll()
         
         if FileManager.default.fileExists(atPath: logFileURL.path) {
             try FileManager.default.removeItem(at: logFileURL)
         }
+        
+        // Also clear the persistent state
+        await StateTracker.shared.clearAllStates()
     }
 }
 
