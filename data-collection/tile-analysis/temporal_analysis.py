@@ -46,12 +46,34 @@ def plot_update_intervals(conn):
     plt.savefig('output/update_intervals_analysis.png', dpi=300, bbox_inches='tight')
     print("Saved output/update_intervals_analysis.png")
     
-    # Print statistics
-    print(f"Update interval statistics:")
-    print(f"  Mean: {df['minutes_between'].mean():.1f} minutes")
-    print(f"  Median: {df['minutes_between'].median():.1f} minutes")
-    print(f"  Min: {df['minutes_between'].min():.1f} minutes")
-    print(f"  Max: {df['minutes_between'].max():.1f} minutes")
+    # Identify and analyze groups
+    short_intervals = df[df['minutes_between'] <= 200]
+    long_intervals = df[df['minutes_between'] >= 1100]
+    
+    print(f"Update interval analysis:")
+    print(f"  Total intervals: {len(df)}")
+    print()
+    
+    print(f"Short intervals (≤200 minutes):")
+    print(f"  Count: {len(short_intervals)} ({len(short_intervals)/len(df)*100:.1f}%)")
+    print(f"  Mean: {short_intervals['minutes_between'].mean():.1f} minutes")
+    print(f"  Median: {short_intervals['minutes_between'].median():.1f} minutes")
+    print(f"  Min: {short_intervals['minutes_between'].min():.1f} minutes")
+    print(f"  Max: {short_intervals['minutes_between'].max():.1f} minutes")
+    print()
+    
+    print(f"Long intervals (≥1100 minutes):")
+    print(f"  Count: {len(long_intervals)} ({len(long_intervals)/len(df)*100:.1f}%)")
+    print(f"  Mean: {long_intervals['minutes_between'].mean():.1f} minutes")
+    print(f"  Median: {long_intervals['minutes_between'].median():.1f} minutes")
+    print(f"  Min: {long_intervals['minutes_between'].min():.1f} minutes")
+    print(f"  Max: {long_intervals['minutes_between'].max():.1f} minutes")
+    print()
+    
+    # Check for gaps
+    gap_start = short_intervals['minutes_between'].max()
+    gap_end = long_intervals['minutes_between'].min()
+    print(f"Gap between groups: {gap_start:.1f} to {gap_end:.1f} minutes")
 
 def main():
     conn = connect_db()
