@@ -107,6 +107,35 @@ class DataManager: ObservableObject {
         return try JSONSerialization.data(withJSONObject: jsonObject)
     }
     
+    // MARK: - Export Functionality
+    
+    func exportLogs() -> [URL] {
+        let activeLocations = outputLocations.filter { $0.isActive }
+        var exportURLs: [URL] = []
+        
+        for outputLocation in activeLocations {
+            let fileURL = documentsDirectory.appendingPathComponent(outputLocation.filePath)
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                exportURLs.append(fileURL)
+            }
+        }
+        
+        return exportURLs
+    }
+    
+    func getAllLogFiles() -> [URL] {
+        var logFiles: [URL] = []
+        
+        for outputLocation in outputLocations {
+            let fileURL = documentsDirectory.appendingPathComponent(outputLocation.filePath)
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                logFiles.append(fileURL)
+            }
+        }
+        
+        return logFiles
+    }
+
     // MARK: - Data Persistence
     
     private func loadData() {

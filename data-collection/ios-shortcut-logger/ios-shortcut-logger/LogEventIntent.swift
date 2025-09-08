@@ -1,46 +1,116 @@
 import AppIntents
 import CoreLocation
+import CoreTelephony
+import UIKit
 import Foundation
 
-// MARK: - Hardcoded Event Intents
+// MARK: - System State Detection
 
-struct LogFirstPartyMapOpenIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log First Party Map Open"
-    static let description = IntentDescription("Log when Apple Maps opens")
+struct SystemStateDetector {
+    static func isAirplaneModeEnabled() -> Bool {
+        let networkInfo = CTTelephonyNetworkInfo()
+        let carrier = networkInfo.serviceSubscriberCellularProviders?.first?.value
+        return carrier?.carrierName == nil
+    }
+    
+    static func isDevicePluggedIn() -> Bool {
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        defer { UIDevice.current.isBatteryMonitoringEnabled = false }
+        
+        let batteryState = UIDevice.current.batteryState
+        return batteryState == .charging || batteryState == .full
+    }
+}
+
+// MARK: - State Tracker
+
+actor StateTracker {
+    static let shared = StateTracker()
+    
+    private var states: [String: Bool] = [:]
+    
+    private init() {}
+    
+    func toggle(_ key: String) -> Bool {
+        let currentState = states[key] ?? false
+        let newState = !currentState
+        states[key] = newState
+        return newState
+    }
+    
+    func getCurrentState(_ key: String) -> Bool {
+        return states[key] ?? false
+    }
+    
+    func setState(_ key: String, to value: Bool) {
+        states[key] = value
+    }
+    
+    func updateSystemStates() async -> [(String, Bool, Bool)] {
+        var changes: [(String, Bool, Bool)] = []
+        
+        // Check airplane mode (detectable via telephony)
+        let currentAirplaneMode = SystemStateDetector.isAirplaneModeEnabled()
+        let recordedAirplaneMode = states["AirplaneMode"] ?? false
+        if currentAirplaneMode != recordedAirplaneMode {
+            states["AirplaneMode"] = currentAirplaneMode
+            changes.append(("AirplaneMode", recordedAirplaneMode, currentAirplaneMode))
+        }
+        
+        // Check plug state (detectable via battery state)
+        let currentPlugState = SystemStateDetector.isDevicePluggedIn()
+        let recordedPlugState = states["PlugState"] ?? false
+        if currentPlugState != recordedPlugState {
+            states["PlugState"] = currentPlugState
+            changes.append(("PlugState", recordedPlugState, currentPlugState))
+        }
+        
+        // Reset app states to false (default to closed, not detectable)
+        let appStates = ["FirstPartyMap"]
+        for appState in appStates {
+            if states[appState] != false {
+                states[appState] = false
+                changes.append((appState, true, false))
+            }
+        }
+        
+        // Reset any third-party map states to false
+        let thirdPartyKeys = states.keys.filter { $0.hasPrefix("ThirdPartyMap") }
+        for key in thirdPartyKeys {
+            if states[key] != false {
+                states[key] = false
+                changes.append((key, true, false))
+            }
+        }
+        
+        return changes
+    }
+}
+
+// MARK: - Consolidated Event Intents
+
+struct LogFirstPartyMapToggleIntent: AppIntent {
+    static let title: LocalizedStringResource = "Toggle First Party Map"
+    static let description = IntentDescription("Toggle Apple Maps open/close state")
 
     @Parameter(title: "Include Location", default: false)
     var includeLocation: Bool
 
     func perform() async throws -> some IntentResult {
+        let isOpen = await StateTracker.shared.toggle("FirstPartyMap")
+        let eventTypeName = isOpen ? "FirstPartyMapOpen" : "FirstPartyMapClose"
+        
         try await logEvent(
-            eventTypeName: "FirstPartyMapOpen",
+            eventTypeName: eventTypeName,
             includeLocation: includeLocation
         )
         return .result()
     }
 }
 
-struct LogFirstPartyMapCloseIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log First Party Map Close"
-    static let description = IntentDescription("Log when Apple Maps closes")
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
-    func perform() async throws -> some IntentResult {
-        try await logEvent(
-            eventTypeName: "FirstPartyMapClose",
-            includeLocation: includeLocation
-        )
-        return .result()
-    }
-}
-
-struct LogThirdPartyMapOpenIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log Third Party Map Open"
-    static let description = IntentDescription(
-        "Log when a third party map app opens"
-    )
+struct LogThirdPartyMapToggleIntent: AppIntent {
+    static let title: LocalizedStringResource = "Toggle Third Party Map"
+    static let description = IntentDescription("Toggle third party map app open/close state")
 
     @Parameter(title: "App Name")
     var appName: String?
@@ -49,12 +119,16 @@ struct LogThirdPartyMapOpenIntent: AppIntent {
     var includeLocation: Bool
 
     func perform() async throws -> some IntentResult {
+        let stateKey = "ThirdPartyMap_\(appName ?? "Unknown")"
+        let isOpen = await StateTracker.shared.toggle(stateKey)
+        let eventTypeName = isOpen ? "ThirdPartyMapOpen" : "ThirdPartyMapClose"
+        
         var data: [String: LogValue] = [:]
         if let appName = appName {
             data["appName"] = .text(appName)
         }
         try await logEvent(
-            eventTypeName: "ThirdPartyMapOpen",
+            eventTypeName: eventTypeName,
             data: data,
             includeLocation: includeLocation
         )
@@ -62,62 +136,19 @@ struct LogThirdPartyMapOpenIntent: AppIntent {
     }
 }
 
-struct LogThirdPartyMapCloseIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log Third Party Map Close"
-    static let description = IntentDescription(
-        "Log when a third party map app closes"
-    )
-
-    @Parameter(title: "App Name")
-    var appName: String?
+struct LogPlugToggleIntent: AppIntent {
+    static let title: LocalizedStringResource = "Toggle Plug State"
+    static let description = IntentDescription("Toggle device plug in/out state")
 
     @Parameter(title: "Include Location", default: false)
     var includeLocation: Bool
 
     func perform() async throws -> some IntentResult {
-        var data: [String: LogValue] = [:]
-        if let appName = appName {
-            data["appName"] = .text(appName)
-        }
+        let isPluggedIn = await StateTracker.shared.toggle("PlugState")
+        let eventTypeName = isPluggedIn ? "PluggedIn" : "PluggedOut"
+        
         try await logEvent(
-            eventTypeName: "ThirdPartyMapClose",
-            data: data,
-            includeLocation: includeLocation
-        )
-        return .result()
-    }
-}
-
-struct LogPluggedInIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log Plugged In"
-    static let description = IntentDescription(
-        "Log when device is plugged in to charge"
-    )
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
-    func perform() async throws -> some IntentResult {
-        try await logEvent(
-            eventTypeName: "PluggedIn",
-            includeLocation: includeLocation
-        )
-        return .result()
-    }
-}
-
-struct LogPluggedOutIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log Plugged Out"
-    static let description = IntentDescription(
-        "Log when device is unplugged from charging"
-    )
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
-    func perform() async throws -> some IntentResult {
-        try await logEvent(
-            eventTypeName: "PluggedOut",
+            eventTypeName: eventTypeName,
             includeLocation: includeLocation
         )
         return .result()
@@ -148,82 +179,19 @@ struct LogAlarmGoesOffIntent: AppIntent {
     }
 }
 
-struct LogAirplaneModeOnIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log Airplane Mode On"
-    static let description = IntentDescription(
-        "Log when airplane mode is turned on"
-    )
+struct LogAirplaneModeToggleIntent: AppIntent {
+    static let title: LocalizedStringResource = "Toggle Airplane Mode"
+    static let description = IntentDescription("Toggle airplane mode on/off state")
 
     @Parameter(title: "Include Location", default: false)
     var includeLocation: Bool
 
     func perform() async throws -> some IntentResult {
+        let isOn = await StateTracker.shared.toggle("AirplaneMode")
+        let eventTypeName = isOn ? "AirplaneModeOn" : "AirplaneModeOff"
+        
         try await logEvent(
-            eventTypeName: "AirplaneModeOn",
-            includeLocation: includeLocation
-        )
-        return .result()
-    }
-}
-
-struct LogAirplaneModeOffIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log Airplane Mode Off"
-    static let description = IntentDescription(
-        "Log when airplane mode is turned off"
-    )
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
-    func perform() async throws -> some IntentResult {
-        try await logEvent(
-            eventTypeName: "AirplaneModeOff",
-            includeLocation: includeLocation
-        )
-        return .result()
-    }
-}
-
-struct LogAppOpenIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log App Open"
-    static let description = IntentDescription(
-        "Log when an installed app is opened"
-    )
-
-    @Parameter(title: "App Name")
-    var appName: String
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
-    func perform() async throws -> some IntentResult {
-        let data: [String: LogValue] = ["appName": .text(appName)]
-        try await logEvent(
-            eventTypeName: "AppOpen",
-            data: data,
-            includeLocation: includeLocation
-        )
-        return .result()
-    }
-}
-
-struct LogAppCloseIntent: AppIntent {
-    static let title: LocalizedStringResource = "Log App Close"
-    static let description = IntentDescription(
-        "Log when an installed app is closed"
-    )
-
-    @Parameter(title: "App Name")
-    var appName: String
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
-    func perform() async throws -> some IntentResult {
-        let data: [String: LogValue] = ["appName": .text(appName)]
-        try await logEvent(
-            eventTypeName: "AppClose",
-            data: data,
+            eventTypeName: eventTypeName,
             includeLocation: includeLocation
         )
         return .result()
@@ -367,69 +335,36 @@ class LocationDelegate: NSObject, CLLocationManagerDelegate {
 struct ShortcutsProvider: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
-            intent: LogFirstPartyMapOpenIntent(),
+            intent: LogFirstPartyMapToggleIntent(),
             phrases: [
-                "Log first party map open with \(.applicationName)",
-                "Track Apple Maps opening in \(.applicationName)",
-                "Record when Maps app opens using \(.applicationName)"
+                "Toggle first party map with \(.applicationName)",
+                "Toggle Apple Maps in \(.applicationName)",
+                "Switch Maps app state using \(.applicationName)"
             ],
-            shortTitle: "Log Map Open",
+            shortTitle: "Toggle Map",
             systemImageName: "map"
         )
         
         AppShortcut(
-            intent: LogFirstPartyMapCloseIntent(),
+            intent: LogThirdPartyMapToggleIntent(),
             phrases: [
-                "Log first party map close with \(.applicationName)",
-                "Track Apple Maps closing in \(.applicationName)",
-                "Record when Maps app closes using \(.applicationName)"
+                "Toggle third party map with \(.applicationName)",
+                "Toggle third party map app in \(.applicationName)",
+                "Switch third party map state using \(.applicationName)"
             ],
-            shortTitle: "Log Map Close",
-            systemImageName: "map.fill"
-        )
-        
-        AppShortcut(
-            intent: LogThirdPartyMapOpenIntent(),
-            phrases: [
-                "Log third party map open with \(.applicationName)",
-                "Track third party map opening in \(.applicationName)",
-                "Record third party map app opening using \(.applicationName)"
-            ],
-            shortTitle: "Log 3rd Party Map Open",
+            shortTitle: "Toggle 3rd Party Map",
             systemImageName: "location"
         )
         
         AppShortcut(
-            intent: LogThirdPartyMapCloseIntent(),
+            intent: LogPlugToggleIntent(),
             phrases: [
-                "Log third party map close with \(.applicationName)",
-                "Track third party map closing in \(.applicationName)",
-                "Record third party map app closing using \(.applicationName)"
+                "Toggle plug state with \(.applicationName)",
+                "Toggle device charging in \(.applicationName)",
+                "Switch plug state using \(.applicationName)"
             ],
-            shortTitle: "Log 3rd Party Map Close",
-            systemImageName: "location.fill"
-        )
-        
-        AppShortcut(
-            intent: LogPluggedInIntent(),
-            phrases: [
-                "Log plugged in with \(.applicationName)",
-                "Track device charging in \(.applicationName)",
-                "Record when device is plugged in using \(.applicationName)"
-            ],
-            shortTitle: "Log Plugged In",
+            shortTitle: "Toggle Plug",
             systemImageName: "battery.100.bolt"
-        )
-        
-        AppShortcut(
-            intent: LogPluggedOutIntent(),
-            phrases: [
-                "Log plugged out with \(.applicationName)",
-                "Track device unplugging in \(.applicationName)",
-                "Record when device is unplugged using \(.applicationName)"
-            ],
-            shortTitle: "Log Plugged Out",
-            systemImageName: "battery.100"
         )
         
         AppShortcut(
@@ -444,25 +379,14 @@ struct ShortcutsProvider: AppShortcutsProvider {
         )
         
         AppShortcut(
-            intent: LogAirplaneModeOnIntent(),
+            intent: LogAirplaneModeToggleIntent(),
             phrases: [
-                "Log airplane mode on with \(.applicationName)",
-                "Track airplane mode activation in \(.applicationName)",
-                "Record airplane mode turning on using \(.applicationName)"
+                "Toggle airplane mode with \(.applicationName)",
+                "Toggle airplane mode in \(.applicationName)",
+                "Switch airplane mode using \(.applicationName)"
             ],
-            shortTitle: "Log Airplane On",
+            shortTitle: "Toggle Airplane Mode",
             systemImageName: "airplane"
-        )
-        
-        AppShortcut(
-            intent: LogAirplaneModeOffIntent(),
-            phrases: [
-                "Log airplane mode off with \(.applicationName)",
-                "Track airplane mode deactivation in \(.applicationName)",
-                "Record airplane mode turning off using \(.applicationName)"
-            ],
-            shortTitle: "Log Airplane Off",
-            systemImageName: "airplane.departure"
         )
         
         AppShortcut(
