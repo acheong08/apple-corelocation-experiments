@@ -87,17 +87,11 @@ struct LogFirstPartyMapToggleIntent: AppIntent {
     static let title: LocalizedStringResource = "Toggle First Party Map"
     static let description = IntentDescription("Toggle Apple Maps open/close state")
 
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
     func perform() async throws -> some IntentResult {
         let isOpen = await StateTracker.shared.toggle("FirstPartyMap")
         let eventTypeName = isOpen ? "FirstPartyMapOpen" : "FirstPartyMapClose"
         
-        try await logEvent(
-            eventTypeName: eventTypeName,
-            includeLocation: includeLocation
-        )
+        try await logEvent(eventTypeName: eventTypeName)
         return .result()
     }
 }
@@ -106,26 +100,11 @@ struct LogThirdPartyMapToggleIntent: AppIntent {
     static let title: LocalizedStringResource = "Toggle Third Party Map"
     static let description = IntentDescription("Toggle third party map app open/close state")
 
-    @Parameter(title: "App Name")
-    var appName: String?
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
     func perform() async throws -> some IntentResult {
-        let stateKey = "ThirdPartyMap_\(appName ?? "Unknown")"
-        let isOpen = await StateTracker.shared.toggle(stateKey)
+        let isOpen = await StateTracker.shared.toggle("ThirdPartyMap")
         let eventTypeName = isOpen ? "ThirdPartyMapOpen" : "ThirdPartyMapClose"
         
-        var data: [String: LogValue] = [:]
-        if let appName = appName {
-            data["appName"] = .text(appName)
-        }
-        try await logEvent(
-            eventTypeName: eventTypeName,
-            data: data,
-            includeLocation: includeLocation
-        )
+        try await logEvent(eventTypeName: eventTypeName)
         return .result()
     }
 }
@@ -134,17 +113,11 @@ struct LogPlugToggleIntent: AppIntent {
     static let title: LocalizedStringResource = "Toggle Plug State"
     static let description = IntentDescription("Toggle device plug in/out state")
 
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
     func perform() async throws -> some IntentResult {
         let isPluggedIn = await StateTracker.shared.toggle("PlugState")
         let eventTypeName = isPluggedIn ? "PluggedIn" : "PluggedOut"
         
-        try await logEvent(
-            eventTypeName: eventTypeName,
-            includeLocation: includeLocation
-        )
+        try await logEvent(eventTypeName: eventTypeName)
         return .result()
     }
 }
@@ -153,22 +126,8 @@ struct LogAlarmGoesOffIntent: AppIntent {
     static let title: LocalizedStringResource = "Log Alarm Goes Off"
     static let description = IntentDescription("Log when an alarm goes off")
 
-    @Parameter(title: "Alarm Name")
-    var alarmName: String?
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
     func perform() async throws -> some IntentResult {
-        var data: [String: LogValue] = [:]
-        if let alarmName = alarmName {
-            data["alarmName"] = .text(alarmName)
-        }
-        try await logEvent(
-            eventTypeName: "AlarmGoesOff",
-            data: data,
-            includeLocation: includeLocation
-        )
+        try await logEvent(eventTypeName: "AlarmGoesOff")
         return .result()
     }
 }
@@ -177,17 +136,11 @@ struct LogAirplaneModeToggleIntent: AppIntent {
     static let title: LocalizedStringResource = "Toggle Airplane Mode"
     static let description = IntentDescription("Toggle airplane mode on/off state")
 
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
     func perform() async throws -> some IntentResult {
         let isOn = await StateTracker.shared.toggle("AirplaneMode")
         let eventTypeName = isOn ? "AirplaneModeOn" : "AirplaneModeOff"
         
-        try await logEvent(
-            eventTypeName: eventTypeName,
-            includeLocation: includeLocation
-        )
+        try await logEvent(eventTypeName: eventTypeName)
         return .result()
     }
 }
@@ -196,131 +149,32 @@ struct LogTransactionMadeIntent: AppIntent {
     static let title: LocalizedStringResource = "Log Transaction Made"
     static let description = IntentDescription("Log when a transaction is made")
 
-    @Parameter(title: "Amount")
-    var amount: Double?
-
-    @Parameter(title: "Merchant")
-    var merchant: String?
-
-    @Parameter(title: "Include Location", default: false)
-    var includeLocation: Bool
-
     func perform() async throws -> some IntentResult {
-        var data: [String: LogValue] = [:]
-        if let amount = amount {
-            data["amount"] = .number(amount)
-        }
-        if let merchant = merchant {
-            data["merchant"] = .text(merchant)
-        }
-        try await logEvent(
-            eventTypeName: "TransactionMade",
-            data: data,
-            includeLocation: includeLocation
-        )
+        try await logEvent(eventTypeName: "TransactionMade")
         return .result()
     }
 }
 
 // MARK: - Helper Functions
 
-private func logEvent(
-    eventTypeName: String,
-    data: [String: LogValue] = [:],
-    includeLocation: Bool = false
-) async throws {
+private func logEvent(eventTypeName: String) async throws {
     let dataManager = await DataManager.shared
-
-    // Get location if requested
-    var locationData: LocationData? = nil
-    if includeLocation {
-        locationData = await getCurrentLocation()
-    }
-
-    // Log the event
-    try await dataManager.logEvent(
-        eventTypeName: eventTypeName,
-        data: data,
-        location: locationData
-    )
-}
-
-private func getCurrentLocation() async -> LocationData? {
-    let locationManager = CLLocationManager()
-
-    let authStatus = locationManager.authorizationStatus
-    if authStatus == .notDetermined {
-        locationManager.requestWhenInUseAuthorization()
-    }
-
-    guard authStatus == .authorizedWhenInUse || authStatus == .authorizedAlways
-    else {
-        return nil
-    }
-
-    do {
-        let location = try await withCheckedThrowingContinuation {
-            continuation in
-            let delegate = LocationDelegate(continuation: continuation)
-            locationManager.delegate = delegate
-            locationManager.requestLocation()
-        }
-
-        return LocationData(
-            latitude: location.coordinate.latitude,
-            longitude: location.coordinate.longitude,
-            altitude: location.altitude,
-            accuracy: location.horizontalAccuracy,
-            timestamp: location.timestamp
-        )
-    } catch {
-        return nil
-    }
+    try await dataManager.logEvent(eventTypeName: eventTypeName)
 }
 
 // MARK: - Supporting Types
 
 enum LogEventError: Error, LocalizedError {
     case eventTypeNotFound(String)
-    case invalidDataFormat
     case loggingFailed
-    case locationPermissionDenied
 
     var errorDescription: String? {
         switch self {
         case .eventTypeNotFound(let name):
             return "Event type '\(name)' not found"
-        case .invalidDataFormat:
-            return "Invalid JSON data format"
         case .loggingFailed:
             return "Failed to log event"
-        case .locationPermissionDenied:
-            return "Location permission denied"
         }
-    }
-}
-
-class LocationDelegate: NSObject, CLLocationManagerDelegate {
-    private let continuation: CheckedContinuation<CLLocation, Error>
-
-    init(continuation: CheckedContinuation<CLLocation, Error>) {
-        self.continuation = continuation
-    }
-
-    func locationManager(
-        _ manager: CLLocationManager,
-        didUpdateLocations locations: [CLLocation]
-    ) {
-        if let location = locations.first {
-            continuation.resume(returning: location)
-        }
-    }
-
-    func locationManager(
-        _ manager: CLLocationManager,
-        didFailWithError error: Error
-    ) {
-        continuation.resume(throwing: error)
     }
 }
 

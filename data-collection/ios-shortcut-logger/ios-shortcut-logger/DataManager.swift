@@ -19,12 +19,8 @@ class DataManager: ObservableObject {
     
     // MARK: - Logging
     
-    func logEvent(eventTypeName: String, data: [String: LogValue], location: LocationData? = nil) throws {
-        let logEntry = LogEntry(
-            eventTypeName: eventTypeName,
-            data: data,
-            location: location
-        )
+    func logEvent(eventTypeName: String) throws {
+        let logEntry = LogEntry(eventTypeName: eventTypeName)
         
         recentLogs.insert(logEntry, at: 0)
         if recentLogs.count > 100 {

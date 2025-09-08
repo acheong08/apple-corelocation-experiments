@@ -167,24 +167,10 @@ private func updateStatesAndLog(airplaneModeOverride: Bool? = nil) async throws 
             eventTypeName = newValue ? "AirplaneModeOn" : "AirplaneModeOff"
         case "PlugState":
             eventTypeName = newValue ? "PluggedIn" : "PluggedOut"
-        case "FirstPartyMap":
-            eventTypeName = newValue ? "FirstPartyMapOpen" : "FirstPartyMapClose"
-        case let key where key.hasPrefix("ThirdPartyMap"):
-            eventTypeName = newValue ? "ThirdPartyMapOpen" : "ThirdPartyMapClose"
         default:
             continue
         }
         
-        var data: [String: LogValue] = [:]
-        if stateKey.hasPrefix("ThirdPartyMap") {
-            let appName = String(stateKey.dropFirst("ThirdPartyMap_".count))
-            data["appName"] = .text(appName)
-        }
-        
-        try await dataManager.logEvent(
-            eventTypeName: eventTypeName,
-            data: data,
-            location: nil
-        )
+        try await dataManager.logEvent(eventTypeName: eventTypeName)
     }
 }
