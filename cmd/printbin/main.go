@@ -102,11 +102,20 @@ func isValidUTF8(data []byte) bool {
 	return true
 }
 
-func tryDecodeProtobuf(data []byte) {
+func tryDecodeProtobuf(data []byte, outputFile string) {
 	if result, err := decodeRawProtobuf(data); err == nil {
-		fmt.Println("=== Raw Protobuf Structure ===")
 		j, _ := json.MarshalIndent(result, "", "  ")
-		fmt.Println(string(j))
+
+		if outputFile != "" {
+			if err := os.WriteFile(outputFile, j, 0644); err != nil {
+				fmt.Printf("Failed to write JSON to file: %v\n", err)
+				return
+			}
+			fmt.Printf("JSON output written to: %s\n", outputFile)
+		} else {
+			fmt.Println("=== Raw Protobuf Structure ===")
+			fmt.Println(string(j))
+		}
 	} else {
 		fmt.Printf("Failed to decode as protobuf: %v\n", err)
 	}
@@ -114,10 +123,20 @@ func tryDecodeProtobuf(data []byte) {
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Usage: printbin <file>")
+		log.Fatal("Usage: printbin <file> [-hex] [-proto] [-o output.json]")
 	}
 
 	filePath := os.Args[1]
+	var outputFile string
+
+	// Parse -o flag for output file
+	for i, arg := range os.Args {
+		if arg == "-o" && i+1 < len(os.Args) {
+			outputFile = os.Args[i+1]
+			break
+		}
+	}
+
 	f, err := os.Open(filePath)
 	if err != nil {
 		panic(err)
@@ -133,7 +152,7 @@ func main() {
 	if err := arpcData.Deserialize(b); err != nil {
 		log.Printf("Failed to parse as ARPC: %v\n", err)
 		log.Println("Trying direct protobuf decode...")
-		tryDecodeProtobuf(b)
+		tryDecodeProtobuf(b, outputFile)
 		return
 	}
 
@@ -151,6 +170,6 @@ func main() {
 
 	if slices.Contains(os.Args, "-proto") {
 		fmt.Println("\n=== Payload Analysis ===")
-		tryDecodeProtobuf(arpcData.Payload)
+		tryDecodeProtobuf(arpcData.Payload, outputFile)
 	}
 }
