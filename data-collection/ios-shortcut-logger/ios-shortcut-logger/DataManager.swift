@@ -64,6 +64,38 @@ class DataManager: ObservableObject {
         }
         return content
     }
+    
+    func getAllLogs() -> [LogEntry] {
+        guard FileManager.default.fileExists(atPath: logFileURL.path),
+              let content = try? String(contentsOf: logFileURL, encoding: .utf8) else {
+            return []
+        }
+        
+        let lines = content.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        var logs: [LogEntry] = []
+        
+        for line in lines {
+            if let data = line.data(using: .utf8),
+               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let eventTypeName = json["eventTypeName"] as? String,
+               let timestampString = json["timestamp"] as? String,
+               let timestamp = ISO8601DateFormatter().date(from: timestampString) {
+                
+                let logEntry = LogEntry(eventTypeName: eventTypeName, timestamp: timestamp)
+                logs.append(logEntry)
+            }
+        }
+        
+        return logs.sorted { $0.timestamp > $1.timestamp }
+    }
+    
+    func clearLogs() throws {
+        recentLogs.removeAll()
+        
+        if FileManager.default.fileExists(atPath: logFileURL.path) {
+            try FileManager.default.removeItem(at: logFileURL)
+        }
+    }
 }
 
 enum LoggingError: Error {

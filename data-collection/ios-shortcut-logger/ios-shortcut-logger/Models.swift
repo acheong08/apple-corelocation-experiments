@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct LogEntry: Codable, Identifiable {
+struct LogEntry: Codable, Identifiable, Equatable {
     let eventTypeName: String
     let timestamp: Date
     
@@ -10,5 +10,10 @@ struct LogEntry: Codable, Identifiable {
     init(eventTypeName: String) {
         self.eventTypeName = eventTypeName
         self.timestamp = Date()
+    }
+    
+    init(eventTypeName: String, timestamp: Date) {
+        self.eventTypeName = eventTypeName
+        self.timestamp = timestamp
     }
 }

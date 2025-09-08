@@ -17,7 +17,7 @@ struct ContentView: View {
             RecentLogsView()
                 .tabItem {
                     Image(systemName: "clock")
-                    Text("Recent Logs")
+                    Text("All Logs")
                 }
                 .tag(1)
         }
@@ -79,6 +79,18 @@ struct SystemStateView: View {
                     .cornerRadius(10)
                 }
                 
+                Button(action: clearLogs) {
+                    HStack {
+                        Image(systemName: "trash")
+                        Text("Clear Logs")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.red)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+                
                 Spacer()
             }
             .padding()
@@ -110,18 +122,40 @@ struct SystemStateView: View {
         shareItems = [logContent]
         showingShareSheet = true
     }
+    
+    private func clearLogs() {
+        do {
+            try dataManager.clearLogs()
+        } catch {
+            print("Failed to clear logs: \(error)")
+        }
+    }
 }
 
 struct RecentLogsView: View {
     @EnvironmentObject var dataManager: DataManager
+    @State private var allLogs: [LogEntry] = []
     
     var body: some View {
         NavigationView {
-            List(dataManager.recentLogs) { logEntry in
+            List(allLogs) { logEntry in
                 LogEntryRow(logEntry: logEntry)
             }
-            .navigationTitle("Recent Logs")
+            .navigationTitle("All Logs")
+            .onAppear {
+                loadAllLogs()
+            }
+            .refreshable {
+                loadAllLogs()
+            }
+            .onChange(of: dataManager.recentLogs) {
+                loadAllLogs()
+            }
         }
+    }
+    
+    private func loadAllLogs() {
+        allLogs = dataManager.getAllLogs()
     }
 }
 
