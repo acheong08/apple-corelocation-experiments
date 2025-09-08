@@ -362,4 +362,142 @@ class LocationDelegate: NSObject, CLLocationManagerDelegate {
     }
 }
 
+// MARK: - App Shortcuts Provider
+
+struct AppShortcutsProvider: AppShortcutsProvider {
+    static var appShortcuts: [AppShortcut] {
+        AppShortcut(
+            intent: LogFirstPartyMapOpenIntent(),
+            phrases: [
+                "Log first party map open with \(.applicationName)",
+                "Track Apple Maps opening in \(.applicationName)",
+                "Record when Maps app opens using \(.applicationName)"
+            ],
+            shortTitle: "Log Map Open",
+            systemImageName: "map"
+        )
+        
+        AppShortcut(
+            intent: LogFirstPartyMapCloseIntent(),
+            phrases: [
+                "Log first party map close with \(.applicationName)",
+                "Track Apple Maps closing in \(.applicationName)",
+                "Record when Maps app closes using \(.applicationName)"
+            ],
+            shortTitle: "Log Map Close",
+            systemImageName: "map.fill"
+        )
+        
+        AppShortcut(
+            intent: LogThirdPartyMapOpenIntent(),
+            phrases: [
+                "Log third party map open with \(.applicationName)",
+                "Track third party map opening in \(.applicationName)",
+                "Record third party map app opening using \(.applicationName)"
+            ],
+            shortTitle: "Log 3rd Party Map Open",
+            systemImageName: "location"
+        )
+        
+        AppShortcut(
+            intent: LogThirdPartyMapCloseIntent(),
+            phrases: [
+                "Log third party map close with \(.applicationName)",
+                "Track third party map closing in \(.applicationName)",
+                "Record third party map app closing using \(.applicationName)"
+            ],
+            shortTitle: "Log 3rd Party Map Close",
+            systemImageName: "location.fill"
+        )
+        
+        AppShortcut(
+            intent: LogPluggedInIntent(),
+            phrases: [
+                "Log plugged in with \(.applicationName)",
+                "Track device charging in \(.applicationName)",
+                "Record when device is plugged in using \(.applicationName)"
+            ],
+            shortTitle: "Log Plugged In",
+            systemImageName: "battery.100.bolt"
+        )
+        
+        AppShortcut(
+            intent: LogPluggedOutIntent(),
+            phrases: [
+                "Log plugged out with \(.applicationName)",
+                "Track device unplugging in \(.applicationName)",
+                "Record when device is unplugged using \(.applicationName)"
+            ],
+            shortTitle: "Log Plugged Out",
+            systemImageName: "battery.100"
+        )
+        
+        AppShortcut(
+            intent: LogAlarmGoesOffIntent(),
+            phrases: [
+                "Log alarm goes off with \(.applicationName)",
+                "Track alarm activation in \(.applicationName)",
+                "Record when alarm sounds using \(.applicationName)"
+            ],
+            shortTitle: "Log Alarm",
+            systemImageName: "alarm"
+        )
+        
+        AppShortcut(
+            intent: LogAirplaneModeOnIntent(),
+            phrases: [
+                "Log airplane mode on with \(.applicationName)",
+                "Track airplane mode activation in \(.applicationName)",
+                "Record airplane mode turning on using \(.applicationName)"
+            ],
+            shortTitle: "Log Airplane On",
+            systemImageName: "airplane"
+        )
+        
+        AppShortcut(
+            intent: LogAirplaneModeOffIntent(),
+            phrases: [
+                "Log airplane mode off with \(.applicationName)",
+                "Track airplane mode deactivation in \(.applicationName)",
+                "Record airplane mode turning off using \(.applicationName)"
+            ],
+            shortTitle: "Log Airplane Off",
+            systemImageName: "airplane.departure"
+        )
+        
+        AppShortcut(
+            intent: LogAppOpenIntent(),
+            phrases: [
+                "Log app open with \(.applicationName)",
+                "Track app opening in \(.applicationName)",
+                "Record when app launches using \(.applicationName)"
+            ],
+            shortTitle: "Log App Open",
+            systemImageName: "apps.iphone"
+        )
+        
+        AppShortcut(
+            intent: LogAppCloseIntent(),
+            phrases: [
+                "Log app close with \(.applicationName)",
+                "Track app closing in \(.applicationName)",
+                "Record when app closes using \(.applicationName)"
+            ],
+            shortTitle: "Log App Close",
+            systemImageName: "apps.iphone.badge.minus"
+        )
+        
+        AppShortcut(
+            intent: LogTransactionMadeIntent(),
+            phrases: [
+                "Log transaction made with \(.applicationName)",
+                "Track payment in \(.applicationName)",
+                "Record transaction using \(.applicationName)"
+            ],
+            shortTitle: "Log Transaction",
+            systemImageName: "creditcard"
+        )
+    }
+}
+
 

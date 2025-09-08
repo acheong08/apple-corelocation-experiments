@@ -8,4 +8,8 @@ struct ios_shortcut_loggerApp: App {
             ContentView()
         }
     }
+    
+    init() {
+        AppDependencyManager.shared.add(dependency: AppShortcutsProvider())
+    }
 }
