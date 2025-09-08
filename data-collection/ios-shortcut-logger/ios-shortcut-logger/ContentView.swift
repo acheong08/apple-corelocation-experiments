@@ -44,10 +44,26 @@ struct SystemStateView: View {
     @State private var isUpdating = false
     @State private var showingShareSheet = false
     @State private var shareItems: [Any] = []
+    @State private var airplaneModeOn = false
+    @State private var showingAirplaneModeAlert = false
     
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Manual State Updates")
+                        .font(.headline)
+                    
+                    HStack {
+                        Text("Airplane Mode:")
+                        Spacer()
+                        Toggle("", isOn: $airplaneModeOn)
+                    }
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(8)
+                }
+                
                 Button(action: updateStates) {
                     HStack {
                         if isUpdating {
@@ -92,7 +108,7 @@ struct SystemStateView: View {
         isUpdating = true
         Task {
             do {
-                try await updateStatesAndLog()
+                try await updateStatesAndLog(airplaneModeOverride: airplaneModeOn)
                 await MainActor.run {
                     isUpdating = false
                 }
@@ -306,8 +322,8 @@ struct ActivityViewController: UIViewControllerRepresentable {
 
 // MARK: - Update States Function
 
-private func updateStatesAndLog() async throws {
-    let changes = await StateTracker.shared.updateSystemStates()
+private func updateStatesAndLog(airplaneModeOverride: Bool? = nil) async throws {
+    let changes = await StateTracker.shared.updateSystemStates(airplaneModeOverride: airplaneModeOverride)
     let dataManager = await DataManager.shared
     
     for (stateKey, _, newValue) in changes {

@@ -125,11 +125,28 @@ class DataManager: ObservableObject {
     
     func getAllLogFiles() -> [URL] {
         var logFiles: [URL] = []
+        let tempDirectory = FileManager.default.temporaryDirectory
         
         for outputLocation in outputLocations {
-            let fileURL = documentsDirectory.appendingPathComponent(outputLocation.filePath)
-            if FileManager.default.fileExists(atPath: fileURL.path) {
-                logFiles.append(fileURL)
+            let originalFileURL = documentsDirectory.appendingPathComponent(outputLocation.filePath)
+            
+            if FileManager.default.fileExists(atPath: originalFileURL.path) {
+                do {
+                    // Create a temporary copy with a safe filename
+                    let fileName = outputLocation.name.replacingOccurrences(of: " ", with: "_") + "_" + originalFileURL.lastPathComponent
+                    let tempFileURL = tempDirectory.appendingPathComponent(fileName)
+                    
+                    // Remove existing temp file if it exists
+                    if FileManager.default.fileExists(atPath: tempFileURL.path) {
+                        try FileManager.default.removeItem(at: tempFileURL)
+                    }
+                    
+                    // Copy to temp directory
+                    try FileManager.default.copyItem(at: originalFileURL, to: tempFileURL)
+                    logFiles.append(tempFileURL)
+                } catch {
+                    print("Error creating temp file for export: \(error)")
+                }
             }
         }
         

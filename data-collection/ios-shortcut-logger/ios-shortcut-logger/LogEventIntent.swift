@@ -1,18 +1,11 @@
 import AppIntents
 import CoreLocation
-import CoreTelephony
 import UIKit
 import Foundation
 
 // MARK: - System State Detection
 
 struct SystemStateDetector {
-    static func isAirplaneModeEnabled() -> Bool {
-        let networkInfo = CTTelephonyNetworkInfo()
-        let carrier = networkInfo.serviceSubscriberCellularProviders?.first?.value
-        return carrier?.carrierName == nil
-    }
-    
     static func isDevicePluggedIn() -> Bool {
         UIDevice.current.isBatteryMonitoringEnabled = true
         defer { UIDevice.current.isBatteryMonitoringEnabled = false }
@@ -46,15 +39,16 @@ actor StateTracker {
         states[key] = value
     }
     
-    func updateSystemStates() async -> [(String, Bool, Bool)] {
+    func updateSystemStates(airplaneModeOverride: Bool? = nil) async -> [(String, Bool, Bool)] {
         var changes: [(String, Bool, Bool)] = []
         
-        // Check airplane mode (detectable via telephony)
-        let currentAirplaneMode = SystemStateDetector.isAirplaneModeEnabled()
-        let recordedAirplaneMode = states["AirplaneMode"] ?? false
-        if currentAirplaneMode != recordedAirplaneMode {
-            states["AirplaneMode"] = currentAirplaneMode
-            changes.append(("AirplaneMode", recordedAirplaneMode, currentAirplaneMode))
+        // Handle airplane mode with manual override (no reliable detection available)
+        if let airplaneModeState = airplaneModeOverride {
+            let recordedAirplaneMode = states["AirplaneMode"] ?? false
+            if airplaneModeState != recordedAirplaneMode {
+                states["AirplaneMode"] = airplaneModeState
+                changes.append(("AirplaneMode", recordedAirplaneMode, airplaneModeState))
+            }
         }
         
         // Check plug state (detectable via battery state)
