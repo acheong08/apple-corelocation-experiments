@@ -129,50 +129,15 @@ struct LogEntryRow: View {
     let logEntry: LogEntry
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(logEntry.eventTypeName)
-                    .font(.headline)
-                Spacer()
-                Text(logEntry.timestamp, style: .time)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            if !logEntry.data.isEmpty {
-                ForEach(Array(logEntry.data.keys.sorted()), id: \.self) { key in
-                    if let value = logEntry.data[key] {
-                        HStack {
-                            Text(key + ":")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            Text(stringValue(for: value))
-                                .font(.caption)
-                        }
-                    }
-                }
-            }
-            
-            if logEntry.location != nil {
-                Text("📍 Location included")
-                    .font(.caption2)
-                    .foregroundColor(.blue)
-            }
+        HStack {
+            Text(logEntry.eventTypeName)
+                .font(.headline)
+            Spacer()
+            Text(logEntry.timestamp, style: .time)
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
         .padding(.vertical, 2)
-    }
-    
-    private func stringValue(for logValue: LogValue) -> String {
-        switch logValue {
-        case .text(let string):
-            return string
-        case .number(let double):
-            return String(double)
-        case .boolean(let bool):
-            return bool ? "true" : "false"
-        case .date(let date):
-            return DateFormatter.localizedString(from: date, dateStyle: .short, timeStyle: .short)
-        }
     }
 }
 

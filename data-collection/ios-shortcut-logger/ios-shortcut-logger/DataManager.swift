@@ -51,29 +51,10 @@ class DataManager: ObservableObject {
     }
     
     private func createJSONLEntry(from logEntry: LogEntry) throws -> Data {
-        var jsonObject: [String: Any] = [
-            "id": logEntry.id.uuidString,
+        let jsonObject: [String: Any] = [
             "eventTypeName": logEntry.eventTypeName,
             "timestamp": ISO8601DateFormatter().string(from: logEntry.timestamp)
         ]
-        
-        // Add data fields
-        var dataObject: [String: Any] = [:]
-        for (key, value) in logEntry.data {
-            dataObject[key] = value.toJSONValue()
-        }
-        jsonObject["data"] = dataObject
-        
-        // Add location if available
-        if let location = logEntry.location {
-            jsonObject["location"] = [
-                "latitude": location.latitude,
-                "longitude": location.longitude,
-                "altitude": location.altitude as Any,
-                "accuracy": location.accuracy,
-                "timestamp": ISO8601DateFormatter().string(from: location.timestamp)
-            ]
-        }
         
         return try JSONSerialization.data(withJSONObject: jsonObject)
     }
