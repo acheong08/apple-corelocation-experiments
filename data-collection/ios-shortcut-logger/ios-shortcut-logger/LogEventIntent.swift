@@ -364,7 +364,7 @@ class LocationDelegate: NSObject, CLLocationManagerDelegate {
 
 // MARK: - App Shortcuts Provider
 
-struct AppShortcutsProvider: AppShortcutsProvider {
+struct ShortcutsProvider: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: LogFirstPartyMapOpenIntent(),
@@ -463,28 +463,6 @@ struct AppShortcutsProvider: AppShortcutsProvider {
             ],
             shortTitle: "Log Airplane Off",
             systemImageName: "airplane.departure"
-        )
-        
-        AppShortcut(
-            intent: LogAppOpenIntent(),
-            phrases: [
-                "Log app open with \(.applicationName)",
-                "Track app opening in \(.applicationName)",
-                "Record when app launches using \(.applicationName)"
-            ],
-            shortTitle: "Log App Open",
-            systemImageName: "apps.iphone"
-        )
-        
-        AppShortcut(
-            intent: LogAppCloseIntent(),
-            phrases: [
-                "Log app close with \(.applicationName)",
-                "Track app closing in \(.applicationName)",
-                "Record when app closes using \(.applicationName)"
-            ],
-            shortTitle: "Log App Close",
-            systemImageName: "apps.iphone.badge.minus"
         )
         
         AppShortcut(

@@ -10,6 +10,6 @@ struct ios_shortcut_loggerApp: App {
     }
     
     init() {
-        AppDependencyManager.shared.add(dependency: AppShortcutsProvider())
+        AppDependencyManager.shared.add(dependency: ShortcutsProvider())
     }
 }
