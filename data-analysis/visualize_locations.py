@@ -19,40 +19,40 @@ def get_app_icon_url(bundle_id, cache_dir="icon_cache"):
     """
     if not bundle_id:
         return None
-    
+
     # Create cache directory if it doesn't exist
     os.makedirs(cache_dir, exist_ok=True)
     cache_file = os.path.join(cache_dir, f"{bundle_id.replace('/', '_')}.json")
-    
+
     # Check cache first
     if os.path.exists(cache_file):
         try:
-            with open(cache_file, 'r') as f:
+            with open(cache_file, "r") as f:
                 cached_data = json.load(f)
-                return cached_data.get('icon_url')
+                return cached_data.get("icon_url")
         except (json.JSONDecodeError, IOError):
             pass
-    
+
     # Fetch from iTunes API
     try:
         url = f"https://itunes.apple.com/lookup?bundleId={bundle_id}"
         response = requests.get(url, timeout=10)
         response.raise_for_status()
-        
+
         data = response.json()
-        if data.get('resultCount', 0) > 0:
-            result = data['results'][0]
-            icon_url = result.get('artworkUrl512')
-            
+        if data.get("resultCount", 0) > 0:
+            result = data["results"][0]
+            icon_url = result.get("artworkUrl512")
+
             # Cache the result
-            cache_data = {'bundle_id': bundle_id, 'icon_url': icon_url}
-            with open(cache_file, 'w') as f:
+            cache_data = {"bundle_id": bundle_id, "icon_url": icon_url}
+            with open(cache_file, "w") as f:
                 json.dump(cache_data, f)
-            
+
             return icon_url
     except (requests.RequestException, json.JSONDecodeError, KeyError):
         pass
-    
+
     return None
 
 
@@ -77,25 +77,25 @@ def create_map(locations):
     for i, loc in enumerate(locations):
         point_name = loc.get("app", f"Point {i + 1}")
         popup_text = f"{point_name}<br>Lat: {loc['lat']:.6f}<br>Lon: {loc['lon']:.6f}"
-        
+
         # Check if we have an app bundle ID to fetch icon
         app_bundle_id = loc.get("app")
         if app_bundle_id and "." in app_bundle_id:  # Bundle IDs contain dots
             # Try to get app icon
             icon_url = get_app_icon_url(app_bundle_id)
-            
+
             if icon_url:
                 # Use custom icon
                 custom_icon = folium.features.CustomIcon(
                     icon_image=icon_url,
-                    icon_size=(32, 32),
+                    icon_size=(21, 21),
                     icon_anchor=(16, 16),
-                    popup_anchor=(0, -16)
+                    popup_anchor=(0, -16),
                 )
                 folium.Marker(
                     location=[loc["lat"], loc["lon"]],
                     popup=popup_text,
-                    icon=custom_icon
+                    icon=custom_icon,
                 ).add_to(m)
             else:
                 # Fallback to circle marker if icon fetch fails
@@ -142,4 +142,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
