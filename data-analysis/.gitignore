@@ -1,2 +1,4 @@
 data
+*.json
+icon_cache
 venv
