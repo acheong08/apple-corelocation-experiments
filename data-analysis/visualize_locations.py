@@ -5,6 +5,7 @@ import statistics
 import argparse
 import requests
 import os
+import colorsys
 
 
 def load_locations(filename):
@@ -56,6 +57,26 @@ def get_app_icon_url(bundle_id, cache_dir="icon_cache"):
     return None
 
 
+def timestamp_to_color(ts, min_ts, max_ts):
+    """Convert timestamp to a color from blue (oldest) to red (newest)"""
+    if max_ts == min_ts:
+        return "#FF0000"  # Default to red if all timestamps are the same
+    
+    # Normalize timestamp to 0-1 range
+    normalized = (ts - min_ts) / (max_ts - min_ts)
+    
+    # Convert to HSV color space (hue from 240° blue to 0° red)
+    hue = (1 - normalized) * 240 / 360  # 240° = blue, 0° = red
+    saturation = 1.0
+    value = 1.0
+    
+    # Convert HSV to RGB
+    r, g, b = colorsys.hsv_to_rgb(hue, saturation, value)
+    
+    # Convert to hex color
+    return f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
+
+
 def create_map(locations):
     if not locations:
         print("No locations found!")
@@ -67,6 +88,11 @@ def create_map(locations):
 
     center_lat = statistics.mean(lats)
     center_lon = statistics.mean(lons)
+    
+    # Find min and max timestamps for color scaling
+    timestamps = [loc.get("ts", 0) for loc in locations]
+    min_ts = min(timestamps)
+    max_ts = max(timestamps)
 
     # Create the map centered on the data
     m = folium.Map(
@@ -76,7 +102,9 @@ def create_map(locations):
     # Add points to the map
     for i, loc in enumerate(locations):
         point_name = loc.get("app", f"Point {i + 1}")
-        popup_text = f"{point_name}<br>Lat: {loc['lat']:.6f}<br>Lon: {loc['lon']:.6f}"
+        ts = loc.get("ts", 0)
+        color = timestamp_to_color(ts, min_ts, max_ts)
+        popup_text = f"{point_name}<br>Lat: {loc['lat']:.6f}<br>Lon: {loc['lon']:.6f}<br>Timestamp: {ts}"
 
         # Check if we have an app bundle ID to fetch icon
         app_bundle_id = loc.get("app")
@@ -85,8 +113,8 @@ def create_map(locations):
             icon_url = get_app_icon_url(app_bundle_id)
 
             if icon_url:
-                # Use custom icon
-                custom_icon = folium.features.CustomIcon(
+                # Use custom icon with colored border
+                custom_icon = folium.CustomIcon(
                     icon_image=icon_url,
                     icon_size=(21, 21),
                     icon_anchor=(16, 16),
@@ -97,27 +125,39 @@ def create_map(locations):
                     popup=popup_text,
                     icon=custom_icon,
                 ).add_to(m)
-            else:
-                # Fallback to circle marker if icon fetch fails
+                
+                # Add a colored circle behind the icon to show timestamp progression
                 folium.CircleMarker(
                     location=[loc["lat"], loc["lon"]],
-                    radius=3,
+                    radius=8,
                     popup=popup_text,
-                    color="red",
+                    color=color,
                     fill=True,
-                    fillColor="red",
-                    fillOpacity=0.6,
+                    fillColor=color,
+                    fillOpacity=0.3,
+                    weight=2,
+                ).add_to(m)
+            else:
+                # Fallback to circle marker with timestamp color
+                folium.CircleMarker(
+                    location=[loc["lat"], loc["lon"]],
+                    radius=5,
+                    popup=popup_text,
+                    color=color,
+                    fill=True,
+                    fillColor=color,
+                    fillOpacity=0.8,
                 ).add_to(m)
         else:
-            # No app data, use regular circle marker
+            # No app data, use regular circle marker with timestamp color
             folium.CircleMarker(
                 location=[loc["lat"], loc["lon"]],
-                radius=3,
+                radius=5,
                 popup=popup_text,
-                color="red",
+                color=color,
                 fill=True,
-                fillColor="red",
-                fillOpacity=0.6,
+                fillColor=color,
+                fillOpacity=0.8,
             ).add_to(m)
 
     return m
