@@ -1,3 +1,3 @@
-[submodule "data-collection/data-collection/mitm/location-collector"]
-	path = data-collection/data-collection/mitm/location-collector
+[submodule "data-collection/mitm/location-collector"]
+	path = data-collection/mitm/location-collector
 	url = https://git.duti.dev/luddite.dev/LocationCollector
