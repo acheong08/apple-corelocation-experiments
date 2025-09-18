@@ -1,4 +1,5 @@
 map.html
+*.wiki
 .DS_Store
 cert.*
 bin
