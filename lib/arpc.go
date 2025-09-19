@@ -8,15 +8,22 @@ import (
 	"strconv"
 )
 
-func readPascalString(r io.Reader) (string, error) {
-	length := make([]byte, 2)
-	_, err := r.Read(length)
-	if err != nil {
+func readPascalString(r io.Reader, remaining *int64) (string, error) {
+	lengthBytes := make([]byte, 2)
+	if _, err := r.Read(lengthBytes); err != nil {
 		return "", err
 	}
-	str := make([]byte, binary.BigEndian.Uint16(length))
-	_, err = r.Read(str)
-	return string(str), err
+	*remaining -= 2
+	length := binary.BigEndian.Uint16(lengthBytes)
+	if int64(length) > *remaining {
+		return "", fmt.Errorf("pascal string length %d exceeds remaining buffer size %d", length, *remaining)
+	}
+	str := make([]byte, length)
+	if _, err := r.Read(str); err != nil {
+		return "", err
+	}
+	*remaining -= int64(length)
+	return string(str), nil
 }
 
 type ArpcRequest struct {
@@ -29,24 +36,25 @@ type ArpcRequest struct {
 }
 
 func (a *ArpcRequest) Deserialize(data []byte) error {
-	r := io.NewSectionReader(
-		bytes.NewReader(data), 0, int64(len(data)),
-	)
+	r := bytes.NewReader(data)
+	remaining := int64(len(data))
+
 	versionBytes := make([]byte, 2)
 	if _, err := r.Read(versionBytes); err != nil {
 		return err
 	}
+	remaining -= 2
 	version := binary.BigEndian.Uint16(versionBytes)
 
-	locale, err := readPascalString(r)
+	locale, err := readPascalString(r, &remaining)
 	if err != nil {
 		return err
 	}
-	appIdentifier, err := readPascalString(r)
+	appIdentifier, err := readPascalString(r, &remaining)
 	if err != nil {
 		return err
 	}
-	osVersion, err := readPascalString(r)
+	osVersion, err := readPascalString(r, &remaining)
 	if err != nil {
 		return err
 	}
@@ -54,14 +62,19 @@ func (a *ArpcRequest) Deserialize(data []byte) error {
 	if _, err := r.Read(unknownBytes); err != nil {
 		return err
 	}
+	remaining -= 4
 	unknown := int(binary.BigEndian.Uint32(unknownBytes))
 
 	payloadLenBytes := make([]byte, 4)
 	if _, err := r.Read(payloadLenBytes); err != nil {
 		return err
 	}
+	remaining -= 4
 	payloadLen := int(binary.BigEndian.Uint32(payloadLenBytes))
 
+	if int64(payloadLen) > remaining {
+		return fmt.Errorf("payload length %d exceeds remaining buffer size %d", payloadLen, remaining)
+	}
 	payload := make([]byte, payloadLen)
 	if _, err := r.Read(payload); err != nil {
 		return err
