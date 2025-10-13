@@ -5,6 +5,8 @@ How it works is explained in Apple's disclosure to congress: https://web.archive
 
 Feel free to poke around the code. Most relevant part is the [protobuf](./pb) and the stuff in [lib](./lib). Experimental CLIs found in [cmd](./cmd), the main ones being the demo api and `wloc`.
 
+> [**Wiki has more info**](https://github.com/acheong08/apple-corelocation-experiments/wiki/Work-timeline-and-code-organization)
+
 ## WLOC
 
 URL: https://gs-loc.apple.com/clls/wloc
