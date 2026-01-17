@@ -3,8 +3,8 @@ package lib
 import (
 	"bytes"
 	"errors"
+	"github.com/acheong08/apple-corelocation-experiments/pb"
 	"net/http"
-	"wloc/pb"
 )
 
 func RequestPbcWloc(p *pb.PbcWlocRequest) error {

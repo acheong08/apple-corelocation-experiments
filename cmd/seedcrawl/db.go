@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"sync"
-	"wloc/lib"
-	"wloc/lib/mac"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/lib/mac"
 
 	_ "modernc.org/sqlite"
 )

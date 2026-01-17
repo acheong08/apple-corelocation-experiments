@@ -1,4 +1,4 @@
-module wloc
+module github.com/acheong08/apple-corelocation-experiments
 
 go 1.22.3
 

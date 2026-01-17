@@ -6,8 +6,8 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"wloc/lib"
-	"wloc/pb"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/pb"
 
 	"github.com/labstack/echo/v4"
 	"google.golang.org/protobuf/proto"

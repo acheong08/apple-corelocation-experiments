@@ -2,12 +2,12 @@ package lib
 
 import (
 	"fmt"
+	"github.com/acheong08/apple-corelocation-experiments/lib/mac"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
+	"github.com/acheong08/apple-corelocation-experiments/lib/shapefiles"
+	"github.com/acheong08/apple-corelocation-experiments/pb"
 	"io"
 	"net/http"
-	"wloc/lib/mac"
-	"wloc/lib/morton"
-	"wloc/lib/shapefiles"
-	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
 )

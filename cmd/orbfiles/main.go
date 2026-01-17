@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
 	"log"
 	"os"
 	"slices"
-	"wloc/lib/morton"
 
 	shp "github.com/jonas-p/go-shp"
 	"github.com/paulmach/orb"

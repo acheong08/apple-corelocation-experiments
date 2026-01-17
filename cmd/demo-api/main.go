@@ -2,8 +2,8 @@ package main
 
 import (
 	_ "embed"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
 	"log"
-	"wloc/lib"
 
 	"github.com/a-h/templ"
 	"github.com/acheong08/clir"

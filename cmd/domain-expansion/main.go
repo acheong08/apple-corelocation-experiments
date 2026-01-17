@@ -12,9 +12,9 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"wloc/lib"
-	"wloc/lib/mac"
-	"wloc/lib/morton"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/lib/mac"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
 
 	"github.com/DataDog/zstd"
 	"github.com/tidwall/btree"

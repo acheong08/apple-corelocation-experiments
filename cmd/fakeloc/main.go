@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"wloc/lib"
-	"wloc/pb"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/pb"
 
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/geo"

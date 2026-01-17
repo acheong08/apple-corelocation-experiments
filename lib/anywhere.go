@@ -2,10 +2,10 @@ package lib
 
 import (
 	"errors"
+	"github.com/acheong08/apple-corelocation-experiments/lib/distance"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
+	"github.com/acheong08/apple-corelocation-experiments/lib/spiral"
 	"log"
-	"wloc/lib/distance"
-	"wloc/lib/morton"
-	"wloc/lib/spiral"
 )
 
 const ErrInvalidInput = "invalid input"

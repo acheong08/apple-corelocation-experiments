@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
 	"os"
 	"sync"
-	"wloc/lib/morton"
 )
 
 func main() {

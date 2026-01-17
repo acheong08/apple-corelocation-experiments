@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"wloc/lib/morton"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
 
 	_ "modernc.org/sqlite"
 )

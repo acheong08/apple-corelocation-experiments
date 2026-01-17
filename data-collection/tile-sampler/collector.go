@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"wloc/lib"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
 )
 
 type Collector struct {

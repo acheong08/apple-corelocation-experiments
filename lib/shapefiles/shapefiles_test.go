@@ -1,9 +1,9 @@
 package shapefiles_test
 
 import (
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
+	"github.com/acheong08/apple-corelocation-experiments/lib/shapefiles"
 	"testing"
-	"wloc/lib/morton"
-	"wloc/lib/shapefiles"
 )
 
 func TestFullWater(t *testing.T) {

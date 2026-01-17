@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 	"slices"
-	"wloc/lib"
-	"wloc/lib/multilateration"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/lib/multilateration"
 
 	"github.com/labstack/echo/v4"
 )

@@ -1,7 +1,7 @@
 package shapefiles
 
 import (
-	"wloc/lib/morton"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
 
 	"github.com/paulmach/orb"
 	"github.com/paulmach/orb/planar"

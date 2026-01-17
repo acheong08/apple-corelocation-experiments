@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"wloc/lib"
-	"wloc/pb"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/pb"
 
 	"github.com/gptlang/oui/ouidb"
 	"github.com/leaanthony/clir"

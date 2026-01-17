@@ -1,8 +1,8 @@
 package spiral_test
 
 import (
+	"github.com/acheong08/apple-corelocation-experiments/lib/spiral"
 	"testing"
-	"wloc/lib/spiral"
 )
 
 func TestSpiral(t *testing.T) {

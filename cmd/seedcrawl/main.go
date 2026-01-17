@@ -10,9 +10,9 @@ import (
 	"sync"
 	"syscall"
 	"time"
-	"wloc/lib"
-	"wloc/lib/morton"
-	"wloc/lib/shapefiles"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
+	"github.com/acheong08/apple-corelocation-experiments/lib/shapefiles"
 
 	"github.com/schollz/progressbar/v3"
 )

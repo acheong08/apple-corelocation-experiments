@@ -3,11 +3,11 @@ package lib
 import (
 	"bytes"
 	"errors"
+	"github.com/acheong08/apple-corelocation-experiments/pb"
 	"io"
 	"log"
 	"math"
 	"net/http"
-	"wloc/pb"
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"

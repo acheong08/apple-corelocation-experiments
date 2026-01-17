@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
+	"github.com/acheong08/apple-corelocation-experiments/lib/mac"
+	"github.com/acheong08/apple-corelocation-experiments/lib/morton"
 	"log"
-	"wloc/lib"
-	"wloc/lib/mac"
-	"wloc/lib/morton"
 
 	"github.com/leaanthony/clir"
 )

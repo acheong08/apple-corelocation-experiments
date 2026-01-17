@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"slices"
-	"wloc/lib"
+	"github.com/acheong08/apple-corelocation-experiments/lib"
 
 	"google.golang.org/protobuf/encoding/protowire"
 )

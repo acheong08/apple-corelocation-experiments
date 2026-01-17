@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
-	"wloc/lib/mac"
+	"github.com/acheong08/apple-corelocation-experiments/lib/mac"
 
 	"github.com/schollz/progressbar/v3"
 )
