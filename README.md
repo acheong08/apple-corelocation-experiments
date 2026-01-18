@@ -71,7 +71,7 @@ Source for water polygons [here](https://osmdata.openstreetmap.de/data/water-pol
 
 Once that data has been collected, we can begin using the wloc API to fetch and explore nearby sections. My code for that is incomplete but a friend was able to fetch around 1 billion records. His source code can be found here: https://codeberg.org/joelkoen/wtfps/.
 
-Seed data: https://tmp.duti.dev/seeds.db.zst
+Seed data: https://duti.dev/tmp/seeds.db.zst
 
 <img src="https://github.com/user-attachments/assets/8da21d51-a506-4c32-94b7-b3ae853d65ab" alt="Grafana plot of collected seeds" height=400></img>
 
